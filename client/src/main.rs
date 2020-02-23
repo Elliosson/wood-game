@@ -134,13 +134,7 @@ pub struct Data {
 fn draw_map(ctx: &mut Rltk, mut map: Vec<(Point, Renderable)>) {
     map.sort_by(|a, b| b.1.render_order.cmp(&a.1.render_order));
     for (pos, render) in map.iter() {
-        ctx.set(
-            pos.x,
-            pos.y,
-            RGB::named(rltk::WHITE),
-            RGB::named(rltk::BLACK),
-            render.glyph,
-        );
+        ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
     }
 }
 
