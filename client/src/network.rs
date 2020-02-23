@@ -176,11 +176,12 @@ pub fn handle_responce(
 
             // TODO for now the all map is received, try to just update what we need
             map.clear();
-            for window in infos.windows(10) {
+            for window in infos.chunks(10) {
                 let pos = Point {
                     x: window[0].parse().unwrap(),
                     y: window[1].parse().unwrap(),
                 };
+                console_log!("x {}, y{}", pos.x, pos.y);
                 let renderable = Renderable {
                     glyph: window[2].parse().unwrap(),
                     fg: RGB::named((
