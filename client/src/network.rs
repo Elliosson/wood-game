@@ -13,6 +13,8 @@ use wasm_bindgen::JsCast;
 use wasm_timer::{Delay, Instant, TryFutureExt};
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
 
+pub const ASK_DATA_INTERVAL: u32 = 100;
+
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
@@ -132,7 +134,7 @@ pub fn handle_responce(
                     //sendMessage(uid.clone(), "position".to_string(), cloned_ws.clone());
                     console_log!("ask map and positions");
                 }) as Box<FnMut()>);
-                let interval_id = setInterval(&cb, 500);
+                let interval_id = setInterval(&cb, ASK_DATA_INTERVAL);
                 cb.forget();
 
                 //set timeout
