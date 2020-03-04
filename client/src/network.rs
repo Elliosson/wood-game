@@ -131,8 +131,9 @@ pub fn handle_responce(
                 let cloned_ws = ws.clone();
                 let cb = Closure::wrap(Box::new(move || {
                     sendMessage(uid.clone(), "map".to_string(), cloned_ws.clone());
+                    sendMessage(uid.clone(), "player_info".to_string(), cloned_ws.clone());
                     //sendMessage(uid.clone(), "position".to_string(), cloned_ws.clone());
-                    console_log!("ask map and positions");
+                    console_log!("ask map and player_info");
                 }) as Box<FnMut()>);
                 let interval_id = setInterval(&cb, ASK_DATA_INTERVAL);
                 cb.forget();
@@ -169,6 +170,14 @@ pub fn handle_responce(
                 }
             }
         }
+        "player_info" => {
+            let mut data_guard = data.lock().unwrap();
+
+            let info: String = parts.collect::<String>();
+            console_log!("{}", info);
+
+            data_guard.info_string = info;
+        }
         "map" => {
             //the date should be received as (x, y, glyph, fg, bg, render_order)
             let mut data_guard = data.lock().unwrap();
@@ -183,7 +192,7 @@ pub fn handle_responce(
                     x: window[0].parse().unwrap(),
                     y: window[1].parse().unwrap(),
                 };
-                console_log!("x {}, y{}", pos.x, pos.y);
+                //console_log!("x {}, y{}", pos.x, pos.y);
                 let renderable = Renderable {
                     glyph: window[2].parse().unwrap(),
                     fg: RGB::named((
