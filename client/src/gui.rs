@@ -2,7 +2,6 @@ extern crate rltk;
 use rltk::{Console, Rltk, VirtualKeyCode, RGB};
 extern crate specs;
 use super::{CloseInteration, PlayerInfo};
-use specs::prelude::*;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum InteractionMenuResult {

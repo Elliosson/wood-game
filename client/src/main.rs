@@ -4,62 +4,23 @@ extern crate specs_derive;
 mod components;
 pub use components::*;
 mod network;
-use futures::executor::block_on;
+
 use std::sync::{Arc, Mutex};
-use std::thread;
-use std::time::Duration;
-use uuid::Uuid;
+
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use wasm_bindgen_futures::futures_0_3::spawn_local;
-use wasm_timer::Delay;
-use web_sys::{ErrorEvent, MessageEvent, WebSocket};
+
+use web_sys::WebSocket;
 extern crate specs;
 use specs::prelude::*;
 mod gui;
-use serde::Deserialize;
 
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
-//Special component for network, Do NOT serialize, it's could go badly
-#[derive(Component, Deserialize, Debug, Clone)]
-pub struct PlayerInfo {
-    pub inventaire: Vec<InventaireItem>,
-    pub close_interations: Vec<CloseInteration>,
-    pub my_info: MyInfo,
-}
-
-#[derive(Component, Deserialize, Debug, Clone)]
-pub struct MyInfo {
-    pub pos: Position,
-}
-
-#[derive(Component, Deserialize, Debug, Clone)]
-pub struct Position {
-    pub x: i32,
-    pub y: i32,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct InventaireItem {
-    pub name: String,
-    pub index: u32,
-    pub generation: i32,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct CloseInteration {
-    pub interaction_name: String,
-    pub object_name: String,
-    pub index: u32,
-    pub generation: i32,
-}
-
 #[wasm_bindgen]
 extern "C" {
-    fn setInterval(closure: &Closure<FnMut()>, time: u32) -> i32;
+    fn setInterval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
@@ -143,23 +104,27 @@ pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut 
         } // Nothing happened
         Some(key) => match key {
             VirtualKeyCode::Left => {
-                ws.send_with_str(&format!("{} {}", uid, "left"));
+                ws.send_with_str(&format!("{} {}", uid, "left"))
+                    .expect("Unable to send the message");
                 newrunstate = Runstate::BaseState;
                 rect.x -= 1
             }
 
             VirtualKeyCode::Right => {
-                ws.send_with_str(&format!("{} {}", uid, "right"));
+                ws.send_with_str(&format!("{} {}", uid, "right"))
+                    .expect("Unable to send the message");
                 newrunstate = Runstate::BaseState;
                 rect.x += 1
             }
             VirtualKeyCode::Up => {
-                ws.send_with_str(&format!("{} {}", uid, "up"));
+                ws.send_with_str(&format!("{} {}", uid, "up"))
+                    .expect("Unable to send the message");
                 newrunstate = Runstate::BaseState;
                 rect.y -= 1
             }
             VirtualKeyCode::Down => {
-                ws.send_with_str(&format!("{} {}", uid, "down"));
+                ws.send_with_str(&format!("{} {}", uid, "down"))
+                    .expect("Unable to send the message");
                 newrunstate = Runstate::BaseState;
                 rect.y += 1
             }
@@ -201,7 +166,8 @@ pub fn player_interaction(
                 interaction.interaction_name,
                 interaction.index,
                 interaction.generation
-            ));
+            ))
+            .expect("Unable to send the message");
 
             newrunstate = Runstate::BaseState;
         }
@@ -245,8 +211,6 @@ pub struct Renderable {
 }
 
 pub struct Data {
-    ball_x: i32,
-    ball_y: i32,
     characters: Vec<Point>,
     my_uid: String,
     map: Vec<(Point, Renderable)>,
@@ -262,8 +226,6 @@ fn draw_map(ctx: &mut Rltk, mut map: Vec<(Point, Renderable)>) {
 
 fn main() {
     let data = Data {
-        ball_x: 10,
-        ball_y: 10,
         characters: vec![],
         my_uid: "".to_string(),
         map: vec![],

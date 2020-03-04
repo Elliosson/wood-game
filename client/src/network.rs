@@ -1,16 +1,13 @@
 use super::Data;
 //use futures::prelude::*;
 use super::{Point, Renderable};
-use core::time::Duration;
-use futures::executor::block_on;
-use rltk::{Console, GameState, Rltk, VirtualKeyCode, RGB};
-use std::convert::TryInto;
+
+use rltk::RGB;
+
 use std::sync::{Arc, Mutex};
-use std::thread;
-use uuid::Uuid;
+
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use wasm_timer::{Delay, Instant, TryFutureExt};
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
 
 pub const ASK_DATA_INTERVAL: u32 = 100;
@@ -21,7 +18,7 @@ macro_rules! console_log {
 
 #[wasm_bindgen]
 extern "C" {
-    fn setInterval(closure: &Closure<FnMut()>, time: u32) -> i32;
+    fn setInterval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
@@ -80,26 +77,14 @@ pub fn start_websocket(data: Arc<Mutex<Data>>) -> Result<WebSocket, JsValue> {
     Ok(ws)
 }
 
-async fn ball_wait() {
-    Delay::new(Duration::from_millis(100)).await.unwrap();
-}
-
-pub struct Ball {
-    x: i32,
-    y: i32,
-    vx: i32,
-    vy: i32,
-}
 pub enum Message {
     Register,
-    Play(),
-    Config(),
-    Side(),
-    Points(),
-    Opponent(),
-    Ball(Ball),
-    Move(f32),
-    Exit(),
+    Play,
+    Config,
+    Position,
+    Map,
+    PlayerInfo,
+    Unknown,
 }
 
 pub fn handle_responce(
@@ -111,46 +96,41 @@ pub fn handle_responce(
 
     let command = parts.next()?;
 
-    match command {
+    let message = match command {
         "register" => {
             let mut data_guard = data.lock().unwrap();
             let id = parts.next()?.to_string();
             data_guard.my_uid = id.clone();
-            sendMessage(id, "play".to_string(), ws);
+            send_message(id, "play".to_string(), ws);
+
+            Message::Register
         }
         "play" => {
             console_log!("received play");
             if parts.next()? == "ok" {
                 console_log!("play is ok");
-                let mut data_guard = data.lock().unwrap();
+                let data_guard = data.lock().unwrap();
                 let uid = data_guard.my_uid.clone();
-                sendMessage(uid.clone(), "config".to_string(), ws.clone());
-                sendMessage(uid.clone(), "side".to_string(), ws.clone());
+                send_message(uid.clone(), "config".to_string(), ws.clone());
+                send_message(uid.clone(), "side".to_string(), ws.clone());
                 //start game
 
                 let cloned_ws = ws.clone();
                 let cb = Closure::wrap(Box::new(move || {
-                    sendMessage(uid.clone(), "map".to_string(), cloned_ws.clone());
-                    sendMessage(uid.clone(), "player_info".to_string(), cloned_ws.clone());
-                    //sendMessage(uid.clone(), "position".to_string(), cloned_ws.clone());
+                    send_message(uid.clone(), "map".to_string(), cloned_ws.clone());
+                    send_message(uid.clone(), "player_info".to_string(), cloned_ws.clone());
+                    //send_message(uid.clone(), "position".to_string(), cloned_ws.clone());
                     console_log!("ask map and player_info");
-                }) as Box<FnMut()>);
-                let interval_id = setInterval(&cb, ASK_DATA_INTERVAL);
+                }) as Box<dyn FnMut()>);
+                let _interval_id = setInterval(&cb, ASK_DATA_INTERVAL);
                 cb.forget();
-
                 //set timeout
             }
+            Message::Play
         }
         "config" => {
             //lot of stuff
-        }
-        "ball" => {
-            let mut data_guard = data.lock().unwrap();
-            let x: f32 = parts.next()?.parse().unwrap();
-            let y: f32 = parts.next()?.parse().unwrap();
-            console_log!("receive ball position");
-            data_guard.ball_x = x as i32;
-            data_guard.ball_y = y as i32;
+            Message::Config
         }
         "positions" => {
             //TODO create a filter to separate the vec in 2 vec and iterate the two at the same time
@@ -169,6 +149,7 @@ pub fn handle_responce(
                     });
                 }
             }
+            Message::Position
         }
         "player_info" => {
             let mut data_guard = data.lock().unwrap();
@@ -177,11 +158,12 @@ pub fn handle_responce(
             console_log!("{}", info);
 
             data_guard.info_string = info;
+            Message::PlayerInfo
         }
         "map" => {
             //the date should be received as (x, y, glyph, fg, bg, render_order)
             let mut data_guard = data.lock().unwrap();
-            let mut map = &mut data_guard.map;
+            let map = &mut data_guard.map;
 
             let infos: Vec<&str> = parts.collect();
 
@@ -210,13 +192,14 @@ pub fn handle_responce(
 
                 map.push((pos, renderable));
             }
+            Message::Map
         }
-        _ => {}
+        _ => Message::Unknown,
     };
-    return Some((Message::Exit(), "done".to_string()));
+    return Some((message, "done".to_string()));
 }
 
-pub fn sendMessage(uid: String, message: String, ws: web_sys::WebSocket) {
+pub fn send_message(uid: String, message: String, ws: web_sys::WebSocket) {
     match ws.send_with_str(&format!("{} {}", uid, message)) {
         Ok(_) => console_log!("message successfully sent"),
         Err(err) => console_log!("error sending message: {:?}", err),
