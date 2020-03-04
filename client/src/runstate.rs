@@ -74,6 +74,12 @@ pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut 
             VirtualKeyCode::B => {
                 newrunstate = Runstate::Build;
             }
+            //pickup
+            VirtualKeyCode::G => {
+                ws.send_with_str(&format!("{} {}", uid, "pickup"))
+                    .expect("Unable to send the message");
+                newrunstate = Runstate::BaseState;
+            }
 
             _ => {
                 newrunstate = Runstate::BaseState;
