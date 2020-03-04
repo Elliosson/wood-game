@@ -1,9 +1,11 @@
-use rltk::{Console, GameState, Rltk, VirtualKeyCode, RGB};
+use rltk::{Console, GameState, Rltk, RGB};
 #[macro_use]
 extern crate specs_derive;
 mod components;
 pub use components::*;
 mod network;
+mod runstate;
+use runstate::{player_input, Runstate};
 
 use std::sync::{Arc, Mutex};
 
@@ -23,14 +25,6 @@ extern "C" {
     fn setInterval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
-}
-
-#[derive(Debug, Clone)]
-pub enum Runstate {
-    BaseState,
-    Inventory,
-    Interaction,
-    Build,
 }
 
 struct State {
@@ -78,103 +72,6 @@ impl GameState for State {
     }
 }
 
-pub fn player_input(
-    uid: String,
-    ws: WebSocket,
-    ctx: &mut Rltk,
-    runstate: &Runstate,
-    rect: &mut Rect,
-    player_info: &PlayerInfo,
-) -> Runstate {
-    let newrunstate = match runstate {
-        Runstate::BaseState => player_base_state(uid, ws, ctx, rect),
-        Runstate::Interaction => player_interaction(uid, ctx, player_info, ws),
-        _ => Runstate::BaseState,
-    };
-    newrunstate
-}
-
-pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut Rect) -> Runstate {
-    // Player movement
-    let newrunstate;
-
-    match ctx.key {
-        None => {
-            newrunstate = Runstate::BaseState;
-        } // Nothing happened
-        Some(key) => match key {
-            VirtualKeyCode::Left => {
-                ws.send_with_str(&format!("{} {}", uid, "left"))
-                    .expect("Unable to send the message");
-                newrunstate = Runstate::BaseState;
-                rect.x -= 1
-            }
-
-            VirtualKeyCode::Right => {
-                ws.send_with_str(&format!("{} {}", uid, "right"))
-                    .expect("Unable to send the message");
-                newrunstate = Runstate::BaseState;
-                rect.x += 1
-            }
-            VirtualKeyCode::Up => {
-                ws.send_with_str(&format!("{} {}", uid, "up"))
-                    .expect("Unable to send the message");
-                newrunstate = Runstate::BaseState;
-                rect.y -= 1
-            }
-            VirtualKeyCode::Down => {
-                ws.send_with_str(&format!("{} {}", uid, "down"))
-                    .expect("Unable to send the message");
-                newrunstate = Runstate::BaseState;
-                rect.y += 1
-            }
-            VirtualKeyCode::F => {
-                newrunstate = Runstate::Interaction;
-            }
-
-            _ => {
-                newrunstate = Runstate::BaseState;
-            }
-        },
-    }
-    newrunstate
-}
-
-pub fn player_interaction(
-    uid: String,
-    ctx: &mut Rltk,
-    player_info: &PlayerInfo,
-    ws: WebSocket,
-) -> Runstate {
-    let mut newrunstate = Runstate::Interaction;
-
-    let result = gui::show_object_interaction_choice(ctx, player_info);
-    match result.0 {
-        gui::InteractionMenuResult::Cancel => newrunstate = Runstate::BaseState,
-        gui::InteractionMenuResult::NoResponse => {}
-        gui::InteractionMenuResult::Selected => {
-            let interaction_tuple = result.1.unwrap();
-            let (x, y, interaction) = interaction_tuple;
-
-            //send the response
-            ws.send_with_str(&format!(
-                "{} {} {} {} {} {} {}",
-                uid,
-                "interact",
-                x,
-                y,
-                interaction.interaction_name,
-                interaction.index,
-                interaction.generation
-            ))
-            .expect("Unable to send the message");
-
-            newrunstate = Runstate::BaseState;
-        }
-    }
-    newrunstate
-}
-
 pub struct Rect {
     pub width: i32,
     pub height: i32,
@@ -194,20 +91,6 @@ pub fn draw_rect(ctx: &mut Rltk, rect: &Rect) {
             );
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct Point {
-    x: i32,
-    y: i32,
-}
-
-#[derive(Debug, Clone)]
-pub struct Renderable {
-    pub glyph: u8,
-    pub fg: RGB,
-    pub bg: RGB,
-    pub render_order: i32,
 }
 
 pub struct Data {

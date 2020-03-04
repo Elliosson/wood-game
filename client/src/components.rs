@@ -1,3 +1,4 @@
+use rltk::RGB;
 use serde::Deserialize;
 use specs::prelude::*;
 
@@ -33,4 +34,18 @@ pub struct CloseInteration {
     pub object_name: String,
     pub index: u32,
     pub generation: i32,
+}
+
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+#[derive(Debug, Clone)]
+pub struct Renderable {
+    pub glyph: u8,
+    pub fg: RGB,
+    pub bg: RGB,
+    pub render_order: i32,
 }
