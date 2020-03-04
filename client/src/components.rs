@@ -8,6 +8,12 @@ pub struct PlayerInfo {
     pub inventaire: Vec<InventaireItem>,
     pub close_interations: Vec<CloseInteration>,
     pub my_info: MyInfo,
+    pub possible_builds: Vec<BuildingPlan>,
+}
+
+#[derive(Component, Deserialize, Debug, Clone)]
+pub struct BuildingPlan {
+    pub name: String,
 }
 
 #[derive(Component, Deserialize, Debug, Clone)]

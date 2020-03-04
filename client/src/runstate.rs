@@ -25,6 +25,7 @@ pub fn player_input(
         Runstate::BaseState => player_base_state(uid, ws, ctx, rect),
         Runstate::Inventory => player_inventory(uid, ctx, player_info, ws),
         Runstate::Interaction => player_interaction(uid, ctx, player_info, ws),
+        Runstate::Build => player_build(uid, ctx, player_info, ws),
         _ => Runstate::BaseState,
     };
     newrunstate
@@ -69,6 +70,9 @@ pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut 
             }
             VirtualKeyCode::I => {
                 newrunstate = Runstate::Inventory;
+            }
+            VirtualKeyCode::B => {
+                newrunstate = Runstate::Build;
             }
 
             _ => {
@@ -137,5 +141,33 @@ pub fn player_inventory(
         }
     }
 
+    newrunstate
+}
+
+pub fn player_build(
+    uid: String,
+    ctx: &mut Rltk,
+    player_info: &PlayerInfo,
+    ws: WebSocket,
+) -> Runstate {
+    let mut newrunstate = Runstate::Build;
+    let result = gui::show_building_choice(ctx, player_info);
+
+    match result.0 {
+        gui::BuildingMenuResult::Cancel => newrunstate = Runstate::BaseState,
+        gui::BuildingMenuResult::NoResponse => {}
+        gui::BuildingMenuResult::Selected => {
+            let interaction_tuple = result.1.unwrap();
+            let (x, y, building_name) = interaction_tuple;
+
+            ws.send_with_str(&format!(
+                "{} {} {} {} {}",
+                uid, "build", x, y, building_name,
+            ))
+            .expect("Unable to send the message");
+
+            newrunstate = Runstate::BaseState;
+        }
+    }
     newrunstate
 }

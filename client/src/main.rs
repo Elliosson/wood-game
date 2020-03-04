@@ -133,6 +133,7 @@ fn main() {
             my_info: MyInfo {
                 pos: Position { x: 0, y: 0 },
             },
+            possible_builds: Vec::new(),
         },
         runstate: Runstate::BaseState,
     };
