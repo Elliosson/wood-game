@@ -26,6 +26,7 @@ extern "C" {
 pub fn start_websocket(data: Arc<Mutex<Data>>) -> Result<WebSocket, JsValue> {
     // Connect to the game server
     let ws = WebSocket::new("ws://localhost:4321")?;
+    //let ws = WebSocket::new("ws://51.68.141.5:80")?;
 
     let cloned_ws = ws.clone();
 

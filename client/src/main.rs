@@ -48,7 +48,9 @@ impl GameState for State {
 
         ctx.cls();
 
-        draw_map(ctx, data_guard.map.clone());
+        draw_map(ctx, data_guard.map.clone(), &self.player_info.my_info.pos);
+
+        gui::draw_ui(ctx);
 
         let ws_clone = self.ws.clone().unwrap();
         self.runstate = player_input(
@@ -100,10 +102,17 @@ pub struct Data {
     info_string: String,
 }
 
-fn draw_map(ctx: &mut Rltk, mut map: Vec<(Point, Renderable)>) {
+fn draw_map(ctx: &mut Rltk, mut map: Vec<(Point, Renderable)>, my_pos: &Position) {
+    let center = 30;
     map.sort_by(|a, b| b.1.render_order.cmp(&a.1.render_order));
     for (pos, render) in map.iter() {
-        ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
+        ctx.set(
+            pos.x - my_pos.x + center,
+            pos.y - my_pos.y + center,
+            render.fg,
+            render.bg,
+            render.glyph,
+        );
     }
 }
 
@@ -115,8 +124,7 @@ fn main() {
         info_string: "".to_string(),
     };
     let protect_data: Arc<Mutex<Data>> = Arc::new(Mutex::new(data));
-    use rltk::RltkBuilder;
-    let context = RltkBuilder::simple80x50().with_title("game").build();
+    let context = Rltk::init_simple8x8(180 as u32, 90 as u32, "Ecosystem simulator", "resources");
     let mut gs = State {
         rectangle: Rect {
             height: 6,

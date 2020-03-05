@@ -299,3 +299,23 @@ pub fn show_building_choice(
         }
     }
 }
+
+pub fn draw_ui(ctx: &mut Rltk) {
+    let WINDOWHEIGHT = 100;
+    let WINDOWWIDTH = 100;
+
+    let buf = format!("Day {} of year {}", 0, 0);
+    ctx.print(153, 1, &buf.to_string());
+    let buf = format!("command:");
+    ctx.print(153, 2, &buf.to_string());
+    let buf = format!("i: inventory ");
+    ctx.print(153, 3, &buf.to_string());
+    let buf = format!("f: interaction ");
+    ctx.print(153, 4, &buf.to_string());
+
+    let buf = format!("g: get item ");
+    ctx.print(153, 5, &buf.to_string());
+
+    let buf = format!("b: build ");
+    ctx.print(153, 6, &buf.to_string());
+}

@@ -275,29 +275,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossbeam"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69323bff1fb41c635347b8ead484a5ca6c3f11914d784170b158d8449ab07f8e"
-dependencies = [
- "cfg-if",
- "crossbeam-channel",
- "crossbeam-deque",
- "crossbeam-epoch",
- "crossbeam-queue 0.2.1",
- "crossbeam-utils 0.7.0",
-]
-
-[[package]]
-name = "crossbeam-channel"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acec9a3b0b3559f15aee4f90746c4e5e293b701c0f7d3925d24e01645267b68c"
-dependencies = [
- "crossbeam-utils 0.7.0",
-]
-
-[[package]]
 name = "crossbeam-deque"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -617,9 +594,9 @@ dependencies = [
 
 [[package]]
 name = "glow"
-version = "0.4.0"
+version = "0.3.0-alpha4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31aed196700daf16e1241d819ff4a4855a78ee0cddb051948d50b9213deec82f"
+checksum = "e1a6a561d672c476b6a6fc49b0b3bc7b061bbfd3a6f103055ae4530abc04a41e"
 dependencies = [
  "gl_generator 0.13.1",
  "js-sys",
@@ -1070,17 +1047,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "object-pool"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af8d6b57bfd185264f6b81e1a6c65a4f2cf430bbf05454058f1ab5070d72cd69"
-dependencies = [
- "crossbeam",
- "parking_lot 0.9.0",
- "serde",
-]
-
-[[package]]
 name = "ordered-float"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1461,9 +1427,9 @@ checksum = "b28dfe3fe9badec5dbf0a79a9cccad2cfc2ab5484bdb3e44cbd1ae8b3ba2be06"
 
 [[package]]
 name = "rltk"
-version = "0.6.2"
+version = "0.5.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b464504783b01f117933538e4450bda6aeaba690789fd294c3137178fbf96fc"
+checksum = "ab5d596e5b1d4da4928b86588b543109914642c63fe5bf2ae9758fd703c86860"
 dependencies = [
  "byteorder",
  "flate2",
@@ -1472,7 +1438,6 @@ dependencies = [
  "glutin",
  "image",
  "lazy_static",
- "object-pool",
  "rand 0.7.3",
  "rand_xorshift 0.2.0",
  "regex",
