@@ -14,8 +14,7 @@ pub fn show_object_interaction_choice(
     ctx: &mut Rltk,
     player_info: &PlayerInfo,
 ) -> (InteractionMenuResult, Option<(i32, i32, CloseInteration)>) {
-    //TODO for know just 10 interactions
-    let count = 10;
+    let count = player_info.close_interations.len();
 
     //Draw the box to print the possible interaction
     let mut y = (25 - (count / 2)) as i32;
@@ -208,10 +207,11 @@ pub fn show_building_choice(
     ctx: &mut Rltk,
     player_info: &PlayerInfo,
 ) -> (BuildingMenuResult, Option<(i32, i32, String)>) {
-    //get storage
+    let mut possible_buildings: Vec<String> = Vec::new();
+    // get all building possible to build for this entity
+    let building_choice = &player_info.possible_builds;
 
-    //TODO for know just 10 buiding
-    let count = 10;
+    let count = building_choice.len();
 
     //Draw the box to print the possible interaction
     let mut y = (25 - (count / 2)) as i32;
@@ -239,10 +239,6 @@ pub fn show_building_choice(
     );
 
     let mut j = 0;
-    let mut possible_buildings: Vec<String> = Vec::new();
-
-    // get all building possible to build for this entity
-    let building_choice = &player_info.possible_builds;
 
     //get all possible interaction
     for building in building_choice.iter() {
@@ -304,18 +300,16 @@ pub fn draw_ui(ctx: &mut Rltk) {
     let WINDOWHEIGHT = 100;
     let WINDOWWIDTH = 100;
 
-    let buf = format!("Day {} of year {}", 0, 0);
-    ctx.print(153, 1, &buf.to_string());
-    let buf = format!("command:");
-    ctx.print(153, 2, &buf.to_string());
-    let buf = format!("i: inventory ");
-    ctx.print(153, 3, &buf.to_string());
-    let buf = format!("f: interaction ");
-    ctx.print(153, 4, &buf.to_string());
-
-    let buf = format!("g: get item ");
-    ctx.print(153, 5, &buf.to_string());
-
-    let buf = format!("b: build ");
-    ctx.print(153, 6, &buf.to_string());
+    let buf = format!("commands");
+    ctx.print(140, 1, &buf.to_string());
+    let buf = format!("move:        arrow keys ");
+    ctx.print(140, 2, &buf.to_string());
+    let buf = format!("inventory:   i ");
+    ctx.print(140, 3, &buf.to_string());
+    let buf = format!("interaction: f: ");
+    ctx.print(140, 4, &buf.to_string());
+    let buf = format!("get item:    g");
+    ctx.print(140, 5, &buf.to_string());
+    let buf = format!("build:       b");
+    ctx.print(140, 6, &buf.to_string());
 }
