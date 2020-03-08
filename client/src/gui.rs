@@ -297,9 +297,6 @@ pub fn show_building_choice(
 }
 
 pub fn draw_ui(ctx: &mut Rltk) {
-    let WINDOWHEIGHT = 100;
-    let WINDOWWIDTH = 100;
-
     let buf = format!("commands");
     ctx.print(140, 1, &buf.to_string());
     let buf = format!("move:        arrow keys ");
