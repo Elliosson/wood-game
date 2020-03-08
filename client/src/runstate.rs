@@ -26,7 +26,6 @@ pub fn player_input(
         Runstate::Inventory => player_inventory(uid, ctx, player_info, ws),
         Runstate::Interaction => player_interaction(uid, ctx, player_info, ws),
         Runstate::Build => player_build(uid, ctx, player_info, ws),
-        _ => Runstate::BaseState,
     };
     newrunstate
 }
@@ -77,6 +76,12 @@ pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut 
             //pickup
             VirtualKeyCode::G => {
                 ws.send_with_str(&format!("{} {}", uid, "pickup"))
+                    .expect("Unable to send the message");
+                newrunstate = Runstate::BaseState;
+            }
+            //destroy
+            VirtualKeyCode::Space => {
+                ws.send_with_str(&format!("{} {}", uid, "destroy"))
                     .expect("Unable to send the message");
                 newrunstate = Runstate::BaseState;
             }

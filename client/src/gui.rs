@@ -312,4 +312,6 @@ pub fn draw_ui(ctx: &mut Rltk) {
     ctx.print(140, 5, &buf.to_string());
     let buf = format!("build:       b");
     ctx.print(140, 6, &buf.to_string());
+    let buf = format!("destroy:     space");
+    ctx.print(140, 6, &buf.to_string());
 }
