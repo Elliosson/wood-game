@@ -7,6 +7,7 @@ use super::{components::*, gui, Rect};
 
 #[derive(Debug, Clone)]
 pub enum Runstate {
+    Register,
     BaseState,
     Inventory,
     Interaction,
@@ -20,8 +21,10 @@ pub fn player_input(
     runstate: &Runstate,
     rect: &mut Rect,
     player_info: &PlayerInfo,
+    pseudo: &mut String,
 ) -> Runstate {
     let newrunstate = match runstate {
+        Runstate::Register => choose_pseudo(ws, ctx, pseudo),
         Runstate::BaseState => player_base_state(uid, ws, ctx, rect),
         Runstate::Inventory => player_inventory(uid, ctx, player_info, ws),
         Runstate::Interaction => player_interaction(uid, ctx, player_info, ws),
@@ -179,6 +182,38 @@ pub fn player_build(
 
             newrunstate = Runstate::BaseState;
         }
+    }
+    newrunstate
+}
+
+fn choose_pseudo(ws: WebSocket, ctx: &mut Rltk, pseudo: &mut String) -> Runstate {
+    let mut newrunstate = Runstate::Register;
+
+    gui::show_pseudo(ctx, pseudo);
+
+    match ctx.key {
+        None => {} // Nothing happened
+        Some(key) => match key {
+            VirtualKeyCode::Back => {
+                pseudo.pop();
+            }
+            VirtualKeyCode::Return => {
+                ws.send_with_str(&format!("register {}", pseudo))
+                    .expect("Unable to send the message");
+                newrunstate = Runstate::BaseState;
+            }
+            VirtualKeyCode::Escape => {
+                pseudo.clear();
+            }
+            _ => {
+                let key_value = key as u32 + 55;
+                if key_value >= 65 && key_value <= 90 {
+                    let key_value = key_value as u8;
+                    let key_char = key_value as char;
+                    pseudo.push(key_char);
+                }
+            }
+        },
     }
     newrunstate
 }

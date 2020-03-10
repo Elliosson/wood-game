@@ -312,3 +312,21 @@ pub fn draw_ui(ctx: &mut Rltk) {
     let buf = format!("destroy:     space");
     ctx.print(140, 6, &buf.to_string());
 }
+
+pub fn show_pseudo(ctx: &mut Rltk, pseudo: &String) {
+    ctx.print_color(
+        75,
+        30,
+        RGB::named(rltk::YELLOW),
+        RGB::named(rltk::BLACK),
+        "Please enter your pseudo",
+    );
+
+    ctx.print_color(
+        75,
+        31,
+        RGB::named(rltk::YELLOW),
+        RGB::named(rltk::BLACK),
+        pseudo,
+    );
+}

@@ -5,6 +5,7 @@ mod components;
 pub use components::*;
 mod network;
 mod runstate;
+
 use runstate::{player_input, Runstate};
 
 use std::sync::{Arc, Mutex};
@@ -34,7 +35,9 @@ struct State {
     pub ws: Option<WebSocket>,
     pub runstate: Runstate,
     pub ecs: World,
+    pub pseudo: String,
 }
+
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         let data_guard = self.data.lock().unwrap();
@@ -60,6 +63,7 @@ impl GameState for State {
             &self.runstate,
             &mut self.rectangle,
             &self.player_info,
+            &mut self.pseudo,
         );
 
         for pos in data_guard.characters.iter() {
@@ -143,8 +147,10 @@ fn main() {
             },
             possible_builds: Vec::new(),
         },
-        runstate: Runstate::BaseState,
+        runstate: Runstate::Register,
+        pseudo: "".to_string(),
     };
+
     let ws = network::start_websocket(protect_data.clone());
     gs.ws = Some(ws.unwrap());
     rltk::main_loop(context, gs);
