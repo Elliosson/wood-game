@@ -3,6 +3,9 @@ use rltk::{Console, Rltk, VirtualKeyCode, RGB};
 extern crate specs;
 use super::{CloseInteration, InventaireItem, PlayerInfo};
 
+pub const WINDOWWIDTH: usize = 100;
+pub const WINDOWHEIGHT: usize = 80;
+
 #[derive(PartialEq, Copy, Clone)]
 pub enum InteractionMenuResult {
     Cancel,
@@ -296,21 +299,23 @@ pub fn show_building_choice(
     }
 }
 
-pub fn draw_ui(ctx: &mut Rltk) {
+pub fn draw_ui(ctx: &mut Rltk, player_info: &PlayerInfo) {
     let buf = format!("commands");
     ctx.print(140, 1, &buf.to_string());
-    let buf = format!("move:        arrow keys ");
+    let buf = format!("move:        arrow keys");
     ctx.print(140, 2, &buf.to_string());
-    let buf = format!("inventory:   i ");
+    let buf = format!("inventory:   i");
     ctx.print(140, 3, &buf.to_string());
-    let buf = format!("interaction: f: ");
+    let buf = format!("interaction: f");
     ctx.print(140, 4, &buf.to_string());
     let buf = format!("get item:    g");
     ctx.print(140, 5, &buf.to_string());
     let buf = format!("build:       b");
     ctx.print(140, 6, &buf.to_string());
     let buf = format!("destroy:     space");
-    ctx.print(140, 6, &buf.to_string());
+    ctx.print(140, 7, &buf.to_string());
+
+    bottom_gui(ctx, player_info);
 }
 
 pub fn show_pseudo(ctx: &mut Rltk, pseudo: &String) {
@@ -324,9 +329,32 @@ pub fn show_pseudo(ctx: &mut Rltk, pseudo: &String) {
 
     ctx.print_color(
         75,
-        31,
+        32,
         RGB::named(rltk::YELLOW),
         RGB::named(rltk::BLACK),
         pseudo,
+    );
+}
+
+pub fn bottom_gui(ctx: &mut Rltk, player_info: &PlayerInfo) {
+    let hp = player_info.my_info.hp;
+    let max_hp = player_info.my_info.max_hp;
+
+    let health = format!(" HP: {} / {} ", hp, max_hp);
+    ctx.print_color(
+        12,
+        WINDOWHEIGHT as i32 - 7,
+        RGB::named(rltk::YELLOW),
+        RGB::named(rltk::BLACK),
+        &health,
+    );
+    ctx.draw_bar_horizontal(
+        28,
+        WINDOWHEIGHT as i32 - 7,
+        WINDOWWIDTH as i32 + 1,
+        hp,
+        max_hp,
+        RGB::named(rltk::RED),
+        RGB::named(rltk::BLACK),
     );
 }

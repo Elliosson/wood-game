@@ -53,7 +53,7 @@ impl GameState for State {
 
         draw_map(ctx, data_guard.map.clone(), &self.player_info.my_info.pos);
 
-        gui::draw_ui(ctx);
+        gui::draw_ui(ctx, &self.player_info);
 
         let ws_clone = self.ws.clone().unwrap();
         self.runstate = player_input(
@@ -144,6 +144,8 @@ fn main() {
             close_interations: Vec::new(),
             my_info: MyInfo {
                 pos: Position { x: 0, y: 0 },
+                hp: 0,
+                max_hp: 0,
             },
             possible_builds: Vec::new(),
         },

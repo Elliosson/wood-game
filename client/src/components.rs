@@ -19,6 +19,8 @@ pub struct BuildingPlan {
 #[derive(Component, Deserialize, Debug, Clone)]
 pub struct MyInfo {
     pub pos: Position,
+    pub hp: i32,
+    pub max_hp: i32,
 }
 
 #[derive(Component, Deserialize, Debug, Clone)]
