@@ -316,6 +316,8 @@ pub fn draw_ui(ctx: &mut Rltk, player_info: &PlayerInfo) {
     ctx.print(140, 7, &buf.to_string());
 
     bottom_gui(ctx, player_info);
+    show_equipped(ctx, player_info);
+    show_charac(ctx, player_info);
 }
 
 pub fn show_pseudo(ctx: &mut Rltk, pseudo: &String) {
@@ -356,5 +358,73 @@ pub fn bottom_gui(ctx: &mut Rltk, player_info: &PlayerInfo) {
         max_hp,
         RGB::named(rltk::RED),
         RGB::named(rltk::BLACK),
+    );
+}
+
+//get all equipped
+pub fn show_equipped(ctx: &mut Rltk, player_info: &PlayerInfo) {
+    let x_pos = 150;
+    let width = 20;
+    let y_pos = 10;
+    let height = 20;
+    //get storage
+
+    //Draw the box to print the possible interaction
+    ctx.draw_box(
+        x_pos,
+        y_pos,
+        width,
+        height,
+        RGB::named(rltk::WHITE),
+        RGB::named(rltk::BLACK),
+    );
+    ctx.print_color(
+        x_pos + 3,
+        y_pos,
+        RGB::named(rltk::YELLOW),
+        RGB::named(rltk::BLACK),
+        "Equippement",
+    );
+
+    let mut y = y_pos + 1;
+
+    for equipment in &player_info.equipement {
+        ctx.print(x_pos + 4, y, &format!("{}", equipment.name));
+        y += 1;
+    }
+}
+
+//get all equipped
+pub fn show_charac(ctx: &mut Rltk, player_info: &PlayerInfo) {
+    let x_pos = 150;
+    let width = 20;
+    let y_pos = 30;
+    let height = 20;
+    //get storage
+
+    //Draw the box to print the possible interaction
+    ctx.draw_box(
+        x_pos,
+        y_pos,
+        width,
+        height,
+        RGB::named(rltk::WHITE),
+        RGB::named(rltk::BLACK),
+    );
+    ctx.print_color(
+        x_pos + 3,
+        y_pos,
+        RGB::named(rltk::YELLOW),
+        RGB::named(rltk::BLACK),
+        "Charac",
+    );
+
+    let cstat = &player_info.combat_stats;
+
+    ctx.print(x_pos + 1, y_pos + 2, &format!("attaque: {} ", cstat.att));
+    ctx.print(
+        x_pos + 1,
+        y_pos + 3,
+        &format!("defense: {} ", cstat.defense),
     );
 }

@@ -148,6 +148,8 @@ fn main() {
                 max_hp: 0,
             },
             possible_builds: Vec::new(),
+            equipement: Vec::new(),
+            combat_stats: Default::default(),
         },
         runstate: Runstate::Register,
         pseudo: "".to_string(),

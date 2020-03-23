@@ -9,6 +9,8 @@ pub struct PlayerInfo {
     pub close_interations: Vec<CloseInteration>,
     pub my_info: MyInfo,
     pub possible_builds: Vec<BuildingPlan>,
+    pub equipement: Vec<InventaireItem>, //handled the same way that an inventaire item
+    pub combat_stats: CombatStats,
 }
 
 #[derive(Component, Deserialize, Debug, Clone)]
@@ -56,4 +58,15 @@ pub struct Renderable {
     pub fg: RGB,
     pub bg: RGB,
     pub render_order: i32,
+}
+
+#[derive(Component, Debug, Deserialize, Clone, Default)]
+pub struct CombatStats {
+    pub max_hp: i32,
+    pub hp: i32,
+    pub defense: i32,
+    pub power: i32,
+    pub base_def: i32,
+    pub base_att: i32,
+    pub att: i32,
 }

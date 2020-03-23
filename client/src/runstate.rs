@@ -147,8 +147,8 @@ pub fn player_inventory(
             let item = result.1.unwrap();
 
             ws.send_with_str(&format!(
-                "{} {} {} {} {}",
-                uid, "want_use", item.name, item.index, item.generation
+                "{} {} {} {}",
+                uid, "consume", item.index, item.generation
             ))
             .expect("Unable to send the message");
             newrunstate = Runstate::BaseState;
