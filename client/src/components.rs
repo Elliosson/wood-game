@@ -23,6 +23,7 @@ pub struct MyInfo {
     pub pos: Position,
     pub hp: i32,
     pub max_hp: i32,
+    pub player_log: Vec<String>,
 }
 
 #[derive(Component, Deserialize, Debug, Clone)]

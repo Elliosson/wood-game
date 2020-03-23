@@ -318,6 +318,7 @@ pub fn draw_ui(ctx: &mut Rltk, player_info: &PlayerInfo) {
     bottom_gui(ctx, player_info);
     show_equipped(ctx, player_info);
     show_charac(ctx, player_info);
+    show_logs(ctx, player_info);
 }
 
 pub fn show_pseudo(ctx: &mut Rltk, pseudo: &String) {
@@ -427,4 +428,37 @@ pub fn show_charac(ctx: &mut Rltk, player_info: &PlayerInfo) {
         y_pos + 3,
         &format!("defense: {} ", cstat.defense),
     );
+}
+
+//get all equipped
+pub fn show_logs(ctx: &mut Rltk, player_info: &PlayerInfo) {
+    let x_pos = 0;
+    let width = WINDOWWIDTH as i32;
+    let y_pos = WINDOWHEIGHT as i32 - 6;
+    let height = 5;
+    //get storage
+
+    //Draw the box to print the possible interaction
+    ctx.draw_box(
+        x_pos,
+        y_pos,
+        width,
+        height,
+        RGB::named(rltk::WHITE),
+        RGB::named(rltk::BLACK),
+    );
+    ctx.print_color(
+        x_pos + 3,
+        y_pos,
+        RGB::named(rltk::YELLOW),
+        RGB::named(rltk::BLACK),
+        "Log",
+    );
+
+    let mut y = y_pos + 1;
+
+    for log in player_info.my_info.player_log.iter().take(height as usize) {
+        ctx.print(x_pos + 4, y, &format!("{}", log));
+        y += 1;
+    }
 }

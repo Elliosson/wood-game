@@ -146,6 +146,7 @@ fn main() {
                 pos: Position { x: 0, y: 0 },
                 hp: 0,
                 max_hp: 0,
+                player_log: vec![],
             },
             possible_builds: Vec::new(),
             equipement: Vec::new(),
