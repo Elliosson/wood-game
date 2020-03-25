@@ -107,16 +107,15 @@ pub struct Data {
 }
 
 fn draw_map(ctx: &mut Rltk, mut map: Vec<(Point, Renderable)>, my_pos: &Position) {
-    let center = 30;
+    let center_x = 30;
+    let center_y = 30;
     map.sort_by(|a, b| b.1.render_order.cmp(&a.1.render_order));
     for (pos, render) in map.iter() {
-        ctx.set(
-            pos.x - my_pos.x + center,
-            pos.y - my_pos.y + center,
-            render.fg,
-            render.bg,
-            render.glyph,
-        );
+        let x = pos.x - my_pos.x + center_x;
+        let y = pos.y - my_pos.y + center_y;
+        if gui::inside_windows(x, y) {
+            ctx.set(x, y, render.fg, render.bg, render.glyph);
+        }
     }
 }
 

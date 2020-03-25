@@ -2,9 +2,18 @@ extern crate rltk;
 use rltk::{Console, Rltk, VirtualKeyCode, RGB};
 extern crate specs;
 use super::{CloseInteration, InventaireItem, PlayerInfo};
+pub use std::cmp;
 
 pub const WINDOWWIDTH: usize = 100;
 pub const WINDOWHEIGHT: usize = 80;
+
+pub fn inside_windows(x: i32, y: i32) -> bool {
+    let mut ret = true;
+    if x < 0 || x >= WINDOWWIDTH as i32 || y < 0 || y >= WINDOWHEIGHT as i32 {
+        ret = false;
+    }
+    return ret;
+}
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum InteractionMenuResult {
@@ -355,7 +364,7 @@ pub fn bottom_gui(ctx: &mut Rltk, player_info: &PlayerInfo) {
         28,
         WINDOWHEIGHT as i32 - 7,
         WINDOWWIDTH as i32 + 1,
-        hp,
+        cmp::max(0, hp),
         max_hp,
         RGB::named(rltk::RED),
         RGB::named(rltk::BLACK),
