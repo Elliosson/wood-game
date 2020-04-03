@@ -1,3 +1,4 @@
+#[cfg(target_arch = "wasm32")]
 use super::Data;
 //use futures::prelude::*;
 use super::{Point, Renderable};
@@ -10,6 +11,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
 
+#[allow(dead_code)]
 pub const ASK_DATA_INTERVAL: u32 = 100;
 
 macro_rules! console_log {
@@ -23,6 +25,7 @@ extern "C" {
     fn log(s: &str);
 }
 
+#[cfg(target_arch = "wasm32")]
 pub fn start_websocket(
     data: Arc<Mutex<Data>>,
     to_send: Arc<Mutex<Vec<String>>>,
@@ -84,6 +87,7 @@ pub fn start_websocket(
     Ok(ws)
 }
 
+#[cfg(target_arch = "wasm32")]
 pub enum Message {
     Register,
     Play,
@@ -94,6 +98,7 @@ pub enum Message {
     Unknown,
 }
 
+#[cfg(target_arch = "wasm32")]
 pub fn handle_responce(
     msg: String,
     ws: web_sys::WebSocket,
@@ -206,6 +211,7 @@ pub fn handle_responce(
     return Some((message, "done".to_string()));
 }
 
+#[cfg(target_arch = "wasm32")]
 pub fn send_message(uid: String, message: String, ws: web_sys::WebSocket) {
     match ws.send_with_str(&format!("{} {}", uid, message)) {
         Ok(_) => console_log!("message successfully sent"),

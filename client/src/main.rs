@@ -3,28 +3,43 @@ use rltk::{Console, GameState, Rltk, RGB};
 extern crate specs_derive;
 mod components;
 pub use components::*;
+#[cfg(target_arch = "wasm32")]
 mod network;
+
 mod runstate;
 
 use runstate::{player_input, Runstate};
 
 use std::sync::{Arc, Mutex};
 
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
 extern crate specs;
 use specs::prelude::*;
 mod gui;
 
+#[cfg(target_arch = "wasm32")]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 extern "C" {
-    fn setInterval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
+
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn consol_print(mes: String) {
+    console_log!("{}", mes);
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn consol_print(mes: String) {
+    println!("{}", mes);
 }
 
 struct State {
@@ -44,7 +59,7 @@ impl GameState for State {
         match serde_json::from_str(&data_guard.info_string) {
             Ok(info) => self.player_info = info,
             Err(_) => {
-                console_log!("unable to deserialize json");
+                consol_print("unable to deserialize json".to_string());
             }
         }
 
@@ -154,9 +169,15 @@ fn main() {
         pseudo: "".to_string(),
     };
 
-    //if wasm
-    network::start_websocket(protect_data.clone(), to_send.clone())
-        .expect("Unable to start websocket");
+    lauch_network(protect_data.clone(), to_send.clone());
 
     rltk::main_loop(context, gs);
 }
+
+#[cfg(target_arch = "wasm32")]
+fn lauch_network(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
+    network::start_websocket(protect_data, to_send).expect("Unable to start websocket");
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn lauch_network(_protect_data: Arc<Mutex<Data>>, _to_send: Arc<Mutex<Vec<String>>>) {}
