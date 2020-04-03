@@ -23,10 +23,27 @@ extern "C" {
     fn log(s: &str);
 }
 
-pub fn start_websocket(data: Arc<Mutex<Data>>) -> Result<WebSocket, JsValue> {
+pub fn start_websocket(
+    data: Arc<Mutex<Data>>,
+    to_send: Arc<Mutex<Vec<String>>>,
+) -> Result<WebSocket, JsValue> {
     // Connect to the game server
     let ws = WebSocket::new("ws://localhost:4321")?;
     //let ws = WebSocket::new("ws://51.68.141.5:4321")?;
+
+    let cloned_ws = ws.clone();
+    //send message to the serveer
+    let cb = Closure::wrap(Box::new(move || {
+        let mut to_send_guard = to_send.lock().unwrap();
+
+        for message in to_send_guard.drain(..) {
+            cloned_ws
+                .send_with_str(&message)
+                .expect("Unable to send message");
+        }
+    }) as Box<dyn FnMut()>);
+    let _interval_id = setInterval(&cb, ASK_DATA_INTERVAL);
+    cb.forget();
 
     let cloned_ws = ws.clone();
 
@@ -63,18 +80,7 @@ pub fn start_websocket(data: Arc<Mutex<Data>>) -> Result<WebSocket, JsValue> {
     }) as Box<dyn FnMut(JsValue)>);
     ws.set_onopen(Some(onopen_callback.as_ref().unchecked_ref()));
     onopen_callback.forget();
-    /*
-        std::thread::sleep(Duration::from_millis(500));
-        console_log!("be wait");
-        block_on(ball_wait());
-    */
 
-    /* loop {
-        //sendMessage("ball".to_string(), ws.clone());
-        //let id = "c70da2eb-1213-4815-afbe-5f0d3d0c0ed3";
-        //ws.send_with_str(&format!("{} {}", id, "ball"));
-        //wasm_timer::sleep(Duration::from_millis(500));
-    }*/
     Ok(ws)
 }
 
@@ -117,10 +123,10 @@ pub fn handle_responce(
                 //start game
 
                 let cloned_ws = ws.clone();
+                // this closure will regulary send request to the server
                 let cb = Closure::wrap(Box::new(move || {
                     send_message(uid.clone(), "map".to_string(), cloned_ws.clone());
                     send_message(uid.clone(), "player_info".to_string(), cloned_ws.clone());
-                    //send_message(uid.clone(), "position".to_string(), cloned_ws.clone());
                     console_log!("ask map and player_info");
                 }) as Box<dyn FnMut()>);
                 let _interval_id = setInterval(&cb, ASK_DATA_INTERVAL);

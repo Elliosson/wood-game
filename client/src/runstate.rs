@@ -1,7 +1,7 @@
 use rltk::{Rltk, VirtualKeyCode};
 
-use web_sys::WebSocket;
 extern crate specs;
+use std::sync::{Arc, Mutex};
 
 use super::{components::*, gui, Rect};
 
@@ -16,24 +16,30 @@ pub enum Runstate {
 
 pub fn player_input(
     uid: String,
-    ws: WebSocket,
+    to_send: Arc<Mutex<Vec<String>>>,
     ctx: &mut Rltk,
     runstate: &Runstate,
     rect: &mut Rect,
     player_info: &PlayerInfo,
     pseudo: &mut String,
 ) -> Runstate {
+    let mut to_send_guard = to_send.lock().unwrap();
     let newrunstate = match runstate {
-        Runstate::Register => choose_pseudo(ws, ctx, pseudo),
-        Runstate::BaseState => player_base_state(uid, ws, ctx, rect),
-        Runstate::Inventory => player_inventory(uid, ctx, player_info, ws),
-        Runstate::Interaction => player_interaction(uid, ctx, player_info, ws),
-        Runstate::Build => player_build(uid, ctx, player_info, ws),
+        Runstate::Register => choose_pseudo(ctx, pseudo, &mut to_send_guard),
+        Runstate::BaseState => player_base_state(uid, ctx, rect, &mut to_send_guard),
+        Runstate::Inventory => player_inventory(uid, ctx, player_info, &mut to_send_guard),
+        Runstate::Interaction => player_interaction(uid, ctx, player_info, &mut to_send_guard),
+        Runstate::Build => player_build(uid, ctx, player_info, &mut to_send_guard),
     };
     newrunstate
 }
 
-pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut Rect) -> Runstate {
+pub fn player_base_state(
+    uid: String,
+    ctx: &mut Rltk,
+    rect: &mut Rect,
+    to_send: &mut Vec<String>,
+) -> Runstate {
     // Player movement
     let newrunstate;
 
@@ -43,27 +49,23 @@ pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut 
         } // Nothing happened
         Some(key) => match key {
             VirtualKeyCode::Left => {
-                ws.send_with_str(&format!("{} {}", uid, "left"))
-                    .expect("Unable to send the message");
+                to_send.push(format!("{} {}", uid, "left"));
                 newrunstate = Runstate::BaseState;
                 rect.x -= 1
             }
 
             VirtualKeyCode::Right => {
-                ws.send_with_str(&format!("{} {}", uid, "right"))
-                    .expect("Unable to send the message");
+                to_send.push(format!("{} {}", uid, "right"));
                 newrunstate = Runstate::BaseState;
                 rect.x += 1
             }
             VirtualKeyCode::Up => {
-                ws.send_with_str(&format!("{} {}", uid, "up"))
-                    .expect("Unable to send the message");
+                to_send.push(format!("{} {}", uid, "up"));
                 newrunstate = Runstate::BaseState;
                 rect.y -= 1
             }
             VirtualKeyCode::Down => {
-                ws.send_with_str(&format!("{} {}", uid, "down"))
-                    .expect("Unable to send the message");
+                to_send.push(format!("{} {}", uid, "down"));
                 newrunstate = Runstate::BaseState;
                 rect.y += 1
             }
@@ -78,14 +80,12 @@ pub fn player_base_state(uid: String, ws: WebSocket, ctx: &mut Rltk, rect: &mut 
             }
             //pickup
             VirtualKeyCode::G => {
-                ws.send_with_str(&format!("{} {}", uid, "pickup"))
-                    .expect("Unable to send the message");
+                to_send.push(format!("{} {}", uid, "pickup"));
                 newrunstate = Runstate::BaseState;
             }
             //destroy
             VirtualKeyCode::Space => {
-                ws.send_with_str(&format!("{} {}", uid, "destroy"))
-                    .expect("Unable to send the message");
+                to_send.push(format!("{} {}", uid, "destroy"));
                 newrunstate = Runstate::BaseState;
             }
 
@@ -101,7 +101,7 @@ pub fn player_interaction(
     uid: String,
     ctx: &mut Rltk,
     player_info: &PlayerInfo,
-    ws: WebSocket,
+    to_send: &mut Vec<String>,
 ) -> Runstate {
     let mut newrunstate = Runstate::Interaction;
 
@@ -114,7 +114,7 @@ pub fn player_interaction(
             let (x, y, interaction) = interaction_tuple;
 
             //send the response
-            ws.send_with_str(&format!(
+            to_send.push(format!(
                 "{} {} {} {} {} {} {}",
                 uid,
                 "interact",
@@ -123,8 +123,7 @@ pub fn player_interaction(
                 interaction.interaction_name,
                 interaction.index,
                 interaction.generation
-            ))
-            .expect("Unable to send the message");
+            ));
 
             newrunstate = Runstate::BaseState;
         }
@@ -136,7 +135,7 @@ pub fn player_inventory(
     uid: String,
     ctx: &mut Rltk,
     player_info: &PlayerInfo,
-    ws: WebSocket,
+    to_send: &mut Vec<String>,
 ) -> Runstate {
     let mut newrunstate = Runstate::Inventory;
     let result = gui::show_inventory(ctx, player_info);
@@ -146,11 +145,10 @@ pub fn player_inventory(
         gui::ItemMenuResult::Selected => {
             let item = result.1.unwrap();
 
-            ws.send_with_str(&format!(
+            to_send.push(format!(
                 "{} {} {} {}",
                 uid, "consume", item.index, item.generation
-            ))
-            .expect("Unable to send the message");
+            ));
             newrunstate = Runstate::BaseState;
         }
     }
@@ -162,7 +160,7 @@ pub fn player_build(
     uid: String,
     ctx: &mut Rltk,
     player_info: &PlayerInfo,
-    ws: WebSocket,
+    to_send: &mut Vec<String>,
 ) -> Runstate {
     let mut newrunstate = Runstate::Build;
     let result = gui::show_building_choice(ctx, player_info);
@@ -174,11 +172,7 @@ pub fn player_build(
             let interaction_tuple = result.1.unwrap();
             let (x, y, building_name) = interaction_tuple;
 
-            ws.send_with_str(&format!(
-                "{} {} {} {} {}",
-                uid, "build", x, y, building_name,
-            ))
-            .expect("Unable to send the message");
+            to_send.push(format!("{} {} {} {} {}", uid, "build", x, y, building_name,));
 
             newrunstate = Runstate::BaseState;
         }
@@ -186,7 +180,7 @@ pub fn player_build(
     newrunstate
 }
 
-fn choose_pseudo(ws: WebSocket, ctx: &mut Rltk, pseudo: &mut String) -> Runstate {
+fn choose_pseudo(ctx: &mut Rltk, pseudo: &mut String, to_send: &mut Vec<String>) -> Runstate {
     let mut newrunstate = Runstate::Register;
 
     gui::show_pseudo(ctx, pseudo);
@@ -198,8 +192,8 @@ fn choose_pseudo(ws: WebSocket, ctx: &mut Rltk, pseudo: &mut String) -> Runstate
                 pseudo.pop();
             }
             VirtualKeyCode::Return => {
-                ws.send_with_str(&format!("register {}", pseudo))
-                    .expect("Unable to send the message");
+                to_send.push(format!("register {}", pseudo));
+
                 newrunstate = Runstate::BaseState;
             }
             VirtualKeyCode::Escape => {

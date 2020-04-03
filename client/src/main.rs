@@ -12,7 +12,6 @@ use std::sync::{Arc, Mutex};
 
 use wasm_bindgen::prelude::*;
 
-use web_sys::WebSocket;
 extern crate specs;
 use specs::prelude::*;
 mod gui;
@@ -31,8 +30,8 @@ extern "C" {
 struct State {
     pub rectangle: Rect,
     pub data: Arc<Mutex<Data>>,
+    pub to_send: Arc<Mutex<Vec<String>>>,
     pub player_info: PlayerInfo,
-    pub ws: Option<WebSocket>,
     pub runstate: Runstate,
     pub ecs: World,
     pub pseudo: String,
@@ -55,10 +54,9 @@ impl GameState for State {
 
         gui::draw_ui(ctx, &self.player_info);
 
-        let ws_clone = self.ws.clone().unwrap();
         self.runstate = player_input(
             data_guard.my_uid.clone(),
-            ws_clone,
+            self.to_send.clone(),
             ctx,
             &self.runstate,
             &mut self.rectangle,
@@ -127,8 +125,9 @@ fn main() {
         info_string: "".to_string(),
     };
     let protect_data: Arc<Mutex<Data>> = Arc::new(Mutex::new(data));
+    let to_send: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     let context = Rltk::init_simple8x8(180 as u32, 90 as u32, "Ecosystem simulator", "resources");
-    let mut gs = State {
+    let gs = State {
         rectangle: Rect {
             height: 6,
             width: 2,
@@ -136,7 +135,7 @@ fn main() {
             y: 5,
         },
         data: protect_data.clone(),
-        ws: None,
+        to_send: to_send.clone(),
         ecs: World::new(),
         player_info: PlayerInfo {
             inventaire: Vec::new(),
@@ -155,7 +154,9 @@ fn main() {
         pseudo: "".to_string(),
     };
 
-    let ws = network::start_websocket(protect_data.clone());
-    gs.ws = Some(ws.unwrap());
+    //if wasm
+    network::start_websocket(protect_data.clone(), to_send.clone())
+        .expect("Unable to start websocket");
+
     rltk::main_loop(context, gs);
 }
