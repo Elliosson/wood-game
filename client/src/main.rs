@@ -6,6 +6,9 @@ pub use components::*;
 #[cfg(target_arch = "wasm32")]
 mod network;
 
+#[cfg(not(target_arch = "wasm32"))]
+mod desktop_network;
+
 mod runstate;
 
 use runstate::{player_input, Runstate};
@@ -170,7 +173,6 @@ fn main() {
     };
 
     lauch_network(protect_data.clone(), to_send.clone());
-
     rltk::main_loop(context, gs);
 }
 
@@ -180,4 +182,6 @@ fn lauch_network(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn lauch_network(_protect_data: Arc<Mutex<Data>>, _to_send: Arc<Mutex<Vec<String>>>) {}
+fn lauch_network(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
+    desktop_network::start_websocket(protect_data, to_send);
+}
