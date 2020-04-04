@@ -3,8 +3,9 @@ use rltk::{Console, GameState, Rltk, RGB};
 extern crate specs_derive;
 mod components;
 pub use components::*;
+mod general_network;
 #[cfg(target_arch = "wasm32")]
-mod network;
+mod wasm_network;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod desktop_network;
@@ -178,7 +179,7 @@ fn main() {
 
 #[cfg(target_arch = "wasm32")]
 fn lauch_network(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
-    network::start_websocket(protect_data, to_send).expect("Unable to start websocket");
+    wasm_network::start_websocket(protect_data, to_send).expect("Unable to start websocket");
 }
 
 #[cfg(not(target_arch = "wasm32"))]
