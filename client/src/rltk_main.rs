@@ -4,6 +4,7 @@ pub use super::{
     components::*,
     gui,
     runstate::{player_input, Runstate},
+    Data, Rect,
 };
 
 use std::sync::{Arc, Mutex};
@@ -84,34 +85,6 @@ impl GameState for State {
             );
         }
     }
-}
-
-pub struct Rect {
-    pub width: i32,
-    pub height: i32,
-    pub x: i32,
-    pub y: i32,
-}
-
-pub fn draw_rect(ctx: &mut Rltk, rect: &Rect) {
-    for x in rect.x..rect.width + rect.x {
-        for y in rect.y..rect.height + rect.y {
-            ctx.set(
-                x,
-                y,
-                RGB::named(rltk::WHITE),
-                RGB::named(rltk::BLACK),
-                rltk::to_cp437('#'),
-            );
-        }
-    }
-}
-
-pub struct Data {
-    pub characters: Vec<Point>,
-    pub my_uid: String,
-    pub map: Vec<(Point, Renderable)>,
-    pub info_string: String,
 }
 
 fn draw_map(ctx: &mut Rltk, mut map: Vec<(Point, Renderable)>, my_pos: &Position) {
