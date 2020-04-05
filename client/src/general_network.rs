@@ -89,25 +89,25 @@ where
 
             // TODO for now the all map is received, try to just update what we need
             map.clear();
-            for window in infos.chunks(10) {
+            for window in infos.chunks(12) {
                 let pos = Point {
-                    x: window[0].parse().unwrap(),
-                    y: window[1].parse().unwrap(),
+                    x: window[2].parse().unwrap(),
+                    y: window[3].parse().unwrap(),
                 };
                 //console_log!("x {}, y{}", pos.x, pos.y);
                 let renderable = Renderable {
-                    glyph: window[2].parse().unwrap(),
+                    glyph: window[4].parse().unwrap(),
                     fg: RGB::named((
-                        window[3].parse().unwrap(),
-                        window[4].parse().unwrap(),
                         window[5].parse().unwrap(),
-                    )),
-                    bg: RGB::named((
                         window[6].parse().unwrap(),
                         window[7].parse().unwrap(),
-                        window[8].parse().unwrap(),
                     )),
-                    render_order: window[9].parse().unwrap(),
+                    bg: RGB::named((
+                        window[8].parse().unwrap(),
+                        window[9].parse().unwrap(),
+                        window[10].parse().unwrap(),
+                    )),
+                    render_order: window[11].parse().unwrap(),
                 };
 
                 map.push((pos, renderable));
