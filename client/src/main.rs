@@ -25,6 +25,11 @@ pub mod gui;
 
 mod rltk_main;
 
+mod bundle;
+mod game;
+mod systems;
+use crate::bundle::GameBundle;
+
 #[cfg(target_arch = "wasm32")]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
@@ -104,6 +109,11 @@ pub fn rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     rltk::main_loop(context, gs);
 }
 
+pub struct Ball {
+    pub velocity: [f32; 2],
+    pub radius: f32,
+}
+
 pub fn amethyst_init(
     protect_data: Arc<Mutex<Data>>,
     to_send: Arc<Mutex<Vec<String>>>,
@@ -124,11 +134,12 @@ pub fn amethyst_init(
                         .with_clear([0.34, 0.36, 0.52, 1.0]),
                 )
                 .with_plugin(RenderFlat2D::default()),
-        )?;
+        )?
+        .with_bundle(GameBundle)?;
 
     //ici on poura lancer le stat avec la map, penser a faire le buddle aussi, le bundle va initialiser les ressource
 
-    let mut game = Application::new(resources, state::MyState, game_data)?;
+    let mut game = Application::new(resources, game::MyGame, game_data)?;
     game.run();
 
     Ok(())
