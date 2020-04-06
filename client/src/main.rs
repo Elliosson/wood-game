@@ -28,7 +28,7 @@ mod rltk_main;
 mod bundle;
 mod game;
 mod systems;
-use crate::bundle::GameBundle;
+use crate::bundle::{GameBundle, NetworkBundle};
 
 #[cfg(target_arch = "wasm32")]
 macro_rules! console_log {
@@ -114,6 +114,10 @@ pub struct Ball {
     pub radius: f32,
 }
 
+impl Component for Ball {
+    type Storage = DenseVecStorage<Self>;
+}
+
 pub fn amethyst_init(
     protect_data: Arc<Mutex<Data>>,
     to_send: Arc<Mutex<Vec<String>>>,
@@ -135,7 +139,11 @@ pub fn amethyst_init(
                 )
                 .with_plugin(RenderFlat2D::default()),
         )?
-        .with_bundle(GameBundle)?;
+        .with_bundle(GameBundle)?
+        .with_bundle(NetworkBundle {
+            protect_data,
+            to_send,
+        })?;
 
     //ici on poura lancer le stat avec la map, penser a faire le buddle aussi, le bundle va initialiser les ressource
 
