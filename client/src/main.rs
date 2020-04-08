@@ -41,7 +41,7 @@ use amethyst::{
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
         types::DefaultBackend,
-        RenderingBundle,
+        Camera, RenderingBundle,
     },
     utils::application_root_dir,
 };
@@ -51,7 +51,7 @@ mod state;
 pub struct Data {
     pub characters: Vec<Point>,
     pub my_uid: String,
-    pub map: Vec<(Point, Renderable)>,
+    pub map: Vec<(u32, i32, Point, Renderable)>,
     pub info_string: String,
 }
 
@@ -118,6 +118,15 @@ impl Component for Ball {
     type Storage = DenseVecStorage<Self>;
 }
 
+pub struct InMap {
+    pub velocity: [f32; 2],
+    pub radius: f32,
+}
+
+impl Component for InMap {
+    type Storage = DenseVecStorage<Self>;
+}
+
 pub fn amethyst_init(
     protect_data: Arc<Mutex<Data>>,
     to_send: Arc<Mutex<Vec<String>>>,
@@ -144,7 +153,6 @@ pub fn amethyst_init(
             protect_data,
             to_send,
         })?;
-
     //ici on poura lancer le stat avec la map, penser a faire le buddle aussi, le bundle va initialiser les ressource
 
     let mut game = Application::new(resources, game::MyGame, game_data)?;

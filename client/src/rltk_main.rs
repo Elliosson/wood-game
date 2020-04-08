@@ -61,7 +61,7 @@ impl GameState for State {
 
         ctx.cls();
 
-        draw_map(ctx, data_guard.map.clone(), &self.player_info.my_info.pos);
+        //draw_map(ctx, data_guard.map.clone(), &self.player_info.my_info.pos);
 
         gui::draw_ui(ctx, &self.player_info);
 

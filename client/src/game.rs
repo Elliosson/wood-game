@@ -63,7 +63,7 @@ fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
     // Center the camera in the middle of the screen, and let it cover
     // the entire screen
     let mut transform = Transform::default();
-    transform.set_translation_xyz(dimensions.width() * 0.5, dimensions.height() * 0.5, 1.);
+    transform.set_translation_xyz(500., 500., 1.);
 
     world
         .create_entity()
@@ -112,10 +112,13 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
 }
 
 fn init_sprites(world: &mut World, sprites: &[SpriteRender], dimensions: &ScreenDimensions) {
+    //store the sprites
+    world.insert(sprites.to_vec());
+
     for (i, sprite) in sprites.iter().enumerate() {
         // Center our sprites around the center of the window
-        let x = (i as f32 - 1.) * 100. + dimensions.width() * 0.5;
-        let y = (i as f32 - 1.) * 100. + dimensions.height() * 0.5;
+        let x = 500.;
+        let y = 500.;
         let mut transform = Transform::default();
         transform.set_translation_xyz(x, y, 0.);
 
@@ -123,10 +126,10 @@ fn init_sprites(world: &mut World, sprites: &[SpriteRender], dimensions: &Screen
         // well as the transform. If you want to add behaviour to your sprites,
         // you'll want to add a custom `Component` that will identify them, and a
         // `System` that will iterate over them. See https://book.amethyst.rs/stable/concepts/system.html
-        world
-            .create_entity()
-            .with(transform)
-            .with(sprite.clone())
-            .build();
+        /* world
+        .create_entity()
+        .with(transform)
+        .with(sprite.clone())
+        .build();*/
     }
 }

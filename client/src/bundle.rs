@@ -2,9 +2,10 @@ use super::Data;
 use crate::systems::{CameraSystem, MapSystem};
 use amethyst::{
     core::bundle::SystemBundle,
-    ecs::prelude::{DispatcherBuilder, World},
+    ecs::prelude::{DispatcherBuilder, Entity, World},
     error::Error,
 };
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 /// A bundle is a convenient way to initialise related resources, components and systems in a
@@ -14,11 +15,14 @@ pub struct GameBundle;
 impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
     fn build(
         self,
-        _world: &mut World,
+        world: &mut World,
         builder: &mut DispatcherBuilder<'a, 'b>,
     ) -> Result<(), Error> {
         builder.add(CameraSystem, "camera_system", &[]);
         builder.add(MapSystem, "map_system", &[]);
+
+        // hashmap used to do the link between network entity and game entity
+        world.insert(HashMap::<(u32, i32), Entity>::new());
         Ok(())
     }
 }

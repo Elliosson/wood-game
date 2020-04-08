@@ -90,6 +90,8 @@ where
             // TODO for now the all map is received, try to just update what we need
             map.clear();
             for window in infos.chunks(12) {
+                let id: u32 = window[0].parse().unwrap();
+                let gen: i32 = window[1].parse().unwrap();
                 let pos = Point {
                     x: window[2].parse().unwrap(),
                     y: window[3].parse().unwrap(),
@@ -110,7 +112,7 @@ where
                     render_order: window[11].parse().unwrap(),
                 };
 
-                map.push((pos, renderable));
+                map.push((id, gen, pos, renderable));
             }
             Message::Map
         }
