@@ -5,13 +5,13 @@
 
 (
     axes: {
-        "left_paddle": Emulated(
+        "y_axe": Emulated(
             pos: Key(W),
             neg: Key(S),
         ),
-        "right_paddle": Emulated(
-            pos: Key(Up),
-            neg: Key(Down),
+        "x_axe": Emulated(
+            pos: Key(D),
+            neg: Key(A),
         ),
     },
     actions: {

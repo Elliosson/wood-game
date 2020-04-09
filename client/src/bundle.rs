@@ -1,10 +1,11 @@
-use super::Data;
-use crate::systems::{CameraSystem, InputSystem, MapSystem};
+use super::{components::*, Data};
+use crate::systems::{CameraSystem, DeserialiseSystem, InputSystem, MapSystem};
 use amethyst::{
     core::bundle::SystemBundle,
     ecs::prelude::{DispatcherBuilder, Entity, World},
     error::Error,
 };
+
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -21,6 +22,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
         builder.add(CameraSystem, "camera_system", &[]);
         builder.add(MapSystem, "map_system", &[]);
         builder.add(InputSystem, "input2_system", &[]);
+        builder.add(DeserialiseSystem, "deserialise_system", &[]);
 
         // hashmap used to do the link between network entity and game entity
         world.insert(HashMap::<(u32, i32), Entity>::new());
@@ -41,6 +43,19 @@ impl<'a, 'b> SystemBundle<'a, 'b> for NetworkBundle {
     ) -> Result<(), Error> {
         world.insert(self.protect_data.clone());
         world.insert(self.to_send.clone());
+        world.insert(PlayerInfo {
+            inventaire: Vec::new(),
+            close_interations: Vec::new(),
+            my_info: MyInfo {
+                pos: Position { x: 0, y: 0 },
+                hp: 0,
+                max_hp: 0,
+                player_log: vec![],
+            },
+            possible_builds: Vec::new(),
+            equipement: Vec::new(),
+            combat_stats: Default::default(),
+        });
 
         //for noew send speudo here
         let mut send_guard = self.to_send.lock().unwrap();

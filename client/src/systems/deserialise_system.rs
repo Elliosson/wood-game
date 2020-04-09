@@ -1,0 +1,37 @@
+// ici on va lire les donne du network sur notre position et centrer le tou en consequant
+
+use amethyst::{
+    core::{timing::Time, transform::Transform},
+    derive::SystemDesc,
+    ecs::prelude::{
+        Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteExpect, WriteStorage,
+    },
+    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+};
+
+use crate::{Data, PlayerInfo};
+use std::sync::{Arc, Mutex};
+
+/// This system is responsible for moving all balls according to their speed
+/// and the time passed.
+
+pub struct DeserialiseSystem;
+
+impl<'s> System<'s> for DeserialiseSystem {
+    type SystemData = (
+        ReadExpect<'s, Arc<Mutex<Data>>>,
+        WriteExpect<'s, PlayerInfo>,
+    );
+
+    fn run(&mut self, (data, mut player_info): Self::SystemData) {
+        let data_guard = data.lock().unwrap();
+
+        match serde_json::from_str(&data_guard.info_string) {
+            Ok(info) => {
+                let temp: PlayerInfo = info;
+                player_info.my_info = temp.my_info;
+            }
+            Err(_) => println!("unable to deserialize json"),
+        }
+    }
+}

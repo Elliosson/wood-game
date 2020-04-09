@@ -40,13 +40,25 @@ impl<'s> System<'s> for InputSystem {
         // Iterate over all planks and move them according to the input the user
         // provided.
 
-        let opt_movement = input.axis_value("left_paddle");
+        let opt_movement = input.axis_value("y_axe");
 
         if let Some(movement) = opt_movement {
             if movement < 0. {
                 to_send_guard.push(format!("{} {}", data_guard.my_uid, "down"));
             } else if movement > 0. {
                 to_send_guard.push(format!("{} {}", data_guard.my_uid, "up"));
+            }
+            println!("{}", movement);
+            //todo send move message to server
+        }
+
+        let opt_movement = input.axis_value("x_axe");
+
+        if let Some(movement) = opt_movement {
+            if movement < 0. {
+                to_send_guard.push(format!("{} {}", data_guard.my_uid, "left"));
+            } else if movement > 0. {
+                to_send_guard.push(format!("{} {}", data_guard.my_uid, "right"));
             }
             println!("{}", movement);
             //todo send move message to server
