@@ -73,7 +73,7 @@ impl<'s> System<'s> for MapSystem {
                 println!("know entity");
 
                 let trans = transforms.get_mut(entity).unwrap();
-                trans.set_translation_xyz(500., 500., 0.);
+                trans.set_translation_xyz(501., 501., 0.);
 
             /*let mut transform = Transform::default();
             transform.set_translation_xyz(500., 500., 0.);

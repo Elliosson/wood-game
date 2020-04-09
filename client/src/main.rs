@@ -37,6 +37,7 @@ macro_rules! console_log {
 
 use amethyst::{
     core::transform::TransformBundle,
+    input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -127,11 +128,23 @@ impl Component for InMap {
     type Storage = DenseVecStorage<Self>;
 }
 
+pub struct Uuid {
+    pub string: String,
+}
+
+impl Component for Uuid {
+    type Storage = DenseVecStorage<Self>;
+}
+
 pub fn amethyst_init(
     protect_data: Arc<Mutex<Data>>,
     to_send: Arc<Mutex<Vec<String>>>,
 ) -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
+
+    let app_root = application_root_dir()?;
+
+    let key_bindings_path = app_root.join("resources/input.ron");
 
     let app_root = application_root_dir()?;
 
@@ -152,7 +165,10 @@ pub fn amethyst_init(
         .with_bundle(NetworkBundle {
             protect_data,
             to_send,
-        })?;
+        })?
+        .with_bundle(
+            InputBundle::<StringBindings>::new().with_bindings_from_file(key_bindings_path)?,
+        )?;
     //ici on poura lancer le stat avec la map, penser a faire le buddle aussi, le bundle va initialiser les ressource
 
     let mut game = Application::new(resources, game::MyGame, game_data)?;

@@ -1,5 +1,5 @@
 use super::Data;
-use crate::systems::{CameraSystem, MapSystem};
+use crate::systems::{CameraSystem, InputSystem, MapSystem};
 use amethyst::{
     core::bundle::SystemBundle,
     ecs::prelude::{DispatcherBuilder, Entity, World},
@@ -20,6 +20,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for GameBundle {
     ) -> Result<(), Error> {
         builder.add(CameraSystem, "camera_system", &[]);
         builder.add(MapSystem, "map_system", &[]);
+        builder.add(InputSystem, "input2_system", &[]);
 
         // hashmap used to do the link between network entity and game entity
         world.insert(HashMap::<(u32, i32), Entity>::new());
