@@ -3,7 +3,8 @@ use rltk::{Rltk, VirtualKeyCode};
 extern crate specs;
 use std::sync::{Arc, Mutex};
 
-use super::{components::*, gui, Rect};
+use super::gui;
+use crate::{components::*, Rect};
 
 #[derive(Debug, Clone)]
 pub enum Runstate {

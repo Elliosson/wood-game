@@ -29,8 +29,6 @@ impl SimpleState for MyGame {
         // Load our sprites and display them
         let sprites = load_sprites(world);
         init_sprites(world, &sprites, &dimensions);
-
-        //init les shared ressources
     }
 
     fn handle_event(
@@ -111,25 +109,7 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
         .collect()
 }
 
-fn init_sprites(world: &mut World, sprites: &[SpriteRender], dimensions: &ScreenDimensions) {
+fn init_sprites(world: &mut World, sprites: &[SpriteRender], _dimensions: &ScreenDimensions) {
     //store the sprites
     world.insert(sprites.to_vec());
-
-    for (i, sprite) in sprites.iter().enumerate() {
-        // Center our sprites around the center of the window
-        let x = 500.;
-        let y = 500.;
-        let mut transform = Transform::default();
-        transform.set_translation_xyz(x, y, 0.);
-
-        // Create an entity for each sprite and attach the `SpriteRender` as
-        // well as the transform. If you want to add behaviour to your sprites,
-        // you'll want to add a custom `Component` that will identify them, and a
-        // `System` that will iterate over them. See https://book.amethyst.rs/stable/concepts/system.html
-        /* world
-        .create_entity()
-        .with(transform)
-        .with(sprite.clone())
-        .build();*/
-    }
 }

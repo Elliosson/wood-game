@@ -39,7 +39,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for NetworkBundle {
     fn build(
         self,
         world: &mut World,
-        builder: &mut DispatcherBuilder<'a, 'b>,
+        _builder: &mut DispatcherBuilder<'a, 'b>,
     ) -> Result<(), Error> {
         world.insert(self.protect_data.clone());
         world.insert(self.to_send.clone());

@@ -5,7 +5,7 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
 use super::general_network;
-use super::Data;
+use crate::Data;
 
 use std::sync::{Arc, Mutex};
 use std::time::Duration;

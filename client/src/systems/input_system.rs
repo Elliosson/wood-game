@@ -1,7 +1,6 @@
 use amethyst::{
     core::{timing::Time, transform::Transform},
-    derive::SystemDesc,
-    ecs::prelude::{Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage},
+    ecs::prelude::{Read, ReadExpect, System, WriteStorage},
     input::{InputHandler, StringBindings},
 };
 
@@ -22,23 +21,9 @@ impl<'s> System<'s> for InputSystem {
         ReadExpect<'s, Arc<Mutex<Data>>>,
     );
 
-    fn run(&mut self, (mut transforms, time, input, to_send, data): Self::SystemData) {
+    fn run(&mut self, (_transforms, _time, input, to_send, data): Self::SystemData) {
         let mut to_send_guard = to_send.lock().unwrap();
         let data_guard = data.lock().unwrap();
-
-        //TODO not ok ma
-        /*
-        let data_guard = self.data.lock().unwrap();
-
-        match serde_json::from_str(&data_guard.info_string) {
-            Ok(info) => self.player_info = info,
-            Err(_) => {
-                consol_print("unable to deserialize json".to_string());
-            }
-        }*/
-
-        // Iterate over all planks and move them according to the input the user
-        // provided.
 
         let opt_movement = input.axis_value("y_axe");
 
@@ -48,8 +33,6 @@ impl<'s> System<'s> for InputSystem {
             } else if movement > 0. {
                 to_send_guard.push(format!("{} {}", data_guard.my_uid, "up"));
             }
-            println!("{}", movement);
-            //todo send move message to server
         }
 
         let opt_movement = input.axis_value("x_axe");
@@ -60,8 +43,6 @@ impl<'s> System<'s> for InputSystem {
             } else if movement > 0. {
                 to_send_guard.push(format!("{} {}", data_guard.my_uid, "right"));
             }
-            println!("{}", movement);
-            //todo send move message to server
         }
     }
 }

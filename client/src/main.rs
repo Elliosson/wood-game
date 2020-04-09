@@ -3,16 +3,10 @@ use rltk::Rltk;
 extern crate specs_derive;
 mod components;
 pub use components::*;
-mod general_network;
-#[cfg(target_arch = "wasm32")]
-mod wasm_network;
 
-#[cfg(not(target_arch = "wasm32"))]
-mod desktop_network;
-
-mod runstate;
-
-use runstate::Runstate;
+mod network;
+mod rltk_front;
+pub use rltk_front::Runstate;
 
 use std::sync::{Arc, Mutex};
 
@@ -21,9 +15,6 @@ use wasm_bindgen::prelude::*;
 
 extern crate specs;
 use specs::prelude::*;
-pub mod gui;
-
-mod rltk_main;
 
 mod bundle;
 mod game;
@@ -42,12 +33,10 @@ use amethyst::{
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
         types::DefaultBackend,
-        Camera, RenderingBundle,
+        RenderingBundle,
     },
     utils::application_root_dir,
 };
-
-mod state;
 
 pub struct Data {
     pub characters: Vec<Point>,
@@ -73,14 +62,14 @@ fn main() {
     };
     let protect_data: Arc<Mutex<Data>> = Arc::new(Mutex::new(data));
     let to_send: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
-    lauch_network(protect_data.clone(), to_send.clone());
+    network::lauch_network(protect_data.clone(), to_send.clone());
     //rltk_init(protect_data.clone(), to_send.clone());
     amethyst_init(protect_data.clone(), to_send.clone()).expect("Fail in amethyst_init");
 }
 
 pub fn rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
     let context = Rltk::init_simple8x8(180 as u32, 90 as u32, "Ecosystem simulator", "resources");
-    let gs = rltk_main::State {
+    let gs = rltk_front::State {
         rectangle: Rect {
             height: 6,
             width: 2,
@@ -175,14 +164,4 @@ pub fn amethyst_init(
     game.run();
 
     Ok(())
-}
-
-#[cfg(target_arch = "wasm32")]
-fn lauch_network(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
-    wasm_network::start_websocket(protect_data, to_send).expect("Unable to start websocket");
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn lauch_network(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
-    desktop_network::start_websocket(protect_data, to_send);
 }

@@ -1,13 +1,6 @@
 // ici on va lire les donne du network sur notre position et centrer le tou en consequant
 
-use amethyst::{
-    core::{timing::Time, transform::Transform},
-    derive::SystemDesc,
-    ecs::prelude::{
-        Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteExpect, WriteStorage,
-    },
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
-};
+use amethyst::ecs::prelude::{ReadExpect, System, WriteExpect};
 
 use crate::{Data, PlayerInfo};
 use std::sync::{Arc, Mutex};

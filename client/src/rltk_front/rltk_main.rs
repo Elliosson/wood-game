@@ -1,11 +1,8 @@
+pub use super::gui;
+pub use super::runstate::{player_input, Runstate};
 use rltk::{Console, GameState, Rltk, RGB};
 
-pub use super::{
-    components::*,
-    gui,
-    runstate::{player_input, Runstate},
-    Data, Rect,
-};
+pub use crate::{components::*, Data, Rect};
 
 use std::sync::{Arc, Mutex};
 
@@ -61,7 +58,7 @@ impl GameState for State {
 
         ctx.cls();
 
-        //draw_map(ctx, data_guard.map.clone(), &self.player_info.my_info.pos);
+        draw_map(ctx, data_guard.map.clone(), &self.player_info.my_info.pos);
 
         gui::draw_ui(ctx, &self.player_info);
 
@@ -87,11 +84,11 @@ impl GameState for State {
     }
 }
 
-fn draw_map(ctx: &mut Rltk, mut map: Vec<(Point, Renderable)>, my_pos: &Position) {
+fn draw_map(ctx: &mut Rltk, mut map: Vec<(u32, i32, Point, Renderable)>, my_pos: &Position) {
     let center_x = 30;
     let center_y = 30;
-    map.sort_by(|a, b| b.1.render_order.cmp(&a.1.render_order));
-    for (pos, render) in map.iter() {
+    map.sort_by(|a, b| b.3.render_order.cmp(&a.3.render_order));
+    for (_id, _gen, pos, render) in map.iter() {
         let x = pos.x - my_pos.x + center_x;
         let y = pos.y - my_pos.y + center_y;
         if gui::inside_windows(x, y) {

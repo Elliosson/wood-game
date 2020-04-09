@@ -8,19 +8,14 @@
 //si non, on recharge la bonne sprite
 //ensuite on ajoute le transform qui correspond au x, y transmi
 
-use crate::{Ball, Data, InMap};
+use crate::Data;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use amethyst::{
-    assets::{AssetStorage, Loader},
-    core::{timing::Time, transform::Transform},
-    derive::SystemDesc,
-    ecs::prelude::{
-        Entities, Entity, Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteExpect,
-        WriteStorage,
-    },
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    core::transform::Transform,
+    ecs::prelude::{Entities, Entity, ReadExpect, System, WriteExpect, WriteStorage},
+    renderer::SpriteRender,
 };
 
 /// This system is responsible for moving all balls according to their speed
@@ -32,14 +27,9 @@ impl<'s> System<'s> for MapSystem {
     type SystemData = (
         Entities<'s>,
         WriteStorage<'s, Transform>,
-        WriteStorage<'s, Ball>,
-        WriteStorage<'s, InMap>,
         WriteStorage<'s, SpriteRender>,
         ReadExpect<'s, Arc<Mutex<Data>>>,
         WriteExpect<'s, HashMap<(u32, i32), Entity>>,
-        WriteExpect<'s, Loader>,
-        WriteExpect<'s, AssetStorage<Texture>>,
-        WriteExpect<'s, AssetStorage<SpriteSheet>>,
         ReadExpect<'s, Vec<SpriteRender>>,
     );
 
@@ -48,14 +38,9 @@ impl<'s> System<'s> for MapSystem {
         (
             entities,
             mut transforms,
-            balls,
-            mut in_maps,
             mut sprite_renders,
             net_data,
             mut net_hash,
-            loader,
-            texture_storage,
-            sheet_storage,
             sprites,
         ): Self::SystemData,
     ) {
@@ -68,7 +53,7 @@ impl<'s> System<'s> for MapSystem {
         //lis la map de net data
 
         //TODO add something to supress compoment
-        for (id, gen, point, renderable) in &data_guard.map {
+        for (id, gen, point, _renderable) in &data_guard.map {
             if let Some(&entity) = net_hash.get(&(*id, *gen)) {
                 println!("know entity");
 

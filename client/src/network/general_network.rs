@@ -1,5 +1,4 @@
-use super::Data;
-use super::{Point, Renderable};
+use crate::{Data, Point, Renderable};
 use rltk::RGB;
 use std::sync::{Arc, Mutex};
 

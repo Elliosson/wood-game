@@ -1,7 +1,7 @@
 extern crate rltk;
 use rltk::{Console, Rltk, VirtualKeyCode, RGB};
 extern crate specs;
-use super::{CloseInteration, InventaireItem, PlayerInfo};
+use crate::{CloseInteration, InventaireItem, PlayerInfo};
 pub use std::cmp;
 
 pub const WINDOWWIDTH: usize = 100;
