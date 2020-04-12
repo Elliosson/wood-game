@@ -119,7 +119,6 @@ pub fn start_websocket(data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>)
                             let _q = thread::spawn(move || loop {
                                 message_sender2(uid.clone(), "map".to_string());
                                 message_sender2(uid.clone(), "player_info".to_string());
-                                println!("ask map and player_info");
                                 thread::sleep(Duration::from_millis(50));
                             });
                         }

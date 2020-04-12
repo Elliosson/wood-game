@@ -57,9 +57,6 @@ impl<'a, 'b> SystemBundle<'a, 'b> for NetworkBundle {
             combat_stats: Default::default(),
         });
 
-        //for noew send speudo here
-        let mut send_guard = self.to_send.lock().unwrap();
-        send_guard.push(format!("register {}", "rerer"));
         Ok(())
     }
 }

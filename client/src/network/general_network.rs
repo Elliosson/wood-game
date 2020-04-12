@@ -34,9 +34,7 @@ where
             Message::Register
         }
         "play" => {
-            println!("received play");
             if parts.next()? == "ok" {
-                println!("play is ok");
                 let data_guard = data.lock().unwrap();
                 let uid = data_guard.my_uid.clone();
                 message_sender(uid.clone(), "config".to_string());
@@ -74,7 +72,6 @@ where
             let mut data_guard = data.lock().unwrap();
 
             let info: String = parts.collect::<String>();
-            println!("{}", info);
 
             data_guard.info_string = info;
             Message::PlayerInfo

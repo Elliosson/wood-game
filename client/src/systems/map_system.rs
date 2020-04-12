@@ -46,27 +46,11 @@ impl<'s> System<'s> for MapSystem {
     ) {
         let data_guard = net_data.lock().unwrap();
 
-        // clear les transform de inmap, for new clear all transform
-
-        //transforms.clear();
-
-        //lis la map de net data
-
-        //TODO add something to supress compoment
-        for (id, gen, point, _renderable) in &data_guard.map {
+        for (id, gen, point, renderable) in &data_guard.map {
             if let Some(&entity) = net_hash.get(&(*id, *gen)) {
-                println!("know entity");
-
                 let trans = transforms.get_mut(entity).unwrap();
                 trans.set_translation_xyz(point.x as f32 * 10., point.y as f32 * 10., 0.);
-
-            /*let mut transform = Transform::default();
-            transform.set_translation_xyz(500., 500., 0.);
-            transforms
-                .insert(entity, transform)
-                .expect("Unable to insert");*/
             } else {
-                println!("new entity");
                 let new_entity = entities.create();
 
                 net_hash.insert((*id, *gen), new_entity);
@@ -76,13 +60,9 @@ impl<'s> System<'s> for MapSystem {
                     .insert(new_entity, transform)
                     .expect("Unable to insert");
                 sprite_renders
-                    .insert(new_entity, sprites[0].clone())
+                    .insert(new_entity, sprites[renderable.glyph as usize].clone())
                     .expect("Unable to insert");
             }
-            println!("point {}", point.x);
         }
-
-        //-si dans la hash ajoute la transform
-        //-sinon creer l'entity et l'ajoute dans la hash
     }
 }
