@@ -1,6 +1,7 @@
 use amethyst::{
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
+    ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
 };
 
 use log::info;
@@ -12,19 +13,9 @@ impl SimpleState for MyGame {
     // state lifecycle hooks, see:
     // https://book.amethyst.rs/stable/concepts/state.html#life-cycle
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let _world = data.world;
+        let world = data.world;
 
-        // Get the screen dimensions so we can initialize the camera and
-        // place our sprites correctly later. We'll clone this since we'll
-        // pass the world mutably to the following functions.
-        /*let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
-
-        // Place the camera
-        init_camera(world, &dimensions);
-
-        // Load our sprites and display them
-        let sprites = load_sprites(world);
-        init_sprites(world, &sprites, &dimensions);*/
+        let _ = Some(world.exec(|mut creator: UiCreator<'_>| creator.create("game_ui.ron", ())));
     }
     fn handle_event(
         &mut self,
@@ -50,4 +41,6 @@ impl SimpleState for MyGame {
         // Keep going
         Trans::None
     }
+
+    fn on_stop(&mut self, data: StateData<GameData>) {}
 }
