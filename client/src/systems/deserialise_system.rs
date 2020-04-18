@@ -22,7 +22,7 @@ impl<'s> System<'s> for DeserialiseSystem {
         match serde_json::from_str(&data_guard.info_string) {
             Ok(info) => {
                 let temp: PlayerInfo = info;
-                player_info.my_info = temp.my_info;
+                *player_info = temp.clone();
             }
             Err(_) => println!("unable to deserialize json"),
         }

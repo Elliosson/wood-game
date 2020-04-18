@@ -81,7 +81,7 @@ impl SimpleState for MainMenu {
                     Trans::Quit
                 } else if is_key_down(&event, VirtualKeyCode::Escape) {
                     log::info!("[Trans::Switch] Switching back to WelcomeScreen!");
-                    Trans::Switch(Box::new(MyGame))
+                    Trans::Switch(Box::new(MyGame::default()))
                 } else {
                     Trans::None
                 }
@@ -92,11 +92,11 @@ impl SimpleState for MainMenu {
             }) => {
                 if Some(target) == self.button_credits {
                     log::info!("[Trans::Switch] Switching to CreditsScreen!");
-                    return Trans::Switch(Box::new(MyGame));
+                    return Trans::Switch(Box::new(MyGame::default()));
                 }
                 if Some(target) == self.button_start {
                     log::info!("[Trans::Switch] Switching to Game!");
-                    return Trans::Switch(Box::new(MyGame));
+                    return Trans::Switch(Box::new(MyGame::default()));
                 }
                 if Some(target) == self.button_load || Some(target) == self.button_options {
                     log::info!("This Buttons functionality is not yet implemented!");
@@ -115,7 +115,7 @@ impl SimpleState for MainMenu {
                     let to_send = world.fetch::<Arc<Mutex<Vec<String>>>>();
                     let mut to_send_guard = to_send.lock().unwrap();
                     to_send_guard.push(format!("register {}", my_text.text));
-                    return Trans::Switch(Box::new(MyGame));
+                    return Trans::Switch(Box::new(MyGame::default()));
                 }
                 Trans::None
             }

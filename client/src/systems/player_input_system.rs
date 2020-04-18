@@ -1,27 +1,29 @@
 use amethyst::{
     core::{timing::Time, transform::Transform},
-    ecs::prelude::{Read, ReadExpect, System, WriteStorage},
+    ecs::prelude::{Read, ReadExpect, System, WriteExpect, WriteStorage},
     input::{InputHandler, StringBindings},
 };
 
 use crate::Data;
+use crate::UiCom;
 use std::sync::{Arc, Mutex};
 
 /// This system is responsible for moving all the paddles according to the user
 /// provided input.
 
-pub struct InputSystem;
+pub struct PlayerInputSystem;
 
-impl<'s> System<'s> for InputSystem {
+impl<'s> System<'s> for PlayerInputSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
         ReadExpect<'s, Arc<Mutex<Vec<String>>>>,
         ReadExpect<'s, Arc<Mutex<Data>>>,
+        WriteExpect<'s, UiCom>,
     );
 
-    fn run(&mut self, (_transforms, _time, input, to_send, data): Self::SystemData) {
+    fn run(&mut self, (_transforms, _time, input, to_send, data, mut ui_com): Self::SystemData) {
         let mut to_send_guard = to_send.lock().unwrap();
         let data_guard = data.lock().unwrap();
 

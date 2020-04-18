@@ -43,6 +43,8 @@ use amethyst::{
     utils::application_root_dir,
 };
 
+use amethyst_imgui::RenderImgui;
+
 pub struct Data {
     pub characters: Vec<Point>,
     pub my_uid: String,
@@ -55,6 +57,14 @@ pub struct Rect {
     pub height: i32,
     pub x: i32,
     pub y: i32,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct UiCom {
+    pub inventory: bool,
+    pub build: bool,
+    pub interaction: bool,
+    pub esc: bool,
 }
 
 fn main() {
@@ -146,7 +156,11 @@ pub fn amethyst_init(
     let display_config = resources.join("display_config.ron");
 
     let game_data = GameDataBuilder::default()
+        .with_barrier()
         .with_bundle(TransformBundle::new())?
+        .with_bundle(
+            InputBundle::<StringBindings>::new().with_bindings_from_file(key_bindings_path)?,
+        )?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
@@ -154,6 +168,7 @@ pub fn amethyst_init(
                         .with_clear([0.34, 0.36, 0.52, 1.0]),
                 )
                 .with_plugin(RenderFlat2D::default())
+                .with_plugin(RenderImgui::<StringBindings>::default())
                 .with_plugin(RenderUi::default()),
         )?
         .with_bundle(GameBundle)?
@@ -163,10 +178,7 @@ pub fn amethyst_init(
         })?
         .with_bundle(HotReloadBundle::default())?
         .with_system_desc(UiEventHandlerSystemDesc::default(), "ui_event_handler", &[])
-        .with_bundle(UiBundle::<StringBindings>::new())?
-        .with_bundle(
-            InputBundle::<StringBindings>::new().with_bindings_from_file(key_bindings_path)?,
-        )?;
+        .with_bundle(UiBundle::<StringBindings>::new())?;
     //ici on poura lancer le stat avec la map, penser a faire le buddle aussi, le bundle va initialiser les ressource
 
     let mut game = Application::new(resources, main_menu::MainMenu::default(), game_data)?;

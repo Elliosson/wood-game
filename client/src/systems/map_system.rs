@@ -16,6 +16,7 @@ use amethyst::{
     core::transform::Transform,
     ecs::prelude::{Entities, Entity, ReadExpect, System, WriteExpect, WriteStorage},
     renderer::SpriteRender,
+    ui::{UiButton, Widgets},
 };
 
 /// This system is responsible for moving all balls according to their speed
@@ -31,6 +32,7 @@ impl<'s> System<'s> for MapSystem {
         ReadExpect<'s, Arc<Mutex<Data>>>,
         WriteExpect<'s, HashMap<(u32, i32), Entity>>,
         ReadExpect<'s, Vec<SpriteRender>>,
+        WriteExpect<'s, Widgets<UiButton, u32>>,
     );
 
     fn run(
@@ -42,6 +44,7 @@ impl<'s> System<'s> for MapSystem {
             net_data,
             mut net_hash,
             sprites,
+            button_widgets,
         ): Self::SystemData,
     ) {
         let data_guard = net_data.lock().unwrap();
