@@ -1,11 +1,10 @@
 use amethyst::{
     core::{timing::Time, transform::Transform},
-    ecs::prelude::{Read, ReadExpect, System, WriteExpect, WriteStorage},
+    ecs::prelude::*,
     input::{InputHandler, StringBindings},
 };
 
 use crate::Data;
-use crate::UiCom;
 use std::sync::{Arc, Mutex};
 
 /// This system is responsible for moving all the paddles according to the user
@@ -20,10 +19,9 @@ impl<'s> System<'s> for PlayerInputSystem {
         Read<'s, InputHandler<StringBindings>>,
         ReadExpect<'s, Arc<Mutex<Vec<String>>>>,
         ReadExpect<'s, Arc<Mutex<Data>>>,
-        WriteExpect<'s, UiCom>,
     );
 
-    fn run(&mut self, (_transforms, _time, input, to_send, data, mut ui_com): Self::SystemData) {
+    fn run(&mut self, (_transforms, _time, input, to_send, data): Self::SystemData) {
         let mut to_send_guard = to_send.lock().unwrap();
         let data_guard = data.lock().unwrap();
 

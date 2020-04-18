@@ -1,18 +1,10 @@
-use amethyst::{
-    core::transform::Transform,
-    ecs::prelude::{Join, ReadExpect, System, WriteExpect, WriteStorage},
-    renderer::Camera,
-};
+use amethyst::ecs::prelude::*;
 
 use crate::Data;
 use crate::UiCom;
 
 use crate::PlayerInfo;
-use amethyst_imgui::{
-    imgui,
-    imgui::{im_str, ImString},
-    RenderImgui,
-};
+use amethyst_imgui::{imgui, imgui::im_str};
 use std::sync::{Arc, Mutex};
 
 pub struct InventoryUiSystem {
@@ -27,14 +19,13 @@ impl Default for InventoryUiSystem {
 
 impl<'s> System<'s> for InventoryUiSystem {
     type SystemData = (
-        WriteStorage<'s, Transform>,
         ReadExpect<'s, PlayerInfo>,
         ReadExpect<'s, Arc<Mutex<Vec<String>>>>,
         ReadExpect<'s, Arc<Mutex<Data>>>,
         WriteExpect<'s, UiCom>,
     );
 
-    fn run(&mut self, (mut transforms, player_info, to_send, data, mut ui_com): Self::SystemData) {
+    fn run(&mut self, (player_info, to_send, data, mut ui_com): Self::SystemData) {
         if ui_com.inventory {
             ui_com.inventory = false;
             if self.active == true {
@@ -45,12 +36,12 @@ impl<'s> System<'s> for InventoryUiSystem {
         }
 
         if self.active {
-            let mut to_send_guard = to_send.lock().unwrap();
-            let data_guard = data.lock().unwrap();
+            let mut _to_send_guard = to_send.lock().unwrap();
+            let _data_guard = data.lock().unwrap();
             let mut open = true;
             amethyst_imgui::with(|ui| {
                 let title = im_str!("Inventory");
-                let mut window = imgui::Window::new(&title)
+                let window = imgui::Window::new(&title)
                     .bg_alpha(0.35)
                     .movable(true)
                     .no_decoration()

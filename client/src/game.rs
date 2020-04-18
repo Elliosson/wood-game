@@ -1,31 +1,17 @@
 use amethyst::{
-    assets::{AssetStorage, Handle, Loader, Prefab, PrefabLoader},
     ecs::prelude::Entity,
     ecs::*,
-    input::{get_key, is_close_requested, is_key_down, InputEvent, VirtualKeyCode},
+    input::{is_close_requested, is_key_down, InputEvent, VirtualKeyCode},
     prelude::*,
-    renderer::{loaders::load_from_srgba, palette::Srgba, types::TextureData, Texture},
     ui::*,
-    ui::{
-        ToNativeWidget, UiButtonBuilder, UiCreator, UiEvent, UiEventType, UiFinder, UiImage,
-        UiText, UiTransformData, UiWidget,
-    },
 };
 
 use std::sync::{Arc, Mutex};
 
-use amethyst_imgui::{
-    imgui,
-    imgui::{im_str, ImString},
-    RenderImgui,
-};
-
 use super::Data;
-use super::PlayerInfo;
+
 use super::UiCom;
 use serde::Deserialize;
-
-use log::info;
 
 const BUTTON_INVENTORY: &str = "inventory";
 const BUTTON_BUILD: &str = "build";
@@ -69,7 +55,7 @@ impl SimpleState for MyGame {
 
     fn handle_event(
         &mut self,
-        mut data: StateData<'_, GameData<'_, '_>>,
+        data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
         let world = data.world;
@@ -91,43 +77,6 @@ impl SimpleState for MyGame {
                 target,
             }) => {
                 if Some(target) == self.button_inventory {
-                    let inventory_root =
-                        Some(world.exec(|mut creator: UiCreator<'_>| {
-                            creator.create("inventory.ron", ())
-                        }));
-
-                    if let Some(inv_cont) = inventory_root {
-                        let player_info = world.read_resource::<PlayerInfo>();
-
-                        {
-                            let fdg = world.read_resource::<Widgets<UiButton, u32>>();
-                        }
-
-                        let loader = world.read_resource::<Loader>();
-                        let texture_assets = world.read_resource::<AssetStorage<Texture>>();
-                        let texture_builder = load_from_srgba(Srgba::new(0., 0., 0., 1.));
-                        let texture_handle: Handle<Texture> = loader.load_from_data(
-                            TextureData::from(texture_builder),
-                            (),
-                            &texture_assets,
-                        );
-
-                        // for (i, item) in player_info.inventaire.iter().enumerate() {
-                        // add new button to invetory
-                        UiButtonBuilder::<(), u32>::new("invbutton")
-                            .with_image(texture_handle.clone())
-                            .with_hover_image(UiImage::SolidColor([0.1, 0.1, 0.1, 1.]))
-                            .with_press_image(UiImage::SolidColor([0.1, 0.1, 0.1, 1.]))
-                            .with_parent(inv_cont)
-                            .with_position(20., 0.)
-                            .with_font_size(12.0f32)
-                            .with_text_color([0.0f32, 0.0, 0.0, 1.0])
-                            .with_hover_text_color([0.1, 0.1, 0.1, 1.])
-                            .with_press_text_color([0.15, 0.15, 0.15, 1.])
-                            .build_from_world(&world);
-                        // }
-                    }
-
                     return Trans::None;
                 }
                 if Some(target) == self.button_build {
@@ -143,52 +92,9 @@ impl SimpleState for MyGame {
                 /// Scancode, used for positional info. i.e. The third key on the first row was pressed.
                 scancode,
             }) => {
+                let _forget = scancode;
                 match key_code {
                     VirtualKeyCode::F => {
-                        /*
-                        //open the interaction windows
-                        let interaction_root = Some(world.exec(|mut creator: UiCreator<'_>| {
-                            creator.create("inventory.ron", ())
-                        }));
-
-                        let font_handle = {
-                            let loader = world.fetch::<Loader>();
-                            let font_storage = world.fetch::<AssetStorage<FontAsset>>();
-                            loader.load("font/square.ttf", TtfFormat, (), &font_storage)
-                        };
-
-                        if let Some(int_cont) = interaction_root {
-                            let player_info = world.read_resource::<PlayerInfo>();
-                            let loader = world.read_resource::<Loader>();
-                            let texture_assets = world.read_resource::<AssetStorage<Texture>>();
-                            let texture_builder = load_from_srgba(Srgba::new(0., 0., 0., 1.));
-                            let texture_handle: Handle<Texture> = loader.load_from_data(
-                                TextureData::from(texture_builder),
-                                (),
-                                &texture_assets,
-                            );
-                            println!("pass ");
-                            for (i, item) in player_info.close_interations.iter().enumerate() {
-                                // add new button to invetory
-                                println!("pass with the item");
-                                let (_, uibutton) = UiButtonBuilder::<(), u32>::new("invbutton")
-                                    //.with_image(texture_handle.clone())
-                                    //.with_hover_image(UiImage::SolidColor([0.1, 0.1, 0.1, 1.]))
-                                    //.with_press_image(UiImage::SolidColor([0.1, 0.1, 0.1, 1.]))
-                                    .with_parent(int_cont)
-                                    .with_position(40. * i as f32 + 100., 0.)
-                                    .with_font_size(12.0f32)
-                                    .with_text_color([0.0f32, 0.0, 0.0, 1.0])
-                                    .with_hover_text_color([0.1, 0.1, 0.1, 1.])
-                                    .with_press_text_color([0.15, 0.15, 0.15, 1.])
-                                    .with_id(555)
-                                    .build_from_world(&world);
-
-                                //world.entities().delete(uibutton.text_entity);
-                                //world.entities().delete(uibutton.image_entity);
-                            }
-                        }
-                        */
                         let mut ui_com = world.write_resource::<UiCom>();
                         ui_com.interaction = true;
                     }
@@ -202,8 +108,8 @@ impl SimpleState for MyGame {
                         ui_com.build = true;
                     }
                     VirtualKeyCode::G => {
-                        let mut to_send = world.write_resource::<Arc<Mutex<Vec<String>>>>();
-                        let mut data = world.write_resource::<Arc<Mutex<Data>>>();
+                        let to_send = world.write_resource::<Arc<Mutex<Vec<String>>>>();
+                        let data = world.write_resource::<Arc<Mutex<Data>>>();
 
                         let mut to_send_guard = to_send.lock().unwrap();
                         let data_guard = data.lock().unwrap();
@@ -219,7 +125,7 @@ impl SimpleState for MyGame {
         }
     }
 
-    fn on_stop(&mut self, data: StateData<GameData>) {}
+    fn on_stop(&mut self, _data: StateData<GameData>) {}
 }
 
 #[derive(Clone, Deserialize)]
