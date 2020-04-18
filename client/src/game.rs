@@ -77,10 +77,13 @@ impl SimpleState for MyGame {
                 target,
             }) => {
                 if Some(target) == self.button_inventory {
+                    let mut ui_com = world.write_resource::<UiCom>();
+                    ui_com.inventory = true;
                     return Trans::None;
                 }
                 if Some(target) == self.button_build {
-                    log::info!("[Trans::Switch] Switching to Game!");
+                    let mut ui_com = world.write_resource::<UiCom>();
+                    ui_com.build = true;
                     return Trans::None;
                 }
 
