@@ -46,10 +46,17 @@ impl<'s> System<'s> for MapSystem {
     ) {
         let data_guard = net_data.lock().unwrap();
 
+        // this hash will be use to find the entities that are no longuer in the player views
+        // We copy the original hash and then remove all the entity found in the json
+        // Then we delete the entitty of the leftover entry of the hash
+        let mut to_delete_hash = net_hash.clone();
+
         for (id, gen, point, renderable) in &data_guard.map {
             if let Some(&entity) = net_hash.get(&(*id, *gen)) {
                 let trans = transforms.get_mut(entity).unwrap();
                 trans.set_translation_xyz(point.x as f32 * 10., point.y as f32 * 10., 0.);
+
+                to_delete_hash.remove(&(*id, *gen));
             } else {
                 let new_entity = entities.create();
 
@@ -63,6 +70,14 @@ impl<'s> System<'s> for MapSystem {
                     .insert(new_entity, sprites[renderable.glyph as usize].clone())
                     .expect("Unable to insert");
             }
+        }
+
+        //delete entity than are no longer in views
+        for (key, &entity) in &to_delete_hash {
+            entities
+                .delete(entity)
+                .expect("Error, unable to delete entity");
+            net_hash.remove(&key);
         }
     }
 }
