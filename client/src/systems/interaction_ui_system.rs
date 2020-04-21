@@ -38,6 +38,7 @@ impl<'s> System<'s> for InteractionUiSystem {
             amethyst_imgui::with(|ui| {
                 let title = im_str!("Example: Simple overlay");
                 let window = imgui::Window::new(&title)
+                    .position([500., 0.], imgui::Condition::FirstUseEver)
                     .bg_alpha(0.35)
                     .movable(true)
                     .no_decoration()
@@ -48,7 +49,7 @@ impl<'s> System<'s> for InteractionUiSystem {
                     .opened(&mut open);
 
                 window.build(ui, || {
-                    ui.text("Simple overlay\nin the corner of the screen");
+                    ui.text("Interactions");
                     //create a button for eaxh interaction il the area
                     for interaction in &player_info.close_interations {
                         let name = interaction.interaction_name.clone();

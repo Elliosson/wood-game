@@ -49,6 +49,7 @@ impl<'s> System<'s> for InventoryUiSystem {
                     .save_settings(false)
                     .focus_on_appearing(false)
                     .no_nav()
+                    .position([500., 500.], imgui::Condition::FirstUseEver)
                     .opened(&mut open);
 
                 window.build(ui, || {
