@@ -8,6 +8,7 @@
 //si non, on recharge la bonne sprite
 //ensuite on ajoute le transform qui correspond au x, y transmi
 
+use super::TILE_SIZE;
 use crate::Data;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -54,7 +55,11 @@ impl<'s> System<'s> for MapSystem {
         for (id, gen, point, renderable) in &data_guard.map {
             if let Some(&entity) = net_hash.get(&(*id, *gen)) {
                 let trans = transforms.get_mut(entity).unwrap();
-                trans.set_translation_xyz(point.x as f32 * 10., point.y as f32 * 10., 0.);
+                trans.set_translation_xyz(
+                    point.x as f32 * TILE_SIZE,
+                    point.y as f32 * TILE_SIZE,
+                    0.,
+                );
 
                 to_delete_hash.remove(&(*id, *gen));
             } else {
@@ -62,7 +67,11 @@ impl<'s> System<'s> for MapSystem {
 
                 net_hash.insert((*id, *gen), new_entity);
                 let mut transform = Transform::default();
-                transform.set_translation_xyz(point.x as f32 * 10., point.y as f32 * 10., 0.);
+                transform.set_translation_xyz(
+                    point.x as f32 * TILE_SIZE,
+                    point.y as f32 * TILE_SIZE,
+                    0.,
+                );
                 transforms
                     .insert(new_entity, transform)
                     .expect("Unable to insert");

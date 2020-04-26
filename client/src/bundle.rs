@@ -59,6 +59,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for NetworkBundle {
             possible_builds: Vec::new(),
             equipement: Vec::new(),
             combat_stats: Default::default(),
+            world_map: Vec::new(),
         });
 
         Ok(())

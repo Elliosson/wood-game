@@ -6,6 +6,7 @@ use amethyst::{
     renderer::Camera,
 };
 
+use super::TILE_SIZE;
 use crate::PlayerInfo;
 
 /// This system is responsible for moving all balls according to their speed
@@ -26,8 +27,8 @@ impl<'s> System<'s> for CameraSystem {
         for (transform, _camera) in (&mut transforms, &cameras).join() {
             //TODO set camera with my position
             transform.set_translation_xyz(
-                (player_info.my_info.pos.x * 10) as f32,
-                (player_info.my_info.pos.y * 10) as f32,
+                (player_info.my_info.pos.x as f32 * TILE_SIZE),
+                (player_info.my_info.pos.y as f32 * TILE_SIZE),
                 1.,
             );
         }

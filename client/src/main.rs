@@ -106,6 +106,7 @@ pub fn rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
             possible_builds: Vec::new(),
             equipement: Vec::new(),
             combat_stats: Default::default(),
+            world_map: Vec::new(),
         },
         runstate: Runstate::Register,
         pseudo: "".to_string(),

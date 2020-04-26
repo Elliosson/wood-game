@@ -6,6 +6,8 @@ mod inventory_ui_system;
 mod map_system;
 mod player_input_system;
 
+pub const TILE_SIZE: f32 = 16.;
+
 pub use self::{
     build_ui_system::BuildUiSystem, camera_system::CameraSystem,
     deserialise_system::DeserialiseSystem, interaction_ui_system::InteractionUiSystem,
