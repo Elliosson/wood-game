@@ -11,7 +11,6 @@ pub struct PlayerInfo {
     pub possible_builds: Vec<BuildingPlan>,
     pub equipement: Vec<InventaireItem>, //handled the same way that an inventaire item
     pub combat_stats: CombatStats,
-    pub world_map: Vec<u8>,
 }
 
 #[derive(Component, Deserialize, Debug, Clone)]
