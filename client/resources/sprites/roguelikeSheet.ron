@@ -4,8 +4,9 @@
 */
 #![enable(implicit_some)]
 Grid((
-    texture_width: 357,
-    texture_height: 340,
-    columns: 21,
-    rows: 20,
+    texture_width: 968,
+    texture_height: 526,
+    columns: 56,
+    rows: 30,
+    cell_size: (17, 17),
 ))
