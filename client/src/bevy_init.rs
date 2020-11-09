@@ -51,7 +51,7 @@ impl FromResources for ButtonMaterials {
 pub struct Player {}
 
 fn button_system(
-    mut commands: Commands,
+    commands: Commands,
     asset_server: Res<AssetServer>,
     button_materials: Res<ButtonMaterials>,
     mut interaction_query: Query<(
@@ -101,43 +101,27 @@ fn setup(
 }
 
 fn player_movement_system(
-    time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     to_send: ResMut<Arc<Mutex<Vec<String>>>>,
     net_data: ResMut<Arc<Mutex<Data>>>,
-    mut query: Query<(&Player, &mut Transform)>,
 ) {
     let mut to_send_guard = to_send.lock().unwrap();
     let data_guard = net_data.lock().unwrap();
-    for (player, mut transform) in query.iter_mut() {
-        let mut direction_x = 0.0;
-        let mut direction_y = 0.0;
-        if keyboard_input.pressed(KeyCode::Left) {
-            direction_x -= 1.0;
-            to_send_guard.push(format!("{} {}", data_guard.my_uid, "left"));
-        }
 
-        if keyboard_input.pressed(KeyCode::Right) {
-            direction_x += 1.0;
-            to_send_guard.push(format!("{} {}", data_guard.my_uid, "right"));
-        }
+    if keyboard_input.pressed(KeyCode::Left) {
+        to_send_guard.push(format!("{} {}", data_guard.my_uid, "left"));
+    }
 
-        if keyboard_input.pressed(KeyCode::Up) {
-            direction_y += 1.0;
-            to_send_guard.push(format!("{} {}", data_guard.my_uid, "up"));
-        }
+    if keyboard_input.pressed(KeyCode::Right) {
+        to_send_guard.push(format!("{} {}", data_guard.my_uid, "right"));
+    }
 
-        if keyboard_input.pressed(KeyCode::Down) {
-            direction_y -= 1.0;
-            to_send_guard.push(format!("{} {}", data_guard.my_uid, "down"));
-        }
+    if keyboard_input.pressed(KeyCode::Up) {
+        to_send_guard.push(format!("{} {}", data_guard.my_uid, "down")); //todo se to fix it
+    }
 
-        let translation = &mut transform.translation;
-        // move the paddle horizontally
-        *translation.x_mut() += time.delta_seconds * direction_x * 500.;
-        *translation.y_mut() += time.delta_seconds * direction_y * 500.;
-        // bound the paddle within the walls
-        *translation.x_mut() = translation.x().min(380.0).max(-380.0);
+    if keyboard_input.pressed(KeyCode::Down) {
+        to_send_guard.push(format!("{} {}", data_guard.my_uid, "up"));
     }
 }
 
@@ -176,7 +160,7 @@ fn map_system(
                         point.y as f32 * TILE_SIZE,
                         0.0,
                     )),
-                    sprite: Sprite::new(Vec2::new(5.0, 5.0)),
+                    sprite: Sprite::new(Vec2::new(TILE_SIZE, TILE_SIZE)),
                     ..Default::default()
                 })
                 .current_entity()
@@ -195,7 +179,6 @@ fn map_system(
 }
 
 fn deserialise_player_info_system(
-    mut commands: Commands,
     from_net_data: Res<Arc<Mutex<Data>>>,
     mut player_info: ResMut<PlayerInfo>,
 ) {
@@ -210,12 +193,8 @@ fn deserialise_player_info_system(
     }
 }
 
-fn camera_system(
-    mut commands: Commands,
-    mut player_info: ResMut<PlayerInfo>,
-    mut query: Query<(&Camera, &mut Transform)>,
-) {
-    for (camera, mut transform) in query.iter_mut() {
+fn camera_system(player_info: ResMut<PlayerInfo>, mut query: Query<(&Camera, &mut Transform)>) {
+    for (_camera, mut transform) in query.iter_mut() {
         let translation = &mut transform.translation;
 
         *translation.x_mut() = player_info.my_info.pos.x as f32 * TILE_SIZE;
