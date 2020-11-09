@@ -1,5 +1,7 @@
 use super::Data;
+use super::TILE_SIZE;
 use bevy::prelude::*;
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
@@ -113,5 +115,55 @@ fn player_movement_system(
         *translation.y_mut() += time.delta_seconds * direction_y * 500.;
         // bound the paddle within the walls
         *translation.x_mut() = translation.x().min(380.0).max(-380.0);
+    }
+}
+
+fn map_system(
+    from_net_data: Res<Arc<Mutex<Data>>>,
+    mut id_to_entity: ResMut<HashMap<(u32, i32), Entity>>,
+    mut query: Query<(&Player, &mut Transform)>,
+    mut entity_query: Query<Entity>,
+    mut commands: Commands,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let data_guard = from_net_data.lock().unwrap();
+
+    // this hash will be use to find the entities that are no longuer in the player views
+    // We copy the original hash and then remove all the entity found in the json
+    // Then we delete the entitty of the leftover entry of the hash
+    let mut entities_to_delete = id_to_entity.clone();
+
+    for (id, gen, point, renderable) in &data_guard.map {
+        if let Some(&entity) = id_to_entity.get(&(*id, *gen)) {
+            let mut transform = query.get_component_mut::<Transform>(entity).unwrap();
+            let translation = &mut transform.translation;
+            *translation.x_mut() = point.x as f32 * TILE_SIZE;
+            *translation.y_mut() = point.y as f32 * TILE_SIZE;
+
+            entities_to_delete.remove(&(*id, *gen));
+        } else {
+            let new_entity = commands
+                .spawn(SpriteComponents {
+                    material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
+                    transform: Transform::from_translation(Vec3::new(
+                        point.x as f32 * TILE_SIZE,
+                        point.y as f32 * TILE_SIZE,
+                        0.0,
+                    )),
+                    sprite: Sprite::new(Vec2::new(5.0, 5.0)),
+                    ..Default::default()
+                })
+                .current_entity()
+                .unwrap();
+
+            id_to_entity.insert((*id, *gen), new_entity);
+        }
+    }
+
+    //delete entity than are no longer in views
+    for (key, &entity) in &entities_to_delete {
+        commands.despawn(entity);
+
+        id_to_entity.remove(&key);
     }
 }
