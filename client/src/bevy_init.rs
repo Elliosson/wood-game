@@ -1,11 +1,19 @@
 use super::Data;
+use super::PlayerInfo;
 use super::TILE_SIZE;
 use bevy::prelude::*;
+use bevy::render::camera::Camera;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
+    {
+        //TODO make proper register system
+        let mut to_send_guard = to_send.lock().unwrap();
+        to_send_guard.push(format!("register {}", "test"));
+    }
     let id_to_entity: HashMap<(u32, i32), Entity> = HashMap::new();
+    let player_info = PlayerInfo::default();
 
     App::build()
         .add_plugins(DefaultPlugins)
@@ -13,10 +21,13 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_resource(protect_data)
         .add_resource(id_to_entity)
         .add_resource(to_send)
+        .add_resource(player_info)
         .add_startup_system(setup.system())
         .add_system(button_system.system())
         .add_system(player_movement_system.system())
         .add_system(map_system.system())
+        .add_system(deserialise_player_info_system.system())
+        .add_system(camera_system.system())
         .run();
 }
 
@@ -92,25 +103,33 @@ fn setup(
 fn player_movement_system(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
+    to_send: ResMut<Arc<Mutex<Vec<String>>>>,
+    net_data: ResMut<Arc<Mutex<Data>>>,
     mut query: Query<(&Player, &mut Transform)>,
 ) {
+    let mut to_send_guard = to_send.lock().unwrap();
+    let data_guard = net_data.lock().unwrap();
     for (player, mut transform) in query.iter_mut() {
         let mut direction_x = 0.0;
         let mut direction_y = 0.0;
         if keyboard_input.pressed(KeyCode::Left) {
             direction_x -= 1.0;
-        }
-
-        if keyboard_input.pressed(KeyCode::Up) {
-            direction_y += 1.0;
-        }
-
-        if keyboard_input.pressed(KeyCode::Down) {
-            direction_y -= 1.0;
+            to_send_guard.push(format!("{} {}", data_guard.my_uid, "left"));
         }
 
         if keyboard_input.pressed(KeyCode::Right) {
             direction_x += 1.0;
+            to_send_guard.push(format!("{} {}", data_guard.my_uid, "right"));
+        }
+
+        if keyboard_input.pressed(KeyCode::Up) {
+            direction_y += 1.0;
+            to_send_guard.push(format!("{} {}", data_guard.my_uid, "up"));
+        }
+
+        if keyboard_input.pressed(KeyCode::Down) {
+            direction_y -= 1.0;
+            to_send_guard.push(format!("{} {}", data_guard.my_uid, "down"));
         }
 
         let translation = &mut transform.translation;
@@ -127,7 +146,7 @@ fn map_system(
     from_net_data: Res<Arc<Mutex<Data>>>,
     mut id_to_entity: ResMut<HashMap<(u32, i32), Entity>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut entity_query: Query<Entity>,
+    mut transform_query: Query<&mut Transform>,
 ) {
     let data_guard = from_net_data.lock().unwrap();
 
@@ -138,10 +157,13 @@ fn map_system(
 
     for (id, gen, point, renderable) in &data_guard.map {
         if let Some(&entity) = id_to_entity.get(&(*id, *gen)) {
-            let mut transform = entity_query.get_component_mut::<Transform>(entity).unwrap();
-            let translation = &mut transform.translation;
-            *translation.x_mut() = point.x as f32 * TILE_SIZE;
-            *translation.y_mut() = point.y as f32 * TILE_SIZE;
+            if let Ok(mut transform) = transform_query.get_component_mut::<Transform>(entity) {
+                let translation = &mut transform.translation;
+                *translation.x_mut() = point.x as f32 * TILE_SIZE;
+                *translation.y_mut() = point.y as f32 * TILE_SIZE;
+            } else {
+                print!("Bad query");
+            }
 
             entities_to_delete.remove(&(*id, *gen));
         } else {
@@ -169,5 +191,34 @@ fn map_system(
         commands.despawn(entity);
 
         id_to_entity.remove(&key);
+    }
+}
+
+fn deserialise_player_info_system(
+    mut commands: Commands,
+    from_net_data: Res<Arc<Mutex<Data>>>,
+    mut player_info: ResMut<PlayerInfo>,
+) {
+    let data_guard = from_net_data.lock().unwrap();
+
+    match serde_json::from_str(&data_guard.info_string) {
+        Ok(info) => {
+            let temp: PlayerInfo = info;
+            *player_info = temp.clone();
+        }
+        Err(_) => println!("unable to deserialize json"),
+    }
+}
+
+fn camera_system(
+    mut commands: Commands,
+    mut player_info: ResMut<PlayerInfo>,
+    mut query: Query<(&Camera, &mut Transform)>,
+) {
+    for (camera, mut transform) in query.iter_mut() {
+        let translation = &mut transform.translation;
+
+        *translation.x_mut() = player_info.my_info.pos.x as f32 * TILE_SIZE;
+        *translation.y_mut() = player_info.my_info.pos.y as f32 * TILE_SIZE;
     }
 }

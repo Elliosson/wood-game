@@ -3,7 +3,7 @@ use serde::Deserialize;
 use specs::prelude::*;
 
 //Special component for network, Do NOT serialize, it's could go badly
-#[derive(Component, Deserialize, Debug, Clone)]
+#[derive(Component, Deserialize, Debug, Clone, Default)]
 pub struct PlayerInfo {
     pub inventaire: Vec<InventaireItem>,
     pub close_interations: Vec<CloseInteration>,
@@ -18,7 +18,7 @@ pub struct BuildingPlan {
     pub name: String,
 }
 
-#[derive(Component, Deserialize, Debug, Clone)]
+#[derive(Component, Deserialize, Debug, Clone, Default)]
 pub struct MyInfo {
     pub pos: Position,
     pub hp: i32,
@@ -26,7 +26,7 @@ pub struct MyInfo {
     pub player_log: Vec<String>,
 }
 
-#[derive(Component, Deserialize, Debug, Clone)]
+#[derive(Component, Deserialize, Debug, Clone, Default)]
 pub struct Position {
     pub x: i32,
     pub y: i32,
