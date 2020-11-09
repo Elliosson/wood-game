@@ -91,13 +91,33 @@ fn setup(
         // ui camera
         .spawn(Camera2dComponents::default())
         .spawn(UiCameraComponents::default())
-        .spawn(SpriteComponents {
-            material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
-            transform: Transform::from_translation(Vec3::new(0.0, 5.0, 0.0)),
-            sprite: Sprite::new(Vec2::new(120.0, 30.0)),
+        .spawn(ButtonComponents {
+            style: Style {
+                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                // center button
+                margin: Rect::all(Val::Auto),
+                // horizontally center child text
+                justify_content: JustifyContent::Center,
+                // vertically center child text
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            material: button_materials.normal.clone(),
             ..Default::default()
         })
-        .with(Player {});
+        .with_children(|parent| {
+            parent.spawn(TextComponents {
+                text: Text {
+                    value: "Button".to_string(),
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    style: TextStyle {
+                        font_size: 40.0,
+                        color: Color::rgb(0.9, 0.9, 0.9),
+                    },
+                },
+                ..Default::default()
+            });
+        });
 }
 
 fn player_movement_system(
@@ -194,10 +214,12 @@ fn deserialise_player_info_system(
 }
 
 fn camera_system(player_info: ResMut<PlayerInfo>, mut query: Query<(&Camera, &mut Transform)>) {
-    for (_camera, mut transform) in query.iter_mut() {
-        let translation = &mut transform.translation;
+    for (camera, mut transform) in query.iter_mut() {
+        if camera.name == Some("Camera2d".to_string()) {
+            let translation = &mut transform.translation;
 
-        *translation.x_mut() = player_info.my_info.pos.x as f32 * TILE_SIZE;
-        *translation.y_mut() = player_info.my_info.pos.y as f32 * TILE_SIZE;
+            *translation.x_mut() = player_info.my_info.pos.x as f32 * TILE_SIZE;
+            *translation.y_mut() = player_info.my_info.pos.y as f32 * TILE_SIZE;
+        }
     }
 }
