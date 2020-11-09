@@ -2,13 +2,12 @@ use rltk::Rltk;
 #[macro_use]
 extern crate specs_derive;
 mod components;
-mod main_menu;
 pub use components::*;
 
 mod network;
 mod rltk_front;
 pub use rltk_front::Runstate;
-
+mod bevy_init;
 use std::sync::{Arc, Mutex};
 
 #[cfg(target_arch = "wasm32")]
@@ -17,33 +16,10 @@ use wasm_bindgen::prelude::*;
 extern crate specs;
 use specs::prelude::*;
 
-mod bundle;
-mod game;
-mod systems;
-use crate::bundle::{GameBundle, NetworkBundle};
-
 #[cfg(target_arch = "wasm32")]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
-
-use amethyst::{
-    assets::HotReloadBundle,
-    core::transform::TransformBundle,
-    derive::SystemDesc,
-    input::{InputBundle, StringBindings},
-    prelude::*,
-    renderer::{
-        plugins::{RenderFlat2D, RenderToWindow},
-        types::DefaultBackend,
-        RenderingBundle,
-    },
-    shrev::{EventChannel, ReaderId},
-    ui::{RenderUi, UiBundle, UiEvent},
-    utils::application_root_dir,
-};
-
-use amethyst_imgui::RenderImgui;
 
 pub struct Data {
     pub characters: Vec<Point>,
@@ -79,7 +55,7 @@ fn main() {
     let to_send: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     network::lauch_network(protect_data.clone(), to_send.clone());
     //rltk_init(protect_data.clone(), to_send.clone());
-    amethyst_init(protect_data.clone(), to_send.clone()).expect("Fail in amethyst_init");
+    bevy_init::bevy_init(protect_data.clone(), to_send.clone());
 }
 
 pub fn rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
@@ -112,103 +88,4 @@ pub fn rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     };
 
     rltk::main_loop(context, gs);
-}
-
-pub struct Ball {
-    pub velocity: [f32; 2],
-    pub radius: f32,
-}
-
-impl Component for Ball {
-    type Storage = DenseVecStorage<Self>;
-}
-
-pub struct InMap {
-    pub velocity: [f32; 2],
-    pub radius: f32,
-}
-
-impl Component for InMap {
-    type Storage = DenseVecStorage<Self>;
-}
-
-pub struct Uuid {
-    pub string: String,
-}
-
-impl Component for Uuid {
-    type Storage = DenseVecStorage<Self>;
-}
-
-pub fn amethyst_init(
-    protect_data: Arc<Mutex<Data>>,
-    to_send: Arc<Mutex<Vec<String>>>,
-) -> amethyst::Result<()> {
-    amethyst::start_logger(Default::default());
-
-    let app_root = application_root_dir()?;
-
-    let key_bindings_path = app_root.join("resources/input.ron");
-
-    let app_root = application_root_dir()?;
-
-    let resources = app_root.join("resources");
-    let display_config = resources.join("display_config.ron");
-
-    let game_data = GameDataBuilder::default()
-        .with_barrier()
-        .with_bundle(TransformBundle::new())?
-        .with_bundle(
-            InputBundle::<StringBindings>::new().with_bindings_from_file(key_bindings_path)?,
-        )?
-        .with_bundle(
-            RenderingBundle::<DefaultBackend>::new()
-                .with_plugin(
-                    RenderToWindow::from_config_path(display_config)?
-                        .with_clear([0.34, 0.36, 0.52, 1.0]),
-                )
-                .with_plugin(RenderFlat2D::default())
-                .with_plugin(RenderImgui::<StringBindings>::default())
-                .with_plugin(RenderUi::default()),
-        )?
-        .with_bundle(GameBundle)?
-        .with_bundle(NetworkBundle {
-            protect_data,
-            to_send,
-        })?
-        .with_bundle(HotReloadBundle::default())?
-        .with_system_desc(UiEventHandlerSystemDesc::default(), "ui_event_handler", &[])
-        .with_bundle(UiBundle::<StringBindings>::new())?;
-    //ici on poura lancer le stat avec la map, penser a faire le buddle aussi, le bundle va initialiser les ressource
-
-    let mut game = Application::new(resources, main_menu::MainMenu::default(), game_data)?;
-    //let mut game = Application::new(resources, game::MyGame, game_data)?;
-    game.run();
-
-    Ok(())
-}
-
-/// This shows how to handle UI events. This is the same as in the 'ui' example.
-#[derive(SystemDesc)]
-#[system_desc(name(UiEventHandlerSystemDesc))]
-pub struct UiEventHandlerSystem {
-    #[system_desc(event_channel_reader)]
-    reader_id: ReaderId<UiEvent>,
-}
-
-impl UiEventHandlerSystem {
-    pub fn new(reader_id: ReaderId<UiEvent>) -> Self {
-        Self { reader_id }
-    }
-}
-
-impl<'a> System<'a> for UiEventHandlerSystem {
-    type SystemData = Write<'a, EventChannel<UiEvent>>;
-
-    fn run(&mut self, events: Self::SystemData) {
-        // Reader id was just initialized above if empty
-        for ev in events.read(&mut self.reader_id) {
-            log::info!("[SYSTEM] You just interacted with an ui element: {:?}", ev);
-        }
-    }
 }

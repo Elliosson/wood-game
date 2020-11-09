@@ -1,8 +1,7 @@
 //#[cfg(target_arch = "wasm32")]
-use super::Data;
-//use futures::prelude::*;
 use super::general_network;
 use super::general_network::handle_responce;
+use super::Data;
 use std::sync::{Arc, Mutex};
 
 use wasm_bindgen::prelude::*;
