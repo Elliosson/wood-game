@@ -5,13 +5,18 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
+    let id_to_entity: HashMap<(u32, i32), Entity> = HashMap::new();
+
     App::build()
         .add_plugins(DefaultPlugins)
         .init_resource::<ButtonMaterials>()
         .add_resource(protect_data)
+        .add_resource(id_to_entity)
+        .add_resource(to_send)
         .add_startup_system(setup.system())
         .add_system(button_system.system())
         .add_system(player_movement_system.system())
+        .add_system(map_system.system())
         .run();
 }
 
@@ -107,7 +112,6 @@ fn player_movement_system(
         if keyboard_input.pressed(KeyCode::Right) {
             direction_x += 1.0;
         }
-        println!("dir x {} y {}", direction_x, direction_y);
 
         let translation = &mut transform.translation;
         // move the paddle horizontally
@@ -119,12 +123,11 @@ fn player_movement_system(
 }
 
 fn map_system(
+    mut commands: Commands,
     from_net_data: Res<Arc<Mutex<Data>>>,
     mut id_to_entity: ResMut<HashMap<(u32, i32), Entity>>,
-    mut query: Query<(&Player, &mut Transform)>,
-    mut entity_query: Query<Entity>,
-    mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    mut entity_query: Query<Entity>,
 ) {
     let data_guard = from_net_data.lock().unwrap();
 
@@ -135,13 +138,14 @@ fn map_system(
 
     for (id, gen, point, renderable) in &data_guard.map {
         if let Some(&entity) = id_to_entity.get(&(*id, *gen)) {
-            let mut transform = query.get_component_mut::<Transform>(entity).unwrap();
+            let mut transform = entity_query.get_component_mut::<Transform>(entity).unwrap();
             let translation = &mut transform.translation;
             *translation.x_mut() = point.x as f32 * TILE_SIZE;
             *translation.y_mut() = point.y as f32 * TILE_SIZE;
 
             entities_to_delete.remove(&(*id, *gen));
         } else {
+            println!("new object {} {}", point.x, point.y);
             let new_entity = commands
                 .spawn(SpriteComponents {
                     material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
