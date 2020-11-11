@@ -1,3 +1,4 @@
+use super::components::Renderable;
 use super::Data;
 use super::PlayerInfo;
 use super::TILE_SIZE;
@@ -95,7 +96,7 @@ fn setup(
             style: Style {
                 size: Size::new(Val::Px(150.0), Val::Px(65.0)),
                 // center button
-                margin: Rect::all(Val::Auto),
+                margin: Rect{bottom: Val::Px(10.), ..Default::default()},
                 // horizontally center child text
                 justify_content: JustifyContent::Center,
                 // vertically center child text
@@ -117,6 +118,39 @@ fn setup(
                 },
                 ..Default::default()
             });
+        })
+        .with_children(|parent| {
+            parent
+                .spawn(ButtonComponents {
+                    style: Style {
+                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                        // center button
+                        margin: Rect {
+                            left: Val::Px(50.),
+                            ..Default::default()
+                        },
+                        // horizontally center child text
+                        justify_content: JustifyContent::Center,
+                        // vertically center child text
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    material: button_materials.normal.clone(),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(TextComponents {
+                        text: Text {
+                            value: "Button".to_string(),
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            style: TextStyle {
+                                font_size: 40.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                        },
+                        ..Default::default()
+                    });
+                });
         });
 }
 
@@ -147,6 +181,7 @@ fn player_movement_system(
 
 fn map_system(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     from_net_data: Res<Arc<Mutex<Data>>>,
     mut id_to_entity: ResMut<HashMap<(u32, i32), Entity>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -172,19 +207,10 @@ fn map_system(
             entities_to_delete.remove(&(*id, *gen));
         } else {
             println!("new object {} {}", point.x, point.y);
-            let new_entity = commands
-                .spawn(SpriteComponents {
-                    material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
-                    transform: Transform::from_translation(Vec3::new(
-                        point.x as f32 * TILE_SIZE,
-                        point.y as f32 * TILE_SIZE,
-                        0.0,
-                    )),
-                    sprite: Sprite::new(Vec2::new(TILE_SIZE, TILE_SIZE)),
-                    ..Default::default()
-                })
-                .current_entity()
-                .unwrap();
+
+            let sprit_component =
+                get_sprite_component(&asset_server, renderable, &mut materials, point.x, point.y);
+            let new_entity = commands.spawn(sprit_component).current_entity().unwrap();
 
             id_to_entity.insert((*id, *gen), new_entity);
         }
@@ -196,6 +222,41 @@ fn map_system(
 
         id_to_entity.remove(&key);
     }
+}
+
+fn get_sprite_component(
+    asset_server: &Res<AssetServer>,
+    renderable: &Renderable,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+    x: i32,
+    y: i32,
+) -> SpriteComponents {
+    let transform =
+        Transform::from_translation(Vec3::new(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE, 0.0));
+
+    let texture_handle;
+    if renderable.glyph == '8' as u8 {
+        texture_handle = asset_server.load("sprites/tree.png");
+    } else if renderable.glyph == 'M' as u8 {
+        texture_handle = asset_server.load("sprites/squeletton.png");
+    } else if renderable.glyph == '^' as u8 {
+        texture_handle = asset_server.load("sprites/rock.png");
+    } else if renderable.glyph == '*' as u8 {
+        texture_handle = asset_server.load("sprites/loot.png");
+    } else if renderable.glyph == 'A' as u8 {
+        texture_handle = asset_server.load("sprites/purple_germ.png");
+    } else if renderable.glyph == '@' as u8 {
+        texture_handle = asset_server.load("sprites/character.png");
+    } else {
+        println!("unknown glyph {}", renderable.glyph as char);
+        texture_handle = asset_server.load("sprites/unknown.png");
+    }
+
+    return SpriteComponents {
+        material: materials.add(texture_handle.into()),
+        transform,
+        ..Default::default()
+    };
 }
 
 fn deserialise_player_info_system(
