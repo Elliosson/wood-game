@@ -40,6 +40,7 @@ pub struct Rect {
 #[derive(Debug, Clone, Default)]
 pub struct UiCom {
     pub inventory: bool,
+    pub inventory_active: bool,
     pub build: bool,
     pub interaction: bool,
     pub esc: bool,
