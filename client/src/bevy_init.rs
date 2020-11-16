@@ -34,6 +34,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(camera_system.system())
         .add_system(inventory_button_system.system())
         .add_system(inventory_ui_system.system())
+        .add_system(inventory_item_button_system.system())
         .run();
 }
 
@@ -96,6 +97,8 @@ fn inventory_item_button_system(
     commands: Commands,
     asset_server: Res<AssetServer>,
     button_materials: Res<ButtonMaterials>,
+    to_send: ResMut<Arc<Mutex<Vec<String>>>>,
+    net_data: ResMut<Arc<Mutex<Data>>>,
     mut interaction_query: Query<(
         &Button,
         Mutated<Interaction>,
@@ -103,9 +106,7 @@ fn inventory_item_button_system(
         &Children,
         &InventoryItemButton,
     )>,
-    net_data: ResMut<Arc<Mutex<Data>>>,
     mut text_query: Query<&mut Text>,
-    to_send: ResMut<Arc<Mutex<Vec<String>>>>,
 ) {
     let mut to_send_guard = to_send.lock().unwrap();
     let data_guard = net_data.lock().unwrap();
