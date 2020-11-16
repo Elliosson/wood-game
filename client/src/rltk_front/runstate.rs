@@ -4,7 +4,8 @@ extern crate specs;
 use std::sync::{Arc, Mutex};
 
 use super::gui;
-use crate::{components::*, Rect};
+use super::Rect;
+use crate::components::*;
 
 #[derive(Debug, Clone)]
 pub enum Runstate {

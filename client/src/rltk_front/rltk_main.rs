@@ -1,8 +1,9 @@
 pub use super::gui;
 pub use super::runstate::{player_input, Runstate};
+use super::Rect;
 use rltk::{Console, GameState, Rltk, RGB};
 
-pub use crate::{components::*, Data, Rect};
+pub use crate::{components::*, Data};
 
 use std::sync::{Arc, Mutex};
 
@@ -95,4 +96,36 @@ fn draw_map(ctx: &mut Rltk, mut map: Vec<(u32, i32, Point, Renderable)>, my_pos:
             ctx.set(x, y, render.fg, render.bg, render.glyph);
         }
     }
+}
+
+pub fn rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
+    let context = Rltk::init_simple8x8(180 as u32, 90 as u32, "Ecosystem simulator", "resources");
+    let gs = State {
+        rectangle: Rect {
+            height: 6,
+            width: 2,
+            x: 5,
+            y: 5,
+        },
+        data: protect_data.clone(),
+        to_send: to_send.clone(),
+        ecs: World::new(),
+        player_info: PlayerInfo {
+            inventaire: Vec::new(),
+            close_interations: Vec::new(),
+            my_info: MyInfo {
+                pos: Position { x: 0, y: 0 },
+                hp: 0,
+                max_hp: 0,
+                player_log: vec![],
+            },
+            possible_builds: Vec::new(),
+            equipement: Vec::new(),
+            combat_stats: Default::default(),
+        },
+        runstate: Runstate::Register,
+        pseudo: "".to_string(),
+    };
+
+    rltk::main_loop(context, gs);
 }
