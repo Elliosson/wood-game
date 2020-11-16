@@ -3,12 +3,13 @@ use rltk::Rltk;
 extern crate specs_derive;
 mod components;
 pub use components::*;
-
+mod bevy_systems;
 mod network;
 mod rltk_front;
 pub use rltk_front::Runstate;
 mod bevy_init;
 use std::sync::{Arc, Mutex};
+mod bevy_components;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
