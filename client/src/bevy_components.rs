@@ -8,6 +8,15 @@ pub struct InventoryItemButton {
     pub generation: i32,
 }
 
+pub struct InteractionButton {}
+pub struct InteractionWindow {}
+pub struct InteractionItemButton {
+    pub interaction_name: String,
+    pub object_name: String,
+    pub index: u32,
+    pub generation: i32,
+}
+
 pub struct ButtonMaterials {
     pub normal: Handle<ColorMaterial>,
     pub hovered: Handle<ColorMaterial>,

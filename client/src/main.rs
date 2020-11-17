@@ -34,6 +34,7 @@ pub struct UiCom {
     pub inventory_active: bool,
     pub build: bool,
     pub interaction: bool,
+    pub interaction_active: bool,
     pub esc: bool,
 }
 

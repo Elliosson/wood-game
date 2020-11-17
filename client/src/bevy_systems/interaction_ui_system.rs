@@ -1,19 +1,19 @@
 use crate::bevy_components::{
-    ButtonMaterials, InventoryButton, InventoryItemButton, InventoryWindow,
+    ButtonMaterials, InteractionButton, InteractionItemButton, InteractionWindow,
 };
 use crate::{Data, PlayerInfo, UiCom};
 use bevy::prelude::*;
 use std::sync::{Arc, Mutex};
 
-pub fn inventory_button_system(
+pub fn interaction_button_system(
     _commands: Commands,
     mut ui_com: ResMut<UiCom>,
-    mut interaction_query: Query<(&Button, &InventoryButton, Mutated<Interaction>)>,
+    mut interaction_query: Query<(&Button, &InteractionButton, Mutated<Interaction>)>,
 ) {
-    for (_button, _inventory_button, interaction) in interaction_query.iter_mut() {
+    for (_button, _interaction_button, interaction) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
-                ui_com.inventory = !ui_com.inventory;
+                ui_com.interaction = !ui_com.interaction;
             }
             Interaction::Hovered => {}
             Interaction::None => {}
@@ -22,11 +22,12 @@ pub fn inventory_button_system(
 }
 
 //send data to the server when the button is pressed
-pub fn inventory_item_button_system(
+pub fn interaction_item_button_system(
     _commands: Commands,
     to_send: ResMut<Arc<Mutex<Vec<String>>>>,
     net_data: ResMut<Arc<Mutex<Data>>>,
-    mut interaction_query: Query<(&Button, Mutated<Interaction>, &InventoryItemButton)>,
+    player_info: Res<PlayerInfo>,
+    mut interaction_query: Query<(&Button, Mutated<Interaction>, &InteractionItemButton)>,
 ) {
     let mut to_send_guard = to_send.lock().unwrap();
     let data_guard = net_data.lock().unwrap();
@@ -38,6 +39,17 @@ pub fn inventory_item_button_system(
                     "{} {} {} {}",
                     data_guard.my_uid, "consume", item.index, item.generation
                 ));
+
+                to_send_guard.push(format!(
+                    "{} {} {} {} {} {} {}",
+                    data_guard.my_uid,
+                    "interact",
+                    player_info.my_info.pos.x,
+                    player_info.my_info.pos.y,
+                    item.interaction_name,
+                    item.index,
+                    item.generation
+                ));
             }
             Interaction::Hovered => {}
             Interaction::None => {}
@@ -45,20 +57,20 @@ pub fn inventory_item_button_system(
     }
 }
 
-//create the window of the inventory
-pub fn inventory_ui_system(
+//create the window of the interaction
+pub fn interaction_ui_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     button_materials: Res<ButtonMaterials>,
     player_info: Res<PlayerInfo>,
     mut ui_com: ResMut<UiCom>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut query: Query<(Entity, &InventoryWindow)>,
+    mut query: Query<(Entity, &InteractionWindow)>,
 ) {
-    if ui_com.inventory == true && ui_com.inventory_active == false {
-        //spawn the inventory ui
+    if ui_com.interaction == true && ui_com.interaction_active == false {
+        //spawn the interaction ui
 
-        ui_com.inventory_active = true;
+        ui_com.interaction_active = true;
         let base_node = commands
             .spawn(NodeComponents {
                 style: Style {
@@ -77,9 +89,9 @@ pub fn inventory_ui_system(
                 material: materials.add(Color::WHITE.into()),
                 ..Default::default()
             })
-            .with(InventoryWindow {});
+            .with(InteractionWindow {});
 
-        for item in &player_info.inventaire {
+        for interact in &player_info.close_interations {
             //create a button
             base_node.with_children(|parent| {
                 parent
@@ -99,17 +111,18 @@ pub fn inventory_ui_system(
                         material: button_materials.normal.clone(),
                         ..Default::default()
                     })
-                    .with(InventoryWindow {})
-                    .with(InventoryItemButton {
-                        name: item.name.clone(),
-                        index: item.index,
-                        generation: item.generation,
+                    .with(InteractionWindow {})
+                    .with(InteractionItemButton {
+                        interaction_name: interact.interaction_name.clone(),
+                        object_name: interact.object_name.clone(),
+                        index: interact.index,
+                        generation: interact.generation,
                     })
                     .with_children(|parent| {
                         parent
                             .spawn(TextComponents {
                                 text: Text {
-                                    value: item.name.clone(),
+                                    value: interact.interaction_name.clone(),
                                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     style: TextStyle {
                                         font_size: 10.0,
@@ -118,15 +131,15 @@ pub fn inventory_ui_system(
                                 },
                                 ..Default::default()
                             })
-                            .with(InventoryWindow {});
+                            .with(InteractionWindow {});
                     });
             });
         }
-    } else if ui_com.inventory == false && ui_com.inventory_active == true {
+    } else if ui_com.interaction == false && ui_com.interaction_active == true {
         //despawn the invetory ui
-        ui_com.inventory_active = false;
+        ui_com.interaction_active = false;
         let mut to_despawns: Vec<Entity> = Vec::new();
-        for (entity, _inventory_windows) in query.iter_mut() {
+        for (entity, _interaction_windows) in query.iter_mut() {
             to_despawns.push(entity);
         }
 
