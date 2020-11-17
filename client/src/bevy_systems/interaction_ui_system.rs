@@ -36,11 +36,6 @@ pub fn interaction_item_button_system(
         match *interaction {
             Interaction::Clicked => {
                 to_send_guard.push(format!(
-                    "{} {} {} {}",
-                    data_guard.my_uid, "consume", item.index, item.generation
-                ));
-
-                to_send_guard.push(format!(
                     "{} {} {} {} {} {} {}",
                     data_guard.my_uid,
                     "interact",
@@ -61,80 +56,21 @@ pub fn interaction_item_button_system(
 pub fn interaction_ui_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
     button_materials: Res<ButtonMaterials>,
     player_info: Res<PlayerInfo>,
     mut ui_com: ResMut<UiCom>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     mut query: Query<(Entity, &InteractionWindow)>,
 ) {
     if ui_com.interaction == true && ui_com.interaction_active == false {
-        //spawn the interaction ui
-
         ui_com.interaction_active = true;
-        let base_node = commands
-            .spawn(NodeComponents {
-                style: Style {
-                    size: Size::new(Val::Px(500.0), Val::Px(500.0)),
-                    position: Rect {
-                        left: Val::Percent(0.),
-                        top: Val::Percent(0.),
-                        ..Default::default()
-                    },
-                    flex_direction: FlexDirection::Column,
-                    // align_content: AlignContent::FlexStart,
-                    // justify_content: JustifyContent::FlexStart,
-                    justify_content: JustifyContent::FlexEnd,
-                    ..Default::default()
-                },
-                material: materials.add(Color::WHITE.into()),
-                ..Default::default()
-            })
-            .with(InteractionWindow {});
-
-        for interact in &player_info.close_interations {
-            //create a button
-            base_node.with_children(|parent| {
-                parent
-                    .spawn(ButtonComponents {
-                        style: Style {
-                            margin: Rect {
-                                bottom: Val::Px(10.),
-                                ..Default::default()
-                            },
-                            size: Size::new(Val::Px(70.0), Val::Px(30.0)),
-                            // horizontally center child text
-                            justify_content: JustifyContent::Center,
-                            // vertically center child text
-                            align_items: AlignItems::Center,
-                            ..Default::default()
-                        },
-                        material: button_materials.normal.clone(),
-                        ..Default::default()
-                    })
-                    .with(InteractionWindow {})
-                    .with(InteractionItemButton {
-                        interaction_name: interact.interaction_name.clone(),
-                        object_name: interact.object_name.clone(),
-                        index: interact.index,
-                        generation: interact.generation,
-                    })
-                    .with_children(|parent| {
-                        parent
-                            .spawn(TextComponents {
-                                text: Text {
-                                    value: interact.interaction_name.clone(),
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                    style: TextStyle {
-                                        font_size: 10.0,
-                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                    },
-                                },
-                                ..Default::default()
-                            })
-                            .with(InteractionWindow {});
-                    });
-            });
-        }
+        spawn_interaction_ui(
+            commands,
+            asset_server,
+            materials,
+            button_materials,
+            player_info,
+        );
     } else if ui_com.interaction == false && ui_com.interaction_active == true {
         //despawn the invetory ui
         ui_com.interaction_active = false;
@@ -146,5 +82,81 @@ pub fn interaction_ui_system(
         for to_despawn in to_despawns.drain(..) {
             commands.despawn(to_despawn);
         }
+    }
+}
+
+fn spawn_interaction_ui(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    button_materials: Res<ButtonMaterials>,
+    player_info: Res<PlayerInfo>,
+) {
+    let base_node = commands
+        //have a preconficured node compoent for this ?
+        .spawn(NodeComponents {
+            style: Style {
+                size: Size::new(Val::Px(500.0), Val::Px(500.0)),
+                position: Rect {
+                    left: Val::Percent(0.),
+                    top: Val::Percent(0.),
+                    ..Default::default()
+                },
+                flex_direction: FlexDirection::Column,
+                // align_content: AlignContent::FlexStart,
+                // justify_content: JustifyContent::FlexStart,
+                justify_content: JustifyContent::FlexEnd,
+                ..Default::default()
+            },
+            material: materials.add(Color::WHITE.into()),
+            ..Default::default()
+        })
+        .with(InteractionWindow {});
+
+    for interact in &player_info.close_interations {
+        //create a button
+        base_node.with_children(|parent| {
+            parent
+                .spawn(ButtonComponents {
+                    //todo have a predone style of button
+                    style: Style {
+                        margin: Rect {
+                            bottom: Val::Px(10.),
+                            ..Default::default()
+                        },
+                        size: Size::new(Val::Px(70.0), Val::Px(30.0)),
+                        // horizontally center child text
+                        justify_content: JustifyContent::Center,
+                        // vertically center child text
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    material: button_materials.normal.clone(),
+                    ..Default::default()
+                })
+                .with(InteractionWindow {})
+                .with(InteractionItemButton {
+                    interaction_name: interact.interaction_name.clone(),
+                    object_name: interact.object_name.clone(),
+                    index: interact.index,
+                    generation: interact.generation,
+                })
+                .with_children(|parent| {
+                    parent
+                        .spawn(TextComponents {
+                            text: Text {
+                                //todo, same I must just have the same to add, I think I have a way to initialise a Compoent with a child
+                                value: interact.interaction_name.clone(),
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                style: TextStyle {
+                                    font_size: 10.0,
+                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                },
+                            },
+                            ..Default::default()
+                        })
+                        .with(InteractionWindow {});
+                });
+        });
     }
 }
