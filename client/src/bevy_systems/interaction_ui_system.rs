@@ -88,52 +88,20 @@ pub fn interaction_ui_system(
 fn spawn_interaction_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    materials: ResMut<Assets<ColorMaterial>>,
     button_materials: Res<ButtonMaterials>,
     player_info: Res<PlayerInfo>,
 ) {
     let base_node = commands
         //have a preconficured node compoent for this ?
-        .spawn(NodeComponents {
-            style: Style {
-                size: Size::new(Val::Px(500.0), Val::Px(500.0)),
-                position: Rect {
-                    left: Val::Percent(0.),
-                    top: Val::Percent(0.),
-                    ..Default::default()
-                },
-                flex_direction: FlexDirection::Column,
-                // align_content: AlignContent::FlexStart,
-                // justify_content: JustifyContent::FlexStart,
-                justify_content: JustifyContent::FlexEnd,
-                ..Default::default()
-            },
-            material: materials.add(Color::WHITE.into()),
-            ..Default::default()
-        })
+        .spawn(window_node(materials))
         .with(InteractionWindow {});
 
     for interact in &player_info.close_interations {
         //create a button
         base_node.with_children(|parent| {
             parent
-                .spawn(ButtonComponents {
-                    //todo have a predone style of button
-                    style: Style {
-                        margin: Rect {
-                            bottom: Val::Px(10.),
-                            ..Default::default()
-                        },
-                        size: Size::new(Val::Px(70.0), Val::Px(30.0)),
-                        // horizontally center child text
-                        justify_content: JustifyContent::Center,
-                        // vertically center child text
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
-                    material: button_materials.normal.clone(),
-                    ..Default::default()
-                })
+                .spawn(base_button(&button_materials))
                 .with(InteractionWindow {})
                 .with(InteractionItemButton {
                     interaction_name: interact.interaction_name.clone(),
@@ -143,20 +111,64 @@ fn spawn_interaction_ui(
                 })
                 .with_children(|parent| {
                     parent
-                        .spawn(TextComponents {
-                            text: Text {
-                                //todo, same I must just have the same to add, I think I have a way to initialise a Compoent with a child
-                                value: interact.interaction_name.clone(),
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                style: TextStyle {
-                                    font_size: 10.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
-                                },
-                            },
-                            ..Default::default()
-                        })
+                        .spawn(text(interact.interaction_name.clone(), &asset_server))
                         .with(InteractionWindow {});
                 });
         });
+    }
+}
+
+fn window_node(mut materials: ResMut<Assets<ColorMaterial>>) -> NodeComponents {
+    NodeComponents {
+        style: Style {
+            size: Size::new(Val::Px(500.0), Val::Px(500.0)),
+            position: Rect {
+                left: Val::Percent(0.),
+                top: Val::Percent(0.),
+                ..Default::default()
+            },
+            flex_direction: FlexDirection::Column,
+            // align_content: AlignContent::FlexStart,
+            // justify_content: JustifyContent::FlexStart,
+            justify_content: JustifyContent::FlexEnd,
+            ..Default::default()
+        },
+        material: materials.add(Color::WHITE.into()),
+        ..Default::default()
+    }
+}
+
+fn base_button(button_materials: &Res<ButtonMaterials>) -> ButtonComponents {
+    ButtonComponents {
+        //todo have a predone style of button
+        style: Style {
+            margin: Rect {
+                bottom: Val::Px(10.),
+                ..Default::default()
+            },
+            size: Size::new(Val::Px(70.0), Val::Px(30.0)),
+            // horizontally center child text
+            justify_content: JustifyContent::Center,
+            // vertically center child text
+            align_items: AlignItems::Center,
+            ..Default::default()
+        },
+        material: button_materials.normal.clone(),
+        ..Default::default()
+    }
+}
+
+fn text(string: String, asset_server: &Res<AssetServer>) -> TextComponents {
+    TextComponents {
+        text: Text {
+            //todo, same I must just have the same to add, I think I have a way to initialise a Compoent with a child
+            value: string,
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            style: TextStyle {
+                font_size: 10.0,
+                color: Color::rgb(0.9, 0.9, 0.9),
+            },
+        },
+        ..Default::default()
     }
 }
