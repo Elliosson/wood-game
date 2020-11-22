@@ -71,6 +71,24 @@ fn get_sprite_component(
         texture_handle = asset_server.load("sprites/purple_germ.png");
     } else if renderable.glyph == '@' as u8 {
         texture_handle = asset_server.load("sprites/character.png");
+    } else if renderable.glyph == 'O' as u8 {
+        texture_handle = asset_server.load("sprites/ghost.png");
+    } else if renderable.glyph == 'T' as u8 {
+        texture_handle = asset_server.load("sprites/tree.png");
+    } else if renderable.glyph == 'D' as u8 {
+        texture_handle = asset_server.load("sprites/rock.png");
+    } else if renderable.glyph == 'X' as u8 {
+        texture_handle = asset_server.load("sprites/wall.png");
+    } else if renderable.glyph == '+' as u8 {
+        texture_handle = asset_server.load("sprites/door.png");
+    } else if renderable.glyph == 'S' as u8 {
+        texture_handle = asset_server.load("sprites/craftshop.png");
+    } else if renderable.glyph == 'G' as u8 {
+        texture_handle = asset_server.load("sprites/garden.png");
+    } else if renderable.glyph == 'C' as u8 {
+        texture_handle = asset_server.load("sprites/carrot_plant.png");
+    } else if renderable.glyph == 'B' as u8 {
+        texture_handle = asset_server.load("sprites/bed.png");
     } else {
         println!("unknown glyph {}", renderable.glyph as char);
         texture_handle = asset_server.load("sprites/unknown.png");
