@@ -17,6 +17,12 @@ pub struct InteractionItemButton {
     pub generation: i32,
 }
 
+pub struct BuildButton {}
+pub struct BuildWindow {}
+pub struct BuildItemButton {
+    pub name: String,
+}
+
 pub struct ButtonMaterials {
     pub normal: Handle<ColorMaterial>,
     pub hovered: Handle<ColorMaterial>,
