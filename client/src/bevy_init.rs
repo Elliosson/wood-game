@@ -10,6 +10,8 @@ use bevy::prelude::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+pub const MAX_RENDER_PRIORITY: f32 = 20.0;
+
 pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
     {
         //TODO make proper register system
@@ -54,7 +56,7 @@ fn setup(
 ) {
     let player_sprite = SpriteComponents {
         material: materials.add(asset_server.load("sprites/character.png").into()),
-        transform: Transform::from_translation(Vec3::new(0., 0., 0.0)),
+        transform: Transform::from_translation(Vec3::new(0., 0., MAX_RENDER_PRIORITY)),
         ..Default::default()
     };
     commands

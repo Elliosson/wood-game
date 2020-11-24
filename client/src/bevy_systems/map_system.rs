@@ -1,4 +1,4 @@
-use crate::{Data, Renderable, TILE_SIZE};
+use crate::{bevy_init::MAX_RENDER_PRIORITY, Data, Renderable, TILE_SIZE};
 use bevy::prelude::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -37,8 +37,14 @@ pub fn map_system(
         } else {
             // println!("new object {} {}", point.x, point.y);
 
-            let sprit_component =
-                get_sprite_component(&asset_server, renderable, &mut materials, point.x, point.y);
+            let sprit_component = get_sprite_component(
+                &asset_server,
+                renderable,
+                &mut materials,
+                point.x,
+                point.y,
+                renderable.render_order,
+            );
             let new_entity = commands.spawn(sprit_component).current_entity().unwrap();
 
             id_to_entity.insert((*id, *gen), new_entity);
@@ -59,9 +65,13 @@ fn get_sprite_component(
     materials: &mut ResMut<Assets<ColorMaterial>>,
     x: i32,
     y: i32,
+    render_order: i32,
 ) -> SpriteComponents {
-    let transform =
-        Transform::from_translation(Vec3::new(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE, 0.0));
+    let transform = Transform::from_translation(Vec3::new(
+        x as f32 * TILE_SIZE,
+        y as f32 * TILE_SIZE,
+        MAX_RENDER_PRIORITY - render_order as f32, // invert render order, because in the server, 0 is the highest priority
+    ));
 
     let texture_handle;
     if renderable.glyph == '8' as u8 {
