@@ -1,4 +1,6 @@
-use super::bevy_components::{BuildButton, ButtonMaterials, InteractionButton, InventoryButton};
+use super::bevy_components::{
+    BuildButton, ButtonMaterials, InteractionButton, InventoryButton, Player,
+};
 use super::bevy_systems::*;
 use super::Data;
 use super::PlayerInfo;
@@ -47,12 +49,20 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     button_materials: Res<ButtonMaterials>,
 ) {
+    let player_sprite = SpriteComponents {
+        material: materials.add(asset_server.load("sprites/character.png").into()),
+        transform: Transform::from_translation(Vec3::new(0., 0., 0.0)),
+        ..Default::default()
+    };
     commands
         // ui camera
         .spawn(Camera2dComponents::default())
         .spawn(UiCameraComponents::default())
+        .spawn(player_sprite)
+        .with(Player {})
         .spawn(ButtonComponents {
             style: Style {
                 size: Size::new(Val::Px(150.0), Val::Px(65.0)),

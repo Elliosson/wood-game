@@ -23,6 +23,8 @@ pub struct BuildItemButton {
     pub name: String,
 }
 
+pub struct Player {}
+
 pub struct ButtonMaterials {
     pub normal: Handle<ColorMaterial>,
     pub hovered: Handle<ColorMaterial>,

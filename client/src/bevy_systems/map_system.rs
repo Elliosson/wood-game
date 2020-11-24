@@ -22,10 +22,15 @@ pub fn map_system(
         if let Some(&entity) = id_to_entity.get(&(*id, *gen)) {
             if let Ok(mut transform) = transform_query.get_component_mut::<Transform>(entity) {
                 let translation = &mut transform.translation;
-                *translation.x_mut() = point.x as f32 * TILE_SIZE;
-                *translation.y_mut() = point.y as f32 * TILE_SIZE;
+                if *translation.x_mut() != point.x as f32 * TILE_SIZE
+                    || *translation.y_mut() != point.y as f32 * TILE_SIZE
+                {
+                    println!("move to {} {}", point.x, point.y);
+                    *translation.x_mut() = point.x as f32 * TILE_SIZE;
+                    *translation.y_mut() = point.y as f32 * TILE_SIZE;
+                }
             } else {
-                print!("Bad query");
+                println!("Bad query");
             }
 
             entities_to_delete.remove(&(*id, *gen));
