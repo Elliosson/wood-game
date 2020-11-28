@@ -1,3 +1,4 @@
+mod animate_sprite_system;
 mod build_ui_system;
 mod button_system;
 mod camera_system;
@@ -9,6 +10,7 @@ mod player_input_system;
 mod ui_bases;
 
 pub use self::{
+    animate_sprite_system::animate_sprite_system,
     build_ui_system::{build_button_system, build_item_button_system, build_ui_system},
     button_system::button_system,
     camera_system::camera_system,

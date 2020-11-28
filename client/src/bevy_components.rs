@@ -8,6 +8,21 @@ pub struct InventoryItemButton {
     pub generation: i32,
 }
 
+#[derive(Clone, PartialEq, Eq)]
+pub enum Direction2D {
+    Top,
+    Down,
+    Right,
+    Left,
+}
+pub struct CharacAnimation {
+    pub counter: usize,
+}
+
+pub struct Sens {
+    pub direction: Direction2D,
+}
+
 pub struct InteractionButton {}
 pub struct InteractionWindow {}
 pub struct InteractionItemButton {

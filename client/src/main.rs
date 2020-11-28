@@ -14,7 +14,7 @@ use wasm_bindgen::prelude::*;
 
 extern crate specs;
 
-pub const TILE_SIZE: f32 = 16.;
+pub const TILE_SIZE: f32 = 32.;
 
 #[cfg(target_arch = "wasm32")]
 macro_rules! console_log {

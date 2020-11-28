@@ -75,9 +75,9 @@ fn get_sprite_component(
 
     let texture_handle;
     if renderable.glyph == '8' as u8 {
-        texture_handle = asset_server.load("sprites/tree.png");
+        texture_handle = asset_server.load("sprites/tree32.png");
     } else if renderable.glyph == 'M' as u8 {
-        texture_handle = asset_server.load("sprites/squeletton.png");
+        texture_handle = asset_server.load("sprites/squeletton32.png");
     } else if renderable.glyph == '^' as u8 {
         texture_handle = asset_server.load("sprites/rock.png");
     } else if renderable.glyph == '*' as u8 {
@@ -85,15 +85,15 @@ fn get_sprite_component(
     } else if renderable.glyph == 'A' as u8 {
         texture_handle = asset_server.load("sprites/purple_germ.png");
     } else if renderable.glyph == '@' as u8 {
-        texture_handle = asset_server.load("sprites/character.png");
+        texture_handle = asset_server.load("sprites/character32.png");
     } else if renderable.glyph == 'O' as u8 {
         texture_handle = asset_server.load("sprites/ghost.png");
     } else if renderable.glyph == 'T' as u8 {
-        texture_handle = asset_server.load("sprites/tree.png");
+        texture_handle = asset_server.load("sprites/tree32.png");
     } else if renderable.glyph == 'D' as u8 {
         texture_handle = asset_server.load("sprites/rock.png");
     } else if renderable.glyph == 'X' as u8 {
-        texture_handle = asset_server.load("sprites/wall.png");
+        texture_handle = asset_server.load("sprites/wall32.png");
     } else if renderable.glyph == '+' as u8 {
         texture_handle = asset_server.load("sprites/door.png");
     } else if renderable.glyph == 'S' as u8 {

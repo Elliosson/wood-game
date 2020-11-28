@@ -1,5 +1,6 @@
 use super::bevy_components::{
-    BuildButton, ButtonMaterials, InteractionButton, InventoryButton, Player,
+    BuildButton, ButtonMaterials, CharacAnimation, Direction2D, InteractionButton, InventoryButton,
+    Player, Sens,
 };
 use super::bevy_systems::*;
 use super::Data;
@@ -45,6 +46,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(build_button_system.system())
         .add_system(build_ui_system.system())
         .add_system(build_item_button_system.system())
+        .add_system(animate_sprite_system.system())
         .run();
 }
 
@@ -53,9 +55,14 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     button_materials: Res<ButtonMaterials>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let player_sprite = SpriteComponents {
-        material: materials.add(asset_server.load("sprites/character.png").into()),
+    let texture_handle = asset_server.load("sprites/character_sheet.png");
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 3, 4);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+    let player_sprite = SpriteSheetComponents {
+        texture_atlas: texture_atlas_handle,
         transform: Transform::from_translation(Vec3::new(0., 0., MAX_RENDER_PRIORITY)),
         ..Default::default()
     };
@@ -65,6 +72,11 @@ fn setup(
         .spawn(UiCameraComponents::default())
         .spawn(player_sprite)
         .with(Player {})
+        .with(Timer::from_seconds(0.05, true))
+        .with(CharacAnimation { counter: 0 })
+        .with(Sens {
+            direction: Direction2D::Down,
+        })
         .spawn(ButtonComponents {
             style: Style {
                 size: Size::new(Val::Px(150.0), Val::Px(65.0)),
