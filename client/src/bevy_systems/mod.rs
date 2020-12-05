@@ -6,8 +6,10 @@ mod deserialise_system;
 mod interaction_ui_system;
 mod inventory_ui_system;
 mod map_system;
+mod movement_system;
 mod player_input_system;
 mod ui_bases;
+mod update_player_system;
 
 pub use self::{
     animate_sprite_system::animate_sprite_system,
@@ -22,6 +24,8 @@ pub use self::{
         inventory_button_system, inventory_item_button_system, inventory_ui_system,
     },
     map_system::map_system,
+    movement_system::movement_decision_system,
     player_input_system::player_movement_system,
     ui_bases::{base_button, text, window_node},
+    update_player_system::update_player_system,
 };

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-
+use std::time::{Duration, Instant};
 pub struct InventoryButton {}
 pub struct InventoryWindow {}
 pub struct InventoryItemButton {
@@ -8,12 +8,13 @@ pub struct InventoryItemButton {
     pub generation: i32,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Direction2D {
-    Top,
+    Up,
     Down,
     Right,
     Left,
+    None,
 }
 pub struct CharacAnimation {
     pub counter: usize,
@@ -40,6 +41,47 @@ pub struct BuildItemButton {
 
 pub struct Player {}
 
+pub struct ServerState {
+    pub x: i32,
+    pub y: i32,
+}
+
+pub enum MovementKind {
+    Teleport,
+    Walk,
+}
+pub struct Movement {
+    pub origin: IPoint,
+    pub destination: IPoint,
+    pub direction: Direction2D,
+    pub kind: MovementKind,
+    pub counter: usize,
+    pub next_time: Instant,
+}
+
+#[derive(Clone, Debug)]
+pub struct IPoint {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl IPoint {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct FPoint {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl FPoint {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self { x, y }
+    }
+}
 pub struct ButtonMaterials {
     pub normal: Handle<ColorMaterial>,
     pub hovered: Handle<ColorMaterial>,

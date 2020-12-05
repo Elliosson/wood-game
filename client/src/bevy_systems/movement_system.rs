@@ -1,0 +1,107 @@
+use crate::bevy_components::{
+    CharacAnimation, Direction2D, IPoint, Movement, MovementKind, Player, ServerState,
+};
+use crate::{PlayerInfo, TILE_SIZE};
+use bevy::prelude::*;
+use bevy::render::camera::Camera;
+use std::time::{Duration, Instant};
+
+// Compare the position of the entity with the server position and choose
+//the apropriate movement to execute
+
+pub fn movement_decision_system(
+    mut commands: Commands,
+    player_info: ResMut<PlayerInfo>,
+    mut query_camera: Query<(&Camera, &mut Transform)>,
+    mut query_server_state: Query<(Entity, &Transform, &ServerState, &Player)>,
+    mut query_movements: Query<(Entity, &mut Movement)>,
+) {
+    //if there is currently a player movement, move the camera and player accordingly
+    //else create the movement
+
+    for (entity, transform, server_state, player) in query_server_state.iter_mut() {
+        if let Ok(mut movement) = query_movements.get_component_mut::<Movement>(entity) {
+            if movement.destination.x == server_state.x && movement.destination.y == server_state.y
+            {
+                //ok
+                continue;
+            } else {
+                //remove the movement and make a classic movement dessision
+                println!("Movement interupted");
+                commands.remove_one::<Movement>(entity);
+            }
+        }
+
+        let translation = transform.translation;
+        let server_pos_x = server_state.x as f32 * TILE_SIZE;
+        let server_pos_y = server_state.y as f32 * TILE_SIZE;
+
+        //todo, not realy good for original position
+        let tpos_x = (translation.x() / TILE_SIZE) as i32;
+        let tpos_y = (translation.y() / TILE_SIZE) as i32;
+
+        // println!("tposx {}, sposx{}", tpos_x, server_state.x);
+
+        //check if we need a movement
+        if tpos_x != server_state.x || tpos_y != server_state.y {
+            println!("new movement");
+            //deside if we must teleport of move
+            let distance = (tpos_x - server_state.x).abs() + (tpos_y - server_state.y).abs();
+
+            if distance > 2 {
+                //todo put 1 instead when the isue is resolved
+                //teleport
+                println!(
+                    "insert teleports movement from {} {} to {} {}",
+                    tpos_x, tpos_y, server_state.x, server_state.y
+                );
+                commands.insert_one(
+                    entity,
+                    Movement {
+                        origin: IPoint::new(tpos_x, tpos_y),
+                        destination: IPoint::new(server_state.x, server_state.y),
+                        direction: Direction2D::None,
+                        kind: MovementKind::Teleport,
+                        counter: 0,
+                        next_time: Instant::now(),
+                    },
+                );
+            } else {
+                println!("insert walking movement");
+                //walking movement
+                let direction = get_direction(
+                    (translation.x(), translation.y()),
+                    (server_pos_x, server_pos_y),
+                );
+                println!("direction {:?}", direction);
+
+                commands.insert_one(
+                    entity,
+                    Movement {
+                        origin: IPoint::new(tpos_x, tpos_y),
+                        destination: IPoint::new(server_state.x, server_state.y),
+                        direction,
+                        kind: MovementKind::Walk,
+                        counter: 0,
+                        next_time: Instant::now(),
+                    },
+                );
+            }
+        }
+    }
+}
+
+//don't handle the diagonal
+pub fn get_direction(origin: (f32, f32), destination: (f32, f32)) -> Direction2D {
+    if origin.0 > destination.0 {
+        return Direction2D::Left;
+    } else if origin.0 < destination.0 {
+        return Direction2D::Right;
+    } else if origin.1 > destination.1 {
+        return Direction2D::Down;
+    } else if origin.1 < destination.1 {
+        return Direction2D::Up;
+    } else {
+        return Direction2D::None;
+    }
+}

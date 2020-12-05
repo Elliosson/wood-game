@@ -1,3 +1,4 @@
+use crate::bevy_components::ServerState;
 use crate::{bevy_init::MAX_RENDER_PRIORITY, Data, Renderable, TILE_SIZE};
 use bevy::prelude::*;
 use std::collections::HashMap;
@@ -10,6 +11,7 @@ pub fn map_system(
     mut id_to_entity: ResMut<HashMap<(u32, i32), Entity>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut transform_query: Query<&mut Transform>,
+    mut server_state_query: Query<&mut ServerState>,
 ) {
     let data_guard = from_net_data.lock().unwrap();
 
@@ -20,22 +22,22 @@ pub fn map_system(
 
     for (id, gen, point, renderable) in &data_guard.map {
         if let Some(&entity) = id_to_entity.get(&(*id, *gen)) {
-            if let Ok(mut transform) = transform_query.get_component_mut::<Transform>(entity) {
-                let translation = &mut transform.translation;
-                if *translation.x_mut() != point.x as f32 * TILE_SIZE
-                    || *translation.y_mut() != point.y as f32 * TILE_SIZE
-                {
+            if let Ok(mut server_state) =
+                server_state_query.get_component_mut::<ServerState>(entity)
+            {
+                if server_state.x != point.x || server_state.y != point.y {
                     println!("move to {} {}", point.x, point.y);
-                    *translation.x_mut() = point.x as f32 * TILE_SIZE;
-                    *translation.y_mut() = point.y as f32 * TILE_SIZE;
+                    server_state.x = point.x;
+                    server_state.y = point.y;
                 }
             } else {
-                println!("Bad query");
+                println!("Bad ServerSate query");
             }
 
             entities_to_delete.remove(&(*id, *gen));
         } else {
-            // println!("new object {} {}", point.x, point.y);
+            //create entity
+            println!("new object {} {}", point.x, point.y);
 
             let sprit_component = get_sprite_component(
                 &asset_server,
@@ -45,7 +47,14 @@ pub fn map_system(
                 point.y,
                 renderable.render_order,
             );
-            let new_entity = commands.spawn(sprit_component).current_entity().unwrap();
+            let new_entity = commands
+                .spawn(sprit_component)
+                .with(ServerState {
+                    x: point.x,
+                    y: point.y,
+                })
+                .current_entity()
+                .unwrap();
 
             id_to_entity.insert((*id, *gen), new_entity);
         }

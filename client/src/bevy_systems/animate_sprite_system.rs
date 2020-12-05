@@ -16,7 +16,7 @@ pub fn animate_sprite_system(
     let mut to_removes = Vec::new();
     for (entity, mut animation, sens, timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
         let sprite_list;
-        if sens.direction == Direction2D::Top {
+        if sens.direction == Direction2D::Up {
             sprite_list = [9, 10, 11]
         } else if sens.direction == Direction2D::Down {
             sprite_list = [0, 1, 2]
@@ -41,3 +41,25 @@ pub fn animate_sprite_system(
     }
 }
 // animation.counter % sprite_list.len() as u32]
+
+pub fn update_sprite(
+    direction: Direction2D,
+    counter: usize,
+    sprite: &mut TextureAtlasSprite,
+    texture_atlases: Res<Assets<TextureAtlas>>,
+    texture_atlas_handle: &Handle<TextureAtlas>,
+) {
+    let sprite_list;
+    if direction == Direction2D::Up {
+        sprite_list = [9, 10, 11]
+    } else if direction == Direction2D::Down {
+        sprite_list = [0, 1, 2]
+    } else if direction == Direction2D::Left {
+        sprite_list = [3, 4, 5]
+    } else {
+        sprite_list = [6, 7, 8]
+    }
+
+    let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
+    sprite.index = sprite_list[(counter % sprite_list.len())] as u32;
+}

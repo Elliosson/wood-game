@@ -1,6 +1,6 @@
 use super::bevy_components::{
     BuildButton, ButtonMaterials, CharacAnimation, Direction2D, InteractionButton, InventoryButton,
-    Player, Sens,
+    Player, Sens, ServerState,
 };
 use super::bevy_systems::*;
 use super::Data;
@@ -46,7 +46,9 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(build_button_system.system())
         .add_system(build_ui_system.system())
         .add_system(build_item_button_system.system())
-        .add_system(animate_sprite_system.system())
+        // .add_system(animate_sprite_system.system())
+        .add_system(movement_decision_system.system())
+        .add_system(update_player_system.system())
         .run();
 }
 
@@ -74,6 +76,7 @@ fn setup(
         .with(Player {})
         .with(Timer::from_seconds(0.05, true))
         .with(CharacAnimation { counter: 0 })
+        .with(ServerState { x: 0, y: 0 })
         .with(Sens {
             direction: Direction2D::Down,
         })
