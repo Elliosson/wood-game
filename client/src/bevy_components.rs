@@ -41,6 +41,7 @@ pub struct BuildItemButton {
 }
 
 pub struct Player {}
+pub struct NonPlayer {}
 
 pub struct ServerState {
     pub x: i32,

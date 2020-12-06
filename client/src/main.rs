@@ -2,6 +2,7 @@
 extern crate specs_derive;
 mod components;
 pub use components::*;
+mod animation;
 mod bevy_init;
 mod bevy_systems;
 mod network;

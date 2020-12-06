@@ -1,6 +1,4 @@
-use crate::bevy_components::{
-    Direction2D, FPoint, IPoint, Movement, MovementKind, Player, ServerState,
-};
+use crate::bevy_components::{Direction2D, FPoint, IPoint, Movement, MovementKind, ServerState};
 use crate::TILE_SIZE;
 use bevy::prelude::*;
 use std::time::Instant;
@@ -10,13 +8,13 @@ use std::time::Instant;
 
 pub fn movement_decision_system(
     mut commands: Commands,
-    mut query_server_state: Query<(Entity, &Transform, &ServerState, &Player)>,
+    mut query_server_state: Query<(Entity, &Transform, &ServerState)>,
     query_movements: Query<(Entity, &Movement)>,
 ) {
     //if there is currently a player movement, move the camera and player accordingly
     //else create the movement
 
-    for (entity, transform, server_state, player) in query_server_state.iter_mut() {
+    for (entity, transform, server_state) in query_server_state.iter_mut() {
         if let Ok(movement) = query_movements.get_component::<Movement>(entity) {
             if movement.tdestination.x == server_state.x
                 && movement.tdestination.y == server_state.y

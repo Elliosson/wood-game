@@ -46,7 +46,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(build_button_system.system())
         .add_system(build_ui_system.system())
         .add_system(build_item_button_system.system())
-        // .add_system(animate_sprite_system.system())
+        .add_system(animate_sprite_system.system())
         .add_system(movement_decision_system.system())
         .add_system(update_player_system.system())
         .run();

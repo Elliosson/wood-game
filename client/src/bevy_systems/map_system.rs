@@ -1,4 +1,4 @@
-use crate::bevy_components::ServerState;
+use crate::bevy_components::{NonPlayer, ServerState};
 use crate::{bevy_init::MAX_RENDER_PRIORITY, Data, Renderable, TILE_SIZE};
 use bevy::prelude::*;
 use std::collections::HashMap;
@@ -9,7 +9,7 @@ pub fn map_system(
     asset_server: Res<AssetServer>,
     from_net_data: Res<Arc<Mutex<Data>>>,
     mut id_to_entity: ResMut<HashMap<(u32, i32), Entity>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut server_state_query: Query<&mut ServerState>,
 ) {
     let data_guard = from_net_data.lock().unwrap();
@@ -38,13 +38,13 @@ pub fn map_system(
             //create entity
             println!("new object {} {}", point.x, point.y);
 
-            let sprit_component = get_sprite_component(
+            let sprit_component = get_sprite_sheet_component(
                 &asset_server,
                 renderable,
-                &mut materials,
                 point.x,
                 point.y,
                 renderable.render_order,
+                &mut texture_atlases,
             );
             let new_entity = commands
                 .spawn(sprit_component)
@@ -52,6 +52,7 @@ pub fn map_system(
                     x: point.x,
                     y: point.y,
                 })
+                .with(NonPlayer {})
                 .current_entity()
                 .unwrap();
 
@@ -67,58 +68,137 @@ pub fn map_system(
     }
 }
 
-fn get_sprite_component(
+pub struct SheetInfo {
+    pub path: &'static str, //todo not sure about the static
+    pub collumns: usize,
+    pub row: usize,
+}
+
+fn get_sprite_sheet_component(
     asset_server: &Res<AssetServer>,
     renderable: &Renderable,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
     x: i32,
     y: i32,
     render_order: i32,
-) -> SpriteComponents {
+    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+) -> SpriteSheetComponents {
     let transform = Transform::from_translation(Vec3::new(
         x as f32 * TILE_SIZE,
         y as f32 * TILE_SIZE,
         MAX_RENDER_PRIORITY - render_order as f32, // invert render order, because in the server, 0 is the highest priority
     ));
 
-    let texture_handle;
-    if renderable.glyph == '8' as u8 {
-        texture_handle = asset_server.load("sprites/tree32.png");
+    let sheet_info = if renderable.glyph == '8' as u8 {
+        SheetInfo {
+            path: "sprites/tree32.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'M' as u8 {
-        texture_handle = asset_server.load("sprites/squeletton32.png");
+        SheetInfo {
+            path: "sprites/squeletton_sheet.png",
+            collumns: 3,
+            row: 4,
+        }
     } else if renderable.glyph == '^' as u8 {
-        texture_handle = asset_server.load("sprites/rock.png");
+        SheetInfo {
+            path: "sprites/rock.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == '*' as u8 {
-        texture_handle = asset_server.load("sprites/loot.png");
+        SheetInfo {
+            path: "sprites/loot.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'A' as u8 {
-        texture_handle = asset_server.load("sprites/purple_germ.png");
+        SheetInfo {
+            path: "sprites/purple_germ.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == '@' as u8 {
-        texture_handle = asset_server.load("sprites/character32.png");
+        SheetInfo {
+            path: "sprites/character_sheet.png",
+            collumns: 3,
+            row: 4,
+        }
     } else if renderable.glyph == 'O' as u8 {
-        texture_handle = asset_server.load("sprites/ghost.png");
+        SheetInfo {
+            path: "sprites/ghost.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'T' as u8 {
-        texture_handle = asset_server.load("sprites/tree32.png");
+        SheetInfo {
+            path: "sprites/tree32.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'D' as u8 {
-        texture_handle = asset_server.load("sprites/rock.png");
+        SheetInfo {
+            path: "sprites/rock.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'X' as u8 {
-        texture_handle = asset_server.load("sprites/wall32.png");
+        SheetInfo {
+            path: "sprites/wall32.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == '+' as u8 {
-        texture_handle = asset_server.load("sprites/door.png");
+        SheetInfo {
+            path: "sprites/door.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'S' as u8 {
-        texture_handle = asset_server.load("sprites/craftshop.png");
+        SheetInfo {
+            path: "sprites/craftshop.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'G' as u8 {
-        texture_handle = asset_server.load("sprites/garden.png");
+        SheetInfo {
+            path: "sprites/garden.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'C' as u8 {
-        texture_handle = asset_server.load("sprites/carrot_plant.png");
+        SheetInfo {
+            path: "sprites/carrot_plant.png",
+            collumns: 1,
+            row: 1,
+        }
     } else if renderable.glyph == 'B' as u8 {
-        texture_handle = asset_server.load("sprites/bed.png");
+        SheetInfo {
+            path: "sprites/bed.png",
+            collumns: 1,
+            row: 1,
+        }
     } else {
         println!("unknown glyph {}", renderable.glyph as char);
-        texture_handle = asset_server.load("sprites/unknown.png");
-    }
+        SheetInfo {
+            path: "sprites/unknown.png",
+            collumns: 1,
+            row: 1,
+        }
+    };
 
-    return SpriteComponents {
-        material: materials.add(texture_handle.into()),
+    let texture_handle = asset_server.load(sheet_info.path);
+    let texture_atlas = TextureAtlas::from_grid(
+        texture_handle,
+        Vec2::new(32.0, 32.0),
+        sheet_info.collumns,
+        sheet_info.row,
+    );
+
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+    return SpriteSheetComponents {
+        texture_atlas: texture_atlas_handle,
         transform,
         ..Default::default()
     };
