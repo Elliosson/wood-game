@@ -38,11 +38,11 @@ pub fn camera_system(
         if movement.next_time < now {
             //update the position
 
-            let new_x = movement.destination.x as f32 * TILE_SIZE;
-            let new_y = movement.destination.y as f32 * TILE_SIZE;
+            let new_x = movement.destination.x;
+            let new_y = movement.destination.y;
 
-            let old_x = movement.origin.x as f32 * TILE_SIZE;
-            let old_y = movement.origin.y as f32 * TILE_SIZE;
+            let old_x = movement.origin.x;
+            let old_y = movement.origin.y;
 
             if movement.counter == 4 {
                 *translation.x_mut() = new_x;

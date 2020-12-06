@@ -1,5 +1,5 @@
 use crate::bevy_components::{
-    CharacAnimation, Direction2D, IPoint, Movement, MovementKind, Player, ServerState,
+    CharacAnimation, Direction2D, FPoint, IPoint, Movement, MovementKind, Player, ServerState,
 };
 use crate::{PlayerInfo, TILE_SIZE};
 use bevy::prelude::*;
@@ -21,7 +21,8 @@ pub fn movement_decision_system(
 
     for (entity, transform, server_state, player) in query_server_state.iter_mut() {
         if let Ok(mut movement) = query_movements.get_component_mut::<Movement>(entity) {
-            if movement.destination.x == server_state.x && movement.destination.y == server_state.y
+            if movement.tdestination.x == server_state.x
+                && movement.tdestination.y == server_state.y
             {
                 //ok
                 continue;
@@ -46,20 +47,25 @@ pub fn movement_decision_system(
         if tpos_x != server_state.x || tpos_y != server_state.y {
             println!("new movement");
             //deside if we must teleport of move
-            let distance = (tpos_x - server_state.x).abs() + (tpos_y - server_state.y).abs();
+            let distance =
+                (translation.x() - server_pos_x).abs() + (translation.y() - server_pos_y).abs();
 
-            if distance > 2 {
+            if distance > 2. * TILE_SIZE {
                 //todo put 1 instead when the isue is resolved
                 //teleport
                 println!(
                     "insert teleports movement from {} {} to {} {}",
-                    tpos_x, tpos_y, server_state.x, server_state.y
+                    translation.x(),
+                    translation.y(),
+                    server_pos_x,
+                    server_pos_y
                 );
                 commands.insert_one(
                     entity,
                     Movement {
-                        origin: IPoint::new(tpos_x, tpos_y),
-                        destination: IPoint::new(server_state.x, server_state.y),
+                        origin: FPoint::new(translation.x(), translation.y()),
+                        destination: FPoint::new(server_pos_x, server_pos_y),
+                        tdestination: IPoint::new(server_state.x, server_state.y),
                         direction: Direction2D::None,
                         kind: MovementKind::Teleport,
                         counter: 0,
@@ -67,7 +73,13 @@ pub fn movement_decision_system(
                     },
                 );
             } else {
-                println!("insert walking movement");
+                println!(
+                    "insert walking movement from {} {} to {} {}",
+                    translation.x(),
+                    translation.y(),
+                    server_pos_x,
+                    server_pos_y
+                );
                 //walking movement
                 let direction = get_direction(
                     (translation.x(), translation.y()),
@@ -78,8 +90,9 @@ pub fn movement_decision_system(
                 commands.insert_one(
                     entity,
                     Movement {
-                        origin: IPoint::new(tpos_x, tpos_y),
-                        destination: IPoint::new(server_state.x, server_state.y),
+                        origin: FPoint::new(translation.x(), translation.y()),
+                        destination: FPoint::new(server_pos_x, server_pos_y),
+                        tdestination: IPoint::new(server_state.x, server_state.y),
                         direction,
                         kind: MovementKind::Walk,
                         counter: 0,
