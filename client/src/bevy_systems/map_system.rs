@@ -10,7 +10,6 @@ pub fn map_system(
     from_net_data: Res<Arc<Mutex<Data>>>,
     mut id_to_entity: ResMut<HashMap<(u32, i32), Entity>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut transform_query: Query<&mut Transform>,
     mut server_state_query: Query<&mut ServerState>,
 ) {
     let data_guard = from_net_data.lock().unwrap();

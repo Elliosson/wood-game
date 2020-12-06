@@ -3,7 +3,6 @@ use bevy::prelude::*;
 
 pub fn animate_sprite_system(
     mut commands: Commands,
-    texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<(
         Entity,
         &mut CharacAnimation,
@@ -27,7 +26,6 @@ pub fn animate_sprite_system(
         }
 
         if timer.finished {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             sprite.index = sprite_list[(animation.counter % sprite_list.len())] as u32;
             animation.counter += 1;
 
@@ -60,6 +58,5 @@ pub fn update_sprite(
         sprite_list = [6, 7, 8]
     }
 
-    let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
     sprite.index = sprite_list[(counter % sprite_list.len())] as u32;
 }

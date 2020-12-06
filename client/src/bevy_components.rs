@@ -1,6 +1,6 @@
 use crate::TILE_SIZE;
 use bevy::prelude::*;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 pub struct InventoryButton {}
 pub struct InventoryWindow {}
 pub struct InventoryItemButton {

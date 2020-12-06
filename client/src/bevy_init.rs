@@ -55,7 +55,6 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     button_materials: Res<ButtonMaterials>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {

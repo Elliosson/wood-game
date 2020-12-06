@@ -1,26 +1,23 @@
 use crate::bevy_components::{
-    CharacAnimation, Direction2D, FPoint, IPoint, Movement, MovementKind, Player, ServerState,
+    Direction2D, FPoint, IPoint, Movement, MovementKind, Player, ServerState,
 };
-use crate::{PlayerInfo, TILE_SIZE};
+use crate::TILE_SIZE;
 use bevy::prelude::*;
-use bevy::render::camera::Camera;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 // Compare the position of the entity with the server position and choose
 //the apropriate movement to execute
 
 pub fn movement_decision_system(
     mut commands: Commands,
-    player_info: ResMut<PlayerInfo>,
-    mut query_camera: Query<(&Camera, &mut Transform)>,
     mut query_server_state: Query<(Entity, &Transform, &ServerState, &Player)>,
-    mut query_movements: Query<(Entity, &mut Movement)>,
+    query_movements: Query<(Entity, &Movement)>,
 ) {
     //if there is currently a player movement, move the camera and player accordingly
     //else create the movement
 
     for (entity, transform, server_state, player) in query_server_state.iter_mut() {
-        if let Ok(mut movement) = query_movements.get_component_mut::<Movement>(entity) {
+        if let Ok(movement) = query_movements.get_component::<Movement>(entity) {
             if movement.tdestination.x == server_state.x
                 && movement.tdestination.y == server_state.y
             {

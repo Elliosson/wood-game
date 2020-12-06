@@ -1,5 +1,4 @@
-use crate::bevy_components::{CharacAnimation, Direction2D, FPoint, Movement, Player, ServerState};
-use crate::{PlayerInfo, TILE_SIZE};
+use crate::bevy_components::{Direction2D, FPoint, Movement, Player};
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use std::time::{Duration, Instant};
@@ -7,8 +6,6 @@ use std::time::{Duration, Instant};
 //todo refactor
 pub fn camera_system(
     mut commands: Commands,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    player_info: ResMut<PlayerInfo>,
     mut query_camera: Query<(&Camera, &mut Transform)>,
     mut query_player_mov: Query<(
         Entity,
@@ -16,7 +13,6 @@ pub fn camera_system(
         &mut Transform,
         &mut Movement,
         &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
     )>,
     // mut query_player: Query<(Entity, &Player, &mut Transform)>,
 ) {
@@ -29,9 +25,7 @@ pub fn camera_system(
 
     let mut new_player_position: Option<FPoint> = None;
 
-    for (entity, _player, mut transform, mut movement, mut sprite, texture_atlas_handle) in
-        query_player_mov.iter_mut()
-    {
+    for (entity, _player, mut transform, mut movement, mut sprite) in query_player_mov.iter_mut() {
         let now = Instant::now();
         let translation = &mut transform.translation;
 
@@ -49,26 +43,14 @@ pub fn camera_system(
                 *translation.y_mut() = new_y;
 
                 //update sprite and remve mouvement
-                update_sprite(
-                    movement.direction.clone(),
-                    movement.counter,
-                    &mut *sprite,
-                    &texture_atlases,
-                    texture_atlas_handle,
-                );
+                update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
 
                 commands.remove_one::<Movement>(entity);
             } else {
                 *translation.x_mut() = old_x + (new_x - old_x) * (movement.counter as f32 / 4.);
                 *translation.y_mut() = old_y + (new_y - old_y) * (movement.counter as f32 / 4.);
                 //update sprite
-                update_sprite(
-                    movement.direction.clone(),
-                    movement.counter,
-                    &mut *sprite,
-                    &texture_atlases,
-                    texture_atlas_handle,
-                );
+                update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
 
                 movement.counter += 1;
                 movement.next_time = now + Duration::from_millis(7);
@@ -106,13 +88,7 @@ pub fn camera_system(
     }
 }
 
-pub fn update_sprite(
-    direction: Direction2D,
-    counter: usize,
-    sprite: &mut TextureAtlasSprite,
-    texture_atlases: &Res<Assets<TextureAtlas>>,
-    texture_atlas_handle: &Handle<TextureAtlas>,
-) {
+pub fn update_sprite(direction: Direction2D, counter: usize, sprite: &mut TextureAtlasSprite) {
     let sprite_list;
     if direction == Direction2D::Up {
         sprite_list = [9, 10, 11]
