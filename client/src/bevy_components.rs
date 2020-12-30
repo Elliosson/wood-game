@@ -39,7 +39,7 @@ pub struct BuildWindow {}
 pub struct BuildItemButton {
     pub name: String,
 }
-
+pub struct TextInfoUi {}
 pub struct Player {}
 pub struct NonPlayer {}
 
