@@ -49,6 +49,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(animate_sprite_system.system())
         .add_system(movement_decision_system.system())
         .add_system(update_player_system.system())
+        .add_system(text_info_ui_system.system())
         .run();
 }
 
@@ -182,6 +183,20 @@ fn setup(
                     font_size: 40.0,
                     color: Color::rgb(0.9, 0.9, 0.9),
                 },
+            },
+            style: Style {
+                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                // center button
+                margin: Rect {
+                    bottom: Val::Px(150.),
+                    left: Val::Px(10.),
+                    ..Default::default()
+                },
+                // horizontally center child text
+                justify_content: JustifyContent::Center,
+                // vertically center child text
+                align_items: AlignItems::Center,
+                ..Default::default()
             },
             ..Default::default()
         })
