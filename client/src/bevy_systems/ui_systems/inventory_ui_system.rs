@@ -1,3 +1,4 @@
+use super::ui_bases::*;
 use crate::bevy_components::{
     ButtonMaterials, InventoryButton, InventoryItemButton, InventoryWindow,
 };
@@ -52,7 +53,7 @@ pub fn inventory_ui_system(
     button_materials: Res<ButtonMaterials>,
     player_info: Res<PlayerInfo>,
     mut ui_com: ResMut<UiCom>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    materials: ResMut<Assets<ColorMaterial>>,
     mut query: Query<(Entity, &InventoryWindow)>,
 ) {
     if ui_com.inventory == true && ui_com.inventory_active == false {
@@ -60,45 +61,14 @@ pub fn inventory_ui_system(
 
         ui_com.inventory_active = true;
         let base_node = commands
-            .spawn(NodeComponents {
-                style: Style {
-                    size: Size::new(Val::Px(500.0), Val::Px(500.0)),
-                    position: Rect {
-                        left: Val::Percent(0.),
-                        top: Val::Percent(0.),
-                        ..Default::default()
-                    },
-                    flex_direction: FlexDirection::Column,
-                    // align_content: AlignContent::FlexStart,
-                    // justify_content: JustifyContent::FlexStart,
-                    justify_content: JustifyContent::FlexEnd,
-                    ..Default::default()
-                },
-                material: materials.add(Color::WHITE.into()),
-                ..Default::default()
-            })
+            .spawn(window_node(materials))
             .with(InventoryWindow {});
 
         for item in &player_info.inventaire {
             //create a button
             base_node.with_children(|parent| {
                 parent
-                    .spawn(ButtonComponents {
-                        style: Style {
-                            margin: Rect {
-                                bottom: Val::Px(10.),
-                                ..Default::default()
-                            },
-                            size: Size::new(Val::Px(70.0), Val::Px(30.0)),
-                            // horizontally center child text
-                            justify_content: JustifyContent::Center,
-                            // vertically center child text
-                            align_items: AlignItems::Center,
-                            ..Default::default()
-                        },
-                        material: button_materials.normal.clone(),
-                        ..Default::default()
-                    })
+                    .spawn(base_button(&button_materials))
                     .with(InventoryWindow {})
                     .with(InventoryItemButton {
                         name: item.name.clone(),
@@ -107,17 +77,7 @@ pub fn inventory_ui_system(
                     })
                     .with_children(|parent| {
                         parent
-                            .spawn(TextComponents {
-                                text: Text {
-                                    value: item.name.clone(),
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                    style: TextStyle {
-                                        font_size: 10.0,
-                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                    },
-                                },
-                                ..Default::default()
-                            })
+                            .spawn(text(item.name.clone(), &asset_server))
                             .with(InventoryWindow {});
                     });
             });

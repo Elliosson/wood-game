@@ -1,6 +1,6 @@
 use super::bevy_components::{
     BuildButton, ButtonMaterials, CharacAnimation, Direction2D, InteractionButton, InventoryButton,
-    MouseLoc, Player, Sens, ServerState, TextInfoUi,
+    MouseLoc, Player, Sens, ServerState, TextInfoUi, Tool,
 };
 use super::bevy_systems::*;
 use super::Data;
@@ -23,6 +23,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     let player_info = PlayerInfo::default();
     let ui_com = UiCom::default();
     let mouse_loc = MouseLoc::default();
+    let tool = Tool::default();
 
     App::build()
         .add_plugins(DefaultPlugins)
@@ -33,6 +34,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_resource(player_info)
         .add_resource(ui_com)
         .add_resource(mouse_loc)
+        .add_resource(tool)
         .add_startup_system(setup.system())
         .add_system(button_system.system())
         .add_system(keyboard_intput_system.system())

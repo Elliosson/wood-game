@@ -1,5 +1,4 @@
 use crate::TILE_SIZE;
-use bevy::input::mouse::MouseButtonInput;
 use bevy::prelude::*;
 use std::time::Instant;
 pub struct InventoryButton {}
@@ -73,7 +72,7 @@ impl IPoint {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-    pub fn to_fpos(self) -> FPoint {
+    pub fn _to_fpos(self) -> FPoint {
         FPoint {
             x: self.x as f32 * TILE_SIZE,
             y: self.y as f32 * TILE_SIZE,
@@ -91,7 +90,7 @@ impl FPoint {
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
-    pub fn to_tile(self) -> IPoint {
+    pub fn _to_tile(self) -> IPoint {
         //todo, I am realy realy not sure this is correct(round error)
         IPoint {
             x: (self.x / TILE_SIZE) as i32,
@@ -122,4 +121,9 @@ impl Default for MouseLoc {
     fn default() -> Self {
         MouseLoc(Vec2::new(0., 0.))
     }
+}
+
+#[derive(Default)]
+pub struct Tool {
+    pub name: Option<String>,
 }
