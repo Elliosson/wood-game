@@ -1,6 +1,6 @@
 use super::bevy_components::{
     BuildButton, ButtonMaterials, CharacAnimation, Direction2D, InteractionButton, InventoryButton,
-    Player, Sens, ServerState, TextInfoUi,
+    MouseLoc, Player, Sens, ServerState, TextInfoUi,
 };
 use super::bevy_systems::*;
 use super::Data;
@@ -22,6 +22,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     let id_to_entity: HashMap<(u32, i32), Entity> = HashMap::new();
     let player_info = PlayerInfo::default();
     let ui_com = UiCom::default();
+    let mouse_loc = MouseLoc::default();
 
     App::build()
         .add_plugins(DefaultPlugins)
@@ -31,9 +32,10 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_resource(to_send)
         .add_resource(player_info)
         .add_resource(ui_com)
+        .add_resource(mouse_loc)
         .add_startup_system(setup.system())
         .add_system(button_system.system())
-        .add_system(player_movement_system.system())
+        .add_system(keyboard_intput_system.system())
         .add_system(map_system.system())
         .add_system(deserialise_player_info_system.system())
         .add_system(camera_system.system())
@@ -50,6 +52,8 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(movement_decision_system.system())
         .add_system(update_player_system.system())
         .add_system(text_info_ui_system.system())
+        .add_system(mouse_press_system.system())
+        .add_system(mouse_movement_updating_system.system())
         .run();
 }
 

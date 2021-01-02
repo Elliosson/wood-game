@@ -1,8 +1,11 @@
+use crate::bevy_components::MouseLoc;
 use crate::{Data, UiCom};
+use bevy::input::mouse::*;
+use bevy::input::*;
 use bevy::prelude::*;
 use std::sync::{Arc, Mutex};
 
-pub fn player_movement_system(
+pub fn keyboard_intput_system(
     keyboard_input: Res<Input<KeyCode>>,
     to_send: ResMut<Arc<Mutex<Vec<String>>>>,
     net_data: ResMut<Arc<Mutex<Data>>>,
@@ -39,5 +42,37 @@ pub fn player_movement_system(
     }
     if keyboard_input.just_pressed(KeyCode::I) {
         ui_com.inventory = !ui_com.inventory;
+    }
+}
+
+#[derive(Default)]
+pub struct State {
+    mouse_button_event_reader: EventReader<MouseButtonInput>,
+    cursor_moved_event_reader: EventReader<CursorMoved>,
+}
+pub fn mouse_press_system(
+    mut state: Local<State>,
+    mouse_pressed_events: Res<Events<MouseButtonInput>>,
+    mouse_pos: ResMut<MouseLoc>,
+) {
+    for event in state.mouse_button_event_reader.iter(&mouse_pressed_events) {
+        if event.state == ElementState::Released {
+            match event.button {
+                MouseButton::Left => {
+                    println!("event: {:?} position: {:?}", event, mouse_pos.0);
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
+pub fn mouse_movement_updating_system(
+    mut mouse_pos: ResMut<MouseLoc>,
+    mut state: Local<State>,
+    cursor_moved_events: Res<Events<CursorMoved>>,
+) {
+    for event in state.cursor_moved_event_reader.iter(&cursor_moved_events) {
+        mouse_pos.0 = event.position;
     }
 }

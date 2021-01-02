@@ -1,4 +1,5 @@
 use crate::TILE_SIZE;
+use bevy::input::mouse::MouseButtonInput;
 use bevy::prelude::*;
 use std::time::Instant;
 pub struct InventoryButton {}
@@ -112,5 +113,13 @@ impl FromResources for ButtonMaterials {
             hovered: materials.add(Color::rgb(0.25, 0.25, 0.25).into()),
             pressed: materials.add(Color::rgb(0.35, 0.75, 0.35).into()),
         }
+    }
+}
+
+pub struct MouseLoc(pub Vec2);
+
+impl Default for MouseLoc {
+    fn default() -> Self {
+        MouseLoc(Vec2::new(0., 0.))
     }
 }
