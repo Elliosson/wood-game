@@ -1,5 +1,5 @@
-use crate::bevy_components::MouseLoc;
-use crate::{Data, UiCom};
+use crate::bevy_components::{MouseLoc, Tool};
+use crate::{Data, UiCom, TILE_SIZE};
 use bevy::input::mouse::*;
 use bevy::input::*;
 use bevy::prelude::*;
@@ -57,12 +57,28 @@ pub fn mouse_press_system(
     mut state: Local<State>,
     mouse_pressed_events: Res<Events<MouseButtonInput>>,
     mouse_pos: ResMut<MouseLoc>,
+    tool: ResMut<Tool>,
+    to_send: ResMut<Arc<Mutex<Vec<String>>>>,
+    net_data: ResMut<Arc<Mutex<Data>>>,
 ) {
+    let mut to_send_guard = to_send.lock().unwrap();
+    let data_guard = net_data.lock().unwrap();
+    let uid = data_guard.my_uid.clone();
+
     for event in state.mouse_button_event_reader.iter(&mouse_pressed_events) {
         if event.state == ElementState::Released {
             match event.button {
                 MouseButton::Left => {
                     println!("event: {:?} position: {:?}", event, mouse_pos.0);
+                    let pos = mouse_pos.0;
+                    //convert the click in tile pos
+                    let x = (pos.x() / TILE_SIZE) as i32;
+                    let y = (pos.y() / TILE_SIZE) as i32;
+
+                    if let Some(tool_name) = tool.name.clone() {
+                        to_send_guard
+                            .push(format!("{} {} {} {} {}", uid, "build", x, y, tool_name));
+                    }
                 }
                 _ => {}
             }
