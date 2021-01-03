@@ -56,6 +56,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(text_info_ui_system.system())
         .add_system(mouse_press_system.system())
         .add_system(mouse_movement_updating_system.system())
+        .add_system(inventory_equip_button_system.system())
         .run();
 }
 

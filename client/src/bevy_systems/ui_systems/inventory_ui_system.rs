@@ -1,6 +1,6 @@
 use super::ui_bases::*;
 use crate::bevy_components::{
-    ButtonMaterials, EquipButton, InventoryButton, InventoryItemButton, InventoryWindow,
+    ButtonMaterials, EquipButton, InventoryButton, InventoryItemButton, InventoryWindow, Tool,
 };
 use crate::{Data, PlayerInfo, UiCom};
 use bevy::prelude::*;
@@ -109,6 +109,20 @@ pub fn inventory_ui_system(
 
         for to_despawn in to_despawns.drain(..) {
             commands.despawn(to_despawn);
+        }
+    }
+}
+
+pub fn inventory_equip_button_system(
+    _commands: Commands,
+    mut tool: ResMut<Tool>,
+    mut interaction_query: Query<(&Button, Mutated<Interaction>, &EquipButton)>,
+) {
+    for (_button, interaction, item) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => tool.name = Some(item.name.clone()),
+            Interaction::Hovered => {}
+            Interaction::None => {}
         }
     }
 }

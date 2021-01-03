@@ -10,7 +10,8 @@ pub use self::{
         interaction_button_system, interaction_item_button_system, interaction_ui_system,
     },
     inventory_ui_system::{
-        inventory_button_system, inventory_item_button_system, inventory_ui_system,
+        inventory_button_system, inventory_equip_button_system, inventory_item_button_system,
+        inventory_ui_system,
     },
     text_info_ui_system::text_info_ui_system,
     ui_bases::{base_button, text, window_node},
