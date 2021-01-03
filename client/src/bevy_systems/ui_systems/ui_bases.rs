@@ -1,7 +1,7 @@
 use crate::bevy_components::ButtonMaterials;
 use bevy::prelude::*;
 
-pub fn window_node(mut materials: ResMut<Assets<ColorMaterial>>) -> NodeComponents {
+pub fn window_node(materials: &mut ResMut<Assets<ColorMaterial>>) -> NodeComponents {
     NodeComponents {
         style: Style {
             size: Size::new(Val::Px(500.0), Val::Px(500.0)),
@@ -17,6 +17,26 @@ pub fn window_node(mut materials: ResMut<Assets<ColorMaterial>>) -> NodeComponen
             ..Default::default()
         },
         material: materials.add(Color::WHITE.into()),
+        ..Default::default()
+    }
+}
+
+pub fn item_node(materials: &mut ResMut<Assets<ColorMaterial>>) -> NodeComponents {
+    NodeComponents {
+        style: Style {
+            size: Size::new(Val::Px(500.0), Val::Px(50.0)),
+            position: Rect {
+                left: Val::Percent(0.),
+                top: Val::Percent(0.),
+                ..Default::default()
+            },
+            flex_direction: FlexDirection::Row,
+            // align_content: AlignContent::FlexStart,
+            justify_content: JustifyContent::FlexStart,
+            // justify_content: JustifyContent::FlexEnd,
+            ..Default::default()
+        },
+        material: materials.add(Color::BLUE.into()),
         ..Default::default()
     }
 }

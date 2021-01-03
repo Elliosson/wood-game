@@ -85,13 +85,13 @@ pub fn build_ui_system(
 fn spawn_build_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     button_materials: Res<ButtonMaterials>,
     player_info: Res<PlayerInfo>,
 ) {
     let base_node = commands
         //have a preconficured node compoent for this ?
-        .spawn(window_node(materials))
+        .spawn(window_node(&mut materials))
         .with(BuildWindow {});
 
     for build in &player_info.possible_builds {

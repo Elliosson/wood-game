@@ -43,6 +43,9 @@ pub fn keyboard_intput_system(
     if keyboard_input.just_pressed(KeyCode::I) {
         ui_com.inventory = !ui_com.inventory;
     }
+    if keyboard_input.just_pressed(KeyCode::E) {
+        to_send_guard.push(format!("{} {}", data_guard.my_uid, "pickup"));
+    }
 }
 
 #[derive(Default)]

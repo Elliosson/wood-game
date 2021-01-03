@@ -1,6 +1,6 @@
 use super::ui_bases::*;
 use crate::bevy_components::{
-    ButtonMaterials, InventoryButton, InventoryItemButton, InventoryWindow,
+    ButtonMaterials, EquipButton, InventoryButton, InventoryItemButton, InventoryWindow,
 };
 use crate::{Data, PlayerInfo, UiCom};
 use bevy::prelude::*;
@@ -53,7 +53,7 @@ pub fn inventory_ui_system(
     button_materials: Res<ButtonMaterials>,
     player_info: Res<PlayerInfo>,
     mut ui_com: ResMut<UiCom>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut query: Query<(Entity, &InventoryWindow)>,
 ) {
     if ui_com.inventory == true && ui_com.inventory_active == false {
@@ -61,24 +61,41 @@ pub fn inventory_ui_system(
 
         ui_com.inventory_active = true;
         let base_node = commands
-            .spawn(window_node(materials))
+            .spawn(window_node(&mut materials))
             .with(InventoryWindow {});
 
         for item in &player_info.inventaire {
             //create a button
             base_node.with_children(|parent| {
                 parent
-                    .spawn(base_button(&button_materials))
+                    .spawn(item_node(&mut materials))
                     .with(InventoryWindow {})
-                    .with(InventoryItemButton {
-                        name: item.name.clone(),
-                        index: item.index,
-                        generation: item.generation,
-                    })
                     .with_children(|parent| {
                         parent
-                            .spawn(text(item.name.clone(), &asset_server))
-                            .with(InventoryWindow {});
+                            .spawn(base_button(&button_materials))
+                            .with(InventoryWindow {})
+                            .with(InventoryItemButton {
+                                name: item.name.clone(),
+                                index: item.index,
+                                generation: item.generation,
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn(text(item.name.clone(), &asset_server))
+                                    .with(InventoryWindow {});
+                            })
+                            .spawn(base_button(&button_materials))
+                            .with(InventoryWindow {})
+                            .with(EquipButton {
+                                name: item.name.clone(),
+                                index: item.index,
+                                generation: item.generation,
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn(text("equip".to_string(), &asset_server))
+                                    .with(InventoryWindow {});
+                            });
                     });
             });
         }

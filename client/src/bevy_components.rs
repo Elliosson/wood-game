@@ -8,6 +8,11 @@ pub struct InventoryItemButton {
     pub index: u32,
     pub generation: i32,
 }
+pub struct EquipButton {
+    pub name: String,
+    pub index: u32,
+    pub generation: i32,
+}
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Direction2D {

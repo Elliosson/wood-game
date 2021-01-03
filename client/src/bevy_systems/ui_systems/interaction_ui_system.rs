@@ -89,13 +89,13 @@ pub fn interaction_ui_system(
 fn spawn_interaction_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     button_materials: Res<ButtonMaterials>,
     player_info: Res<PlayerInfo>,
 ) {
     let base_node = commands
         //have a preconficured node compoent for this ?
-        .spawn(window_node(materials))
+        .spawn(window_node(&mut materials))
         .with(InteractionWindow {});
 
     for interact in &player_info.close_interations {
