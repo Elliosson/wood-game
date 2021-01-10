@@ -1,6 +1,6 @@
 use super::bevy_components::{
-    BuildButton, ButtonMaterials, CharacAnimation, Direction2D, InteractionButton, InventoryButton,
-    MouseLoc, Player, Sens, ServerState, TextInfoUi, Tool,
+    BuildButton, ButtonMaterials, CharacAnimation, CraftButton, Direction2D, InteractionButton,
+    InventoryButton, MouseLoc, Player, Sens, ServerState, TextInfoUi, Tool,
 };
 use super::bevy_systems::*;
 use super::Data;
@@ -50,6 +50,9 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(build_button_system.system())
         .add_system(build_ui_system.system())
         .add_system(build_item_button_system.system())
+        .add_system(craft_button_system.system())
+        .add_system(craft_ui_system.system())
+        .add_system(craft_item_button_system.system())
         .add_system(animate_sprite_system.system())
         .add_system(movement_decision_system.system())
         .add_system(update_player_system.system())
@@ -141,6 +144,38 @@ fn setup(
             parent.spawn(TextComponents {
                 text: Text {
                     value: "Interaction".to_string(),
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    style: TextStyle {
+                        font_size: 40.0,
+                        color: Color::rgb(0.9, 0.9, 0.9),
+                    },
+                },
+                ..Default::default()
+            });
+        })
+        .spawn(ButtonComponents {
+            style: Style {
+                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                // center button
+                margin: Rect {
+                    bottom: Val::Px(10.),
+                    left: Val::Px(200.),
+                    ..Default::default()
+                },
+                // horizontally center child text
+                justify_content: JustifyContent::Center,
+                // vertically center child text
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            material: button_materials.normal.clone(),
+            ..Default::default()
+        })
+        .with(CraftButton {})
+        .with_children(|parent| {
+            parent.spawn(TextComponents {
+                text: Text {
+                    value: "Craft".to_string(),
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     style: TextStyle {
                         font_size: 40.0,

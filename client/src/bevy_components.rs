@@ -40,8 +40,13 @@ pub struct InteractionItemButton {
 }
 
 pub struct BuildButton {}
+pub struct CraftButton {}
 pub struct BuildWindow {}
+pub struct CraftWindow {}
 pub struct BuildItemButton {
+    pub name: String,
+}
+pub struct CraftItemButton {
     pub name: String,
 }
 pub struct TextInfoUi {}

@@ -37,6 +37,8 @@ pub struct UiCom {
     pub build_active: bool,
     pub interaction: bool,
     pub interaction_active: bool,
+    pub craft: bool,
+    pub craft_active: bool,
     pub esc: bool,
 }
 
