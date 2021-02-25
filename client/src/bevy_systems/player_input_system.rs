@@ -1,10 +1,15 @@
-use crate::bevy_components::{MouseLoc, Tool};
+use crate::{
+    bevy_components::{MouseLoc, Tool},
+    PlayerInfo,
+};
+
+use crate::bevy_components::ServerState;
 use crate::{Data, UiCom, TILE_SIZE};
 use bevy::input::mouse::*;
 use bevy::input::*;
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 pub fn keyboard_intput_system(
     keyboard_input: Res<Input<KeyCode>>,
@@ -70,6 +75,7 @@ pub fn mouse_press_system(
     to_send: ResMut<Arc<Mutex<Vec<String>>>>,
     net_data: ResMut<Arc<Mutex<Data>>>,
     query_camera: Query<(&Camera, &Transform)>,
+    server_state_query: Query<(Entity, &ServerState)>,
 ) {
     let mut to_send_guard = to_send.lock().unwrap();
     let data_guard = net_data.lock().unwrap();
@@ -95,28 +101,86 @@ pub fn mouse_press_system(
                 MouseButton::Left => {
                     println!("event: {:?} position: {:?}", event, mouse_pos.0);
                     let pos = mouse_pos.0;
-                    //pos is in pixel in the screen, need to be transform in equivalent in transform
-                    //convert the click in tile pos
 
-                    let coord = screen_coord_to_world_coord(
-                        &windows,
-                        camera_pos_x,
-                        camera_pos_y,
-                        pos.x(),
-                        pos.y(),
-                    );
-                    let x = (coord.0 / TILE_SIZE) as i32;
-                    let y = (coord.1 / TILE_SIZE) as i32;
+                    if in_alowed_zone(pos, &windows) {
+                        //pos is in pixel in the screen, need to be transform in equivalent in transform
+                        //convert the click in tile pos
 
-                    if let Some(tool_name) = tool.name.clone() {
-                        to_send_guard
-                            .push(format!("{} {} {} {} {}", uid, "build", x, y, tool_name));
+                        let coord = screen_coord_to_world_coord(
+                            &windows,
+                            camera_pos_x,
+                            camera_pos_y,
+                            pos.x(),
+                            pos.y(),
+                        );
+                        let x = ((coord.0 + TILE_SIZE / 2.) / TILE_SIZE) as i32; //get the tile coordinate, need to offset by half the tile
+                        let y = ((coord.1 + TILE_SIZE / 2.) / TILE_SIZE) as i32;
+
+                        if let Some(tool_name) = tool.name.clone() {
+                            send_command(
+                                &mut to_send_guard,
+                                &uid,
+                                x,
+                                y,
+                                tool_name,
+                                &server_state_query,
+                            );
+                        }
                     }
                 }
                 _ => {}
             }
         }
     }
+}
+
+pub fn send_command(
+    to_send_guard: &mut MutexGuard<Vec<String>>,
+    uid: &String,
+    x: i32,
+    y: i32,
+    tool_name: String,
+    server_state_query: &Query<(Entity, &ServerState)>,
+) {
+    //todo Here I will need to have a tab that link tool to action
+
+    //get the object form the x, y position
+
+    if tool_name == "axe" || tool_name == "WoodenSpear" {
+        //search an entity on position
+        for (entity, server_state) in server_state_query.iter() {
+            if server_state.x == x && server_state.y == y {
+                let index = server_state.id;
+                let generation = server_state.gen;
+
+                //send to system that get the first building on position
+                // geting the good thing to cut will be problematique
+                // en plus je viens de creer un truc qui permet de detruire n'importe quel truc, lol
+                //I think I should just send the order to the server that will deduce if it's ok to cut something
+                to_send_guard.push(format!(
+                    "{} {} {} {} {} {} {}",
+                    uid,
+                    "interact",
+                    x, // click position
+                    y,
+                    "chop_tree",
+                    index,
+                    generation
+                ));
+            }
+        }
+    } else {
+        to_send_guard.push(format!("{} {} {} {} {}", uid, "build", x, y, tool_name));
+    }
+}
+
+pub fn in_alowed_zone(pos: Vec2, windows: &Res<Windows>) -> bool {
+    let window = windows.get_primary().unwrap();
+    //for now allowed zone is everything above 50
+    if pos.y() < 50. {
+        return false;
+    }
+    return true;
 }
 
 pub fn screen_coord_to_world_coord(

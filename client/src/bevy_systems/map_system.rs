@@ -51,6 +51,8 @@ pub fn map_system(
                 .with(ServerState {
                     x: point.x,
                     y: point.y,
+                    id: *id,
+                    gen: *gen,
                 })
                 .with(NonPlayer {})
                 .current_entity()

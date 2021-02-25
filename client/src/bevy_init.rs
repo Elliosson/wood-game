@@ -86,7 +86,12 @@ fn setup(
         .with(Player {})
         .with(Timer::from_seconds(0.05, true))
         .with(CharacAnimation { counter: 0 })
-        .with(ServerState { x: 0, y: 0 })
+        .with(ServerState {
+            x: 0,
+            y: 0,
+            gen: 0,
+            id: 0,
+        })
         .with(Sens {
             direction: Direction2D::Down,
         })

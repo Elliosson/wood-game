@@ -56,6 +56,8 @@ pub struct NonPlayer {}
 pub struct ServerState {
     pub x: i32,
     pub y: i32,
+    pub id: u32,
+    pub gen: i32,
 }
 
 pub enum MovementKind {
