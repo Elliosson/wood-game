@@ -1,7 +1,4 @@
-use crate::{
-    bevy_components::{MouseLoc, Tool},
-    PlayerInfo,
-};
+use crate::bevy_components::{MouseLoc, Tool};
 
 use crate::bevy_components::ServerState;
 use crate::{Data, UiCom, TILE_SIZE};
@@ -148,7 +145,7 @@ pub fn send_command(
 
     if tool_name == "axe" || tool_name == "WoodenSpear" {
         //search an entity on position
-        for (entity, server_state) in server_state_query.iter() {
+        for (_entity, server_state) in server_state_query.iter() {
             if server_state.x == x && server_state.y == y {
                 let index = server_state.id;
                 let generation = server_state.gen;
@@ -175,8 +172,8 @@ pub fn send_command(
 }
 
 pub fn in_alowed_zone(pos: Vec2, windows: &Res<Windows>) -> bool {
-    let window = windows.get_primary().unwrap();
-    //for now allowed zone is everything above 50
+    let _window = windows.get_primary().unwrap(); //todo use window size to choose the allowed zone
+                                                  //for now allowed zone is everything above 50
     if pos.y() < 50. {
         return false;
     }
