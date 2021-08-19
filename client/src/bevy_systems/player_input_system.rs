@@ -58,15 +58,11 @@ pub fn keyboard_intput_system(
     }
 }
 
-#[derive(Default)]
-pub struct State {
-    mouse_button_event_reader: EventReader<MouseButtonInput>,
-    cursor_moved_event_reader: EventReader<CursorMoved>,
-}
+
 pub fn mouse_press_system(
-    mut state: Local<State>,
     windows: Res<Windows>,
-    mouse_pressed_events: Res<Events<MouseButtonInput>>,
+    
+    mut mouse_button_input_events: EventReader<MouseButtonInput>,
     mouse_pos: ResMut<MouseLoc>,
     tool: ResMut<Tool>,
     to_send: ResMut<Arc<Mutex<Vec<String>>>>,
@@ -87,12 +83,12 @@ pub fn mouse_press_system(
         if camera.name == Some("Camera2d".to_string()) {
             let translation = &transform.translation;
 
-            camera_pos_x = translation.x();
-            camera_pos_y = translation.y();
+            camera_pos_x = translation.x;
+            camera_pos_y = translation.y;
         }
     }
 
-    for event in state.mouse_button_event_reader.iter(&mouse_pressed_events) {
+    for event in mouse_button_input_events.iter() {
         if event.state == ElementState::Released {
             match event.button {
                 MouseButton::Left => {
@@ -107,8 +103,8 @@ pub fn mouse_press_system(
                             &windows,
                             camera_pos_x,
                             camera_pos_y,
-                            pos.x(),
-                            pos.y(),
+                            pos.x,
+                            pos.y,
                         );
                         let x = ((coord.0 + TILE_SIZE / 2.) / TILE_SIZE) as i32; //get the tile coordinate, need to offset by half the tile
                         let y = ((coord.1 + TILE_SIZE / 2.) / TILE_SIZE) as i32;
@@ -174,7 +170,7 @@ pub fn send_command(
 pub fn in_alowed_zone(pos: Vec2, windows: &Res<Windows>) -> bool {
     let _window = windows.get_primary().unwrap(); //todo use window size to choose the allowed zone
                                                   //for now allowed zone is everything above 50
-    if pos.y() < 50. {
+    if pos.y < 50. {
         return false;
     }
     return true;
@@ -200,10 +196,9 @@ pub fn screen_coord_to_world_coord(
 
 pub fn mouse_movement_updating_system(
     mut mouse_pos: ResMut<MouseLoc>,
-    mut state: Local<State>,
-    cursor_moved_events: Res<Events<CursorMoved>>,
+    mut cursor_moved_events: EventReader<CursorMoved>,
 ) {
-    for event in state.cursor_moved_event_reader.iter(&cursor_moved_events) {
+    for event in cursor_moved_events.iter() {
         mouse_pos.0 = event.position;
     }
 }

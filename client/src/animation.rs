@@ -18,16 +18,19 @@ pub fn move_element(
     let old_y = movement.origin.y;
 
     if movement.counter == 4 {
-        *translation.x_mut() = new_x;
-        *translation.y_mut() = new_y;
+        *translation = Vec3::new(new_x, new_y, translation.z);
 
         //update sprite and remve mouvement
         update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
 
-        commands.remove_one::<Movement>(entity);
+        // commands.remove::<Movement>(entity);
+        commands.entity(entity).remove::<Movement>();
+
     } else {
-        *translation.x_mut() = old_x + (new_x - old_x) * (movement.counter as f32 / 4.);
-        *translation.y_mut() = old_y + (new_y - old_y) * (movement.counter as f32 / 4.);
+        let new_x = old_x + (new_x - old_x) * (movement.counter as f32 / 4.);
+        let new_y = old_y + (new_y - old_y) * (movement.counter as f32 / 4.);
+        *translation = Vec3::new(new_x, new_y, translation.z);
+
         //update sprite
         update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
 

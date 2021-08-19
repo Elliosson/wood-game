@@ -47,24 +47,22 @@ pub fn map_system(
                 &mut texture_atlases,
             );
             let new_entity = commands
-                .spawn(sprit_component)
-                .with(ServerState {
+                .spawn_bundle(sprit_component)
+                .insert(ServerState {
                     x: point.x,
                     y: point.y,
                     id: *id,
                     gen: *gen,
                 })
-                .with(NonPlayer {})
-                .current_entity()
-                .unwrap();
-
+                .insert(NonPlayer {})
+                .id();
             id_to_entity.insert((*id, *gen), new_entity);
         }
     }
 
     //delete entity than are no longer in views
     for (key, &entity) in &entities_to_delete {
-        commands.despawn(entity);
+        commands.entity(entity).despawn();
 
         id_to_entity.remove(&key);
     }
@@ -83,7 +81,7 @@ fn get_sprite_sheet_component(
     y: i32,
     render_order: i32,
     texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
-) -> SpriteSheetComponents {
+) -> SpriteSheetBundle {
     let transform = Transform::from_translation(Vec3::new(
         x as f32 * TILE_SIZE,
         y as f32 * TILE_SIZE,
@@ -199,7 +197,7 @@ fn get_sprite_sheet_component(
 
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
-    return SpriteSheetComponents {
+    return SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
         transform,
         ..Default::default()

@@ -7,15 +7,17 @@ use std::time::Instant;
 //todo refactor
 pub fn camera_system(
     mut commands: Commands,
-    mut query_camera: Query<(&Camera, &mut Transform)>,
-    mut query_player_mov: Query<(
-        Entity,
-        &Player,
-        &mut Transform,
-        &mut Movement,
-        &mut TextureAtlasSprite,
-    )>,
-    // mut query_player: Query<(Entity, &Player, &mut Transform)>,
+    mut queries: QuerySet<(
+        //todo refactor, separate into 2 system ?
+        Query<(&Camera, &mut Transform)>,
+        Query<(
+            Entity,
+            &Player,
+            &mut Transform,
+            &mut Movement,
+            &mut TextureAtlasSprite,
+        )>,
+    )>, // mut query_player: Query<(Entity, &Player, &mut Transform)>,
 ) {
     //handle the movement of the player(to do in a separate fonction)
     //if teleport just change to coohordinate
@@ -26,28 +28,35 @@ pub fn camera_system(
 
     let mut new_player_position: Option<FPoint> = None;
 
-    for (entity, _player, mut transform, movement, sprite) in query_player_mov.iter_mut() {
-        let now = Instant::now();
-        let translation = &mut transform.translation;
+    {
+        let query_player_mov = queries.q1_mut();
 
-        if movement.next_time < now {
-            //update the position
+        for (entity, _player, mut transform, movement, sprite) in query_player_mov.iter_mut() {
+            let now = Instant::now();
+            let translation = &mut transform.translation;
 
-            move_element(&mut commands, entity, sprite, translation, movement, now);
+            if movement.next_time < now {
+                //update the position
+
+                move_element(&mut commands, entity, sprite, translation, movement, now);
+            }
+            new_player_position = Some(FPoint::new(translation.x, translation.y));
         }
-        new_player_position = Some(FPoint::new(translation.x(), translation.y()));
     }
 
-    //if there is currently a player movement, move the camera and player accordingly
-    //else create the movement
+    {
+        let query_camera = queries.q0_mut();
 
-    for (camera, mut transform) in query_camera.iter_mut() {
-        if camera.name == Some("Camera2d".to_string()) {
-            if let Some(new_pos) = new_player_position.clone() {
-                let translation = &mut transform.translation;
+        //if there is currently a player movement, move the camera and player accordingly
+        //else create the movement
 
-                *translation.x_mut() = new_pos.x;
-                *translation.y_mut() = new_pos.y;
+        for (camera, mut transform) in query_camera.iter_mut() {
+            if camera.name == Some("Camera2d".to_string()) {
+                if let Some(new_pos) = new_player_position.clone() {
+                    let translation = &mut transform.translation;
+
+                    *translation = Vec3::new(new_pos.x, new_pos.y, translation.z);
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 use super::bevy_components::{
-    BuildButton, ButtonMaterials, CharacAnimation, CraftButton, Direction2D, InteractionButton,
-    InventoryButton, MouseLoc, Player, Sens, ServerState, TextInfoUi, Tool,
+    CharacAnimation, Direction2D, MouseLoc, Player, Sens, ServerState, Tool,
 };
 use super::bevy_systems::*;
 use super::Data;
@@ -27,225 +26,57 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
 
     App::build()
         .add_plugins(DefaultPlugins)
-        .init_resource::<ButtonMaterials>()
-        .add_resource(protect_data)
-        .add_resource(id_to_entity)
-        .add_resource(to_send)
-        .add_resource(player_info)
-        .add_resource(ui_com)
-        .add_resource(mouse_loc)
-        .add_resource(tool)
+        .insert_resource(protect_data)
+        .insert_resource(id_to_entity)
+        .insert_resource(to_send)
+        .insert_resource(player_info)
+        .insert_resource(ui_com)
+        .insert_resource(mouse_loc)
+        .insert_resource(tool)
         .add_startup_system(setup.system())
-        .add_system(button_system.system())
         .add_system(keyboard_intput_system.system())
         .add_system(map_system.system())
         .add_system(deserialise_player_info_system.system())
         .add_system(camera_system.system())
-        .add_system(inventory_button_system.system())
-        .add_system(inventory_ui_system.system())
-        .add_system(inventory_item_button_system.system())
-        .add_system(interaction_button_system.system())
-        .add_system(interaction_ui_system.system())
-        .add_system(interaction_item_button_system.system())
-        .add_system(build_button_system.system())
-        .add_system(build_ui_system.system())
-        .add_system(build_item_button_system.system())
-        .add_system(craft_button_system.system())
-        .add_system(craft_ui_system.system())
-        .add_system(craft_item_button_system.system())
         .add_system(animate_sprite_system.system())
         .add_system(movement_decision_system.system())
         .add_system(update_player_system.system())
-        .add_system(text_info_ui_system.system())
         .add_system(mouse_press_system.system())
         .add_system(mouse_movement_updating_system.system())
-        .add_system(inventory_equip_button_system.system())
         .run();
 }
 
 fn setup(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    button_materials: Res<ButtonMaterials>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    asset_server: Res<AssetServer>,
 ) {
     let texture_handle = asset_server.load("sprites/character_sheet.png");
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 3, 4);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
-    let player_sprite = SpriteSheetComponents {
+    let player_sprite = SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
         transform: Transform::from_translation(Vec3::new(0., 0., MAX_RENDER_PRIORITY)),
         ..Default::default()
     };
+
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands
         // ui camera
-        .spawn(Camera2dComponents::default())
-        .spawn(UiCameraComponents::default())
-        .spawn(player_sprite)
-        .with(Player {})
-        .with(Timer::from_seconds(0.05, true))
-        .with(CharacAnimation { counter: 0 })
-        .with(ServerState {
+        // .spawn(Camera2dComponents::default())
+        // .spawn(UiCameraComponents::default())
+        .spawn_bundle(player_sprite)
+        .insert(Player {})
+        .insert(Timer::from_seconds(0.05, true))
+        .insert(CharacAnimation { counter: 0 })
+        .insert(ServerState {
             x: 0,
             y: 0,
             gen: 0,
             id: 0,
         })
-        .with(Sens {
+        .insert(Sens {
             direction: Direction2D::Down,
-        })
-        .spawn(ButtonComponents {
-            style: Style {
-                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                // center button
-                margin: Rect {
-                    bottom: Val::Px(10.),
-                    ..Default::default()
-                },
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            material: button_materials.normal.clone(),
-            ..Default::default()
-        })
-        .with(InventoryButton {})
-        .with_children(|parent| {
-            parent.spawn(TextComponents {
-                text: Text {
-                    value: "Inventory".to_string(),
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    style: TextStyle {
-                        font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
-                    },
-                },
-                ..Default::default()
-            });
-        })
-        .spawn(ButtonComponents {
-            style: Style {
-                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                // center button
-                margin: Rect {
-                    bottom: Val::Px(10.),
-                    left: Val::Px(200.),
-                    ..Default::default()
-                },
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            material: button_materials.normal.clone(),
-            ..Default::default()
-        })
-        .with(InteractionButton {})
-        .with_children(|parent| {
-            parent.spawn(TextComponents {
-                text: Text {
-                    value: "Interaction".to_string(),
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    style: TextStyle {
-                        font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
-                    },
-                },
-                ..Default::default()
-            });
-        })
-        .spawn(ButtonComponents {
-            style: Style {
-                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                // center button
-                margin: Rect {
-                    bottom: Val::Px(10.),
-                    left: Val::Px(200.),
-                    ..Default::default()
-                },
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            material: button_materials.normal.clone(),
-            ..Default::default()
-        })
-        .with(CraftButton {})
-        .with_children(|parent| {
-            parent.spawn(TextComponents {
-                text: Text {
-                    value: "Craft".to_string(),
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    style: TextStyle {
-                        font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
-                    },
-                },
-                ..Default::default()
-            });
-        })
-        .spawn(ButtonComponents {
-            style: Style {
-                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                // center button
-                margin: Rect {
-                    bottom: Val::Px(10.),
-                    left: Val::Px(200.),
-                    ..Default::default()
-                },
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            material: button_materials.normal.clone(),
-            ..Default::default()
-        })
-        .with(BuildButton {})
-        .with_children(|parent| {
-            parent.spawn(TextComponents {
-                text: Text {
-                    value: "Build".to_string(),
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    style: TextStyle {
-                        font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
-                    },
-                },
-                ..Default::default()
-            });
-        })
-        .spawn(TextComponents {
-            text: Text {
-                value: "TextInfoUi".to_string(),
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                style: TextStyle {
-                    font_size: 20.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
-                },
-            },
-            style: Style {
-                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                // center button
-                margin: Rect {
-                    bottom: Val::Px(150.),
-                    left: Val::Px(10.),
-                    ..Default::default()
-                },
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-        .with(TextInfoUi {});
+        });
 }

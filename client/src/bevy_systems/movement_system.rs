@@ -24,7 +24,7 @@ pub fn movement_decision_system(
             } else {
                 //remove the movement and make a classic movement dessision
                 println!("Movement interupted");
-                commands.remove_one::<Movement>(entity);
+                commands.entity(entity).remove::<Movement>();
             }
         }
 
@@ -33,8 +33,8 @@ pub fn movement_decision_system(
         let server_pos_y = server_state.y as f32 * TILE_SIZE;
 
         //todo, not realy good for original position
-        let tpos_x = (translation.x() / TILE_SIZE) as i32;
-        let tpos_y = (translation.y() / TILE_SIZE) as i32;
+        let tpos_x = (translation.x / TILE_SIZE) as i32;
+        let tpos_y = (translation.y / TILE_SIZE) as i32;
 
         // println!("tposx {}, sposx{}", tpos_x, server_state.x);
 
@@ -43,22 +43,23 @@ pub fn movement_decision_system(
             println!("new movement");
             //deside if we must teleport of move
             let distance =
-                (translation.x() - server_pos_x).abs() + (translation.y() - server_pos_y).abs();
+                (translation.x - server_pos_x).abs() + (translation.y - server_pos_y).abs();
 
             if distance > 2. * TILE_SIZE {
                 //todo put 1 instead when the isue is resolved
                 //teleport
                 println!(
                     "insert teleports movement from {} {} to {} {}",
-                    translation.x(),
-                    translation.y(),
+                    translation.x,
+                    translation.y,
                     server_pos_x,
                     server_pos_y
                 );
-                commands.insert_one(
-                    entity,
+                commands.entity(entity).insert
+                
+                (
                     Movement {
-                        origin: FPoint::new(translation.x(), translation.y()),
+                        origin: FPoint::new(translation.x, translation.y),
                         destination: FPoint::new(server_pos_x, server_pos_y),
                         tdestination: IPoint::new(server_state.x, server_state.y),
                         direction: Direction2D::None,
@@ -70,22 +71,21 @@ pub fn movement_decision_system(
             } else {
                 println!(
                     "insert walking movement from {} {} to {} {}",
-                    translation.x(),
-                    translation.y(),
+                    translation.x,
+                    translation.y,
                     server_pos_x,
                     server_pos_y
                 );
                 //walking movement
                 let direction = get_direction(
-                    (translation.x(), translation.y()),
+                    (translation.x, translation.y),
                     (server_pos_x, server_pos_y),
                 );
                 println!("direction {:?}", direction);
 
-                commands.insert_one(
-                    entity,
+                commands.entity(entity).insert(
                     Movement {
-                        origin: FPoint::new(translation.x(), translation.y()),
+                        origin: FPoint::new(translation.x, translation.y),
                         destination: FPoint::new(server_pos_x, server_pos_y),
                         tdestination: IPoint::new(server_state.x, server_state.y),
                         direction,
