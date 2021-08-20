@@ -6,6 +6,7 @@ use super::Data;
 use super::PlayerInfo;
 use super::UiCom;
 use bevy::prelude::*;
+use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -26,6 +27,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
 
     App::build()
         .add_plugins(DefaultPlugins)
+        .add_plugin(EguiPlugin)
         .insert_resource(protect_data)
         .insert_resource(id_to_entity)
         .insert_resource(to_send)
@@ -43,6 +45,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(update_player_system.system())
         .add_system(mouse_press_system.system())
         .add_system(mouse_movement_updating_system.system())
+        .add_system(main_ui_system.system())
         .run();
 }
 
