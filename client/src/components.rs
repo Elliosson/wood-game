@@ -13,6 +13,16 @@ pub struct PlayerInfo {
     pub combat_stats: CombatStats,
 }
 
+#[derive(Component, Debug, Clone, Default)]
+pub struct UiState {
+    pub label: String,
+    pub value: f32,
+    pub inverted: bool,
+    pub inventory: bool,
+    pub build: bool,
+    pub interaction: bool,
+}
+
 #[derive(Component, Deserialize, Debug, Clone)]
 pub struct BuildingPlan {
     pub name: String,

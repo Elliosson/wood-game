@@ -5,6 +5,7 @@ use super::bevy_systems::*;
 use super::Data;
 use super::PlayerInfo;
 use super::UiCom;
+use super::UiState;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 
@@ -24,6 +25,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     let ui_com = UiCom::default();
     let mouse_loc = MouseLoc::default();
     let tool = Tool::default();
+    let ui_state = UiState::default();
 
     App::build()
         .add_plugins(DefaultPlugins)
@@ -35,6 +37,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .insert_resource(ui_com)
         .insert_resource(mouse_loc)
         .insert_resource(tool)
+        .insert_resource(ui_state)
         .add_startup_system(setup.system())
         .add_system(keyboard_intput_system.system())
         .add_system(map_system.system())
@@ -46,6 +49,8 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(mouse_press_system.system())
         .add_system(mouse_movement_updating_system.system())
         .add_system(main_ui_system.system())
+        .add_system(inventory_ui_system.system())
+        .add_system(build_ui_system.system())
         .run();
 }
 

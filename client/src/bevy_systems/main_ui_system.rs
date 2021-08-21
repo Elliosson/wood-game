@@ -1,19 +1,18 @@
+use crate::UiState;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
 
-#[derive(Default)]
-struct UiState {
-    label: String,
-    value: f32,
-    inverted: bool,
-}
-
-pub fn main_ui_system(mut egui_ctx: ResMut<EguiContext>, assets: Res<AssetServer>) {
-    let mut ui_state = UiState::default();
-
+pub fn main_ui_system(
+    mut egui_ctx: ResMut<EguiContext>,
+    assets: Res<AssetServer>,
+    mut ui_state: ResMut<UiState>,
+) {
     let mut load = false;
     let mut remove = false;
     let mut invert = false;
+    let mut inventory = false;
+    let mut build = false;
+    let mut interaction = false;
 
     egui::SidePanel::left("side_panel")
         .default_width(200.0)
@@ -35,6 +34,9 @@ pub fn main_ui_system(mut egui_ctx: ResMut<EguiContext>, assets: Res<AssetServer
                 load = ui.button("Load").clicked();
                 invert = ui.button("Invert").clicked();
                 remove = ui.button("Remove").clicked();
+                inventory = ui.button("Inventory").clicked();
+                build = ui.button("Build").clicked();
+                interaction = ui.button("Interaction").clicked();
             });
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
@@ -43,4 +45,14 @@ pub fn main_ui_system(mut egui_ctx: ResMut<EguiContext>, assets: Res<AssetServer
                 );
             });
         });
+
+    if inventory {
+        ui_state.inventory = !ui_state.inventory;
+    }
+    if build {
+        ui_state.build = !ui_state.build;
+    }
+    if interaction {
+        ui_state.interaction = !ui_state.interaction;
+    }
 }
