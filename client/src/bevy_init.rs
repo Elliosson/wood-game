@@ -1,3 +1,5 @@
+use crate::InteractionRequests;
+
 use super::bevy_components::{
     CharacAnimation, Direction2D, MouseLoc, Player, Sens, ServerState, Tool,
 };
@@ -26,6 +28,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     let mouse_loc = MouseLoc::default();
     let tool = Tool::default();
     let ui_state = UiState::default();
+    let interaction_requests = InteractionRequests::default();
 
     App::build()
         .add_plugins(DefaultPlugins)
@@ -38,6 +41,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .insert_resource(mouse_loc)
         .insert_resource(tool)
         .insert_resource(ui_state)
+        .insert_resource(interaction_requests)
         .add_startup_system(setup.system())
         .add_system(keyboard_intput_system.system())
         .add_system(map_system.system())
@@ -51,6 +55,8 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(main_ui_system.system())
         .add_system(inventory_ui_system.system())
         .add_system(build_ui_system.system())
+        .add_system(interaction_ui_system.system())
+        .add_system(interaction_request_system.system())
         .run();
 }
 

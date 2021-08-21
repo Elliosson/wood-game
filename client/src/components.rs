@@ -23,6 +23,11 @@ pub struct UiState {
     pub interaction: bool,
 }
 
+#[derive(Component, Debug, Clone, Default)]
+pub struct InteractionRequests {
+    pub items: Vec<CloseInteration>,
+}
+
 #[derive(Component, Deserialize, Debug, Clone)]
 pub struct BuildingPlan {
     pub name: String,
