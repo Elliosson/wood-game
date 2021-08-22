@@ -1,3 +1,4 @@
+use crate::bevy_components::Tool;
 use crate::PlayerInfo;
 use crate::UiState;
 use bevy::prelude::*;
@@ -8,6 +9,7 @@ pub fn inventory_ui_system(
     assets: Res<AssetServer>,
     ui_state: ResMut<UiState>,
     player_info: Res<PlayerInfo>,
+    mut tool: ResMut<Tool>,
 ) {
     if ui_state.inventory {
         egui::Window::new("Inventory")
@@ -20,7 +22,9 @@ pub fn inventory_ui_system(
 
                 ui.vertical(|ui| {
                     for item in &player_info.inventaire {
-                        ui.button(item.name.clone()).clicked();
+                        if ui.button(item.name.clone()).clicked() {
+                            tool.name = Some(item.name.clone());
+                        }
                     }
                 });
             });
