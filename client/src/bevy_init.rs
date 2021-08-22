@@ -60,6 +60,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(interaction_ui_system.system())
         .add_system(interaction_request_system.system())
         .add_system(build_request_system.system())
+        .add_system(text_info_ui_system.system())
         .run();
 }
 

@@ -12,6 +12,7 @@ mod build_ui_system;
 mod interaction_request_system;
 mod inventory_ui_system;
 mod main_ui_system;
+mod text_info_ui_system;
 mod update_player_system;
 
 pub use self::{
@@ -30,6 +31,7 @@ pub use self::{
     player_input_system::{
         keyboard_intput_system, mouse_movement_updating_system, mouse_press_system,
     },
+    text_info_ui_system::text_info_ui_system,
     // ui_systems::*,
     update_player_system::update_player_system,
 };
