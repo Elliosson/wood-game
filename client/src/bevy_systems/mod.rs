@@ -7,6 +7,7 @@ mod map_system;
 mod movement_system;
 mod player_input_system;
 // mod ui_systems;
+mod build_request_system;
 mod build_ui_system;
 mod interaction_request_system;
 mod inventory_ui_system;
@@ -15,6 +16,7 @@ mod update_player_system;
 
 pub use self::{
     animate_sprite_system::animate_sprite_system,
+    build_request_system::build_request_system,
     build_ui_system::build_ui_system,
     // button_system::button_system,
     camera_system::camera_system,

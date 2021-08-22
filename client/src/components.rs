@@ -33,6 +33,11 @@ pub struct BuildingPlan {
     pub name: String,
 }
 
+#[derive(Component, Debug, Clone, Default)]
+pub struct BuildRequests {
+    pub items: Vec<BuildingPlan>,
+}
+
 #[derive(Component, Deserialize, Debug, Clone, Default)]
 pub struct MyInfo {
     pub pos: Position,
