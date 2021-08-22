@@ -1,6 +1,6 @@
-use crate::{CloseInteration, Data, InteractionRequests, PlayerInfo, UiCom};
+use crate::{Data, InteractionRequests, PlayerInfo};
 use bevy::prelude::*;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 
 //send data to the server when the button is pressed
 pub fn interaction_request_system(

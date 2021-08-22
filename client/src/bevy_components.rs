@@ -1,18 +1,6 @@
 use crate::TILE_SIZE;
 use bevy::prelude::*;
 use std::time::Instant;
-pub struct InventoryButton {}
-pub struct InventoryWindow {}
-pub struct InventoryItemButton {
-    pub name: String,
-    pub index: u32,
-    pub generation: i32,
-}
-pub struct EquipButton {
-    pub name: String,
-    pub index: u32,
-    pub generation: i32,
-}
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Direction2D {
@@ -30,26 +18,6 @@ pub struct Sens {
     pub direction: Direction2D,
 }
 
-pub struct InteractionButton {}
-pub struct InteractionWindow {}
-pub struct InteractionItemButton {
-    pub interaction_name: String,
-    pub object_name: String,
-    pub index: u32,
-    pub generation: i32,
-}
-
-pub struct BuildButton {}
-pub struct CraftButton {}
-pub struct BuildWindow {}
-pub struct CraftWindow {}
-pub struct BuildItemButton {
-    pub name: String,
-}
-pub struct CraftItemButton {
-    pub name: String,
-}
-pub struct TextInfoUi {}
 pub struct Player {}
 pub struct NonPlayer {}
 

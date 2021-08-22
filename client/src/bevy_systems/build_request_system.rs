@@ -1,6 +1,6 @@
-use crate::{BuildRequests, CloseInteration, Data, PlayerInfo, UiCom};
+use crate::{BuildRequests, Data, PlayerInfo};
 use bevy::prelude::*;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 
 //send data to the server when the button is pressed
 pub fn build_request_system(

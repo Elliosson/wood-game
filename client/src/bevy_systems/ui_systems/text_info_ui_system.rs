@@ -1,12 +1,10 @@
-use crate::bevy_components::{TextInfoUi, Tool};
-use crate::InteractionRequests;
+use crate::bevy_components::Tool;
 use crate::PlayerInfo;
-use crate::UiState;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
+use bevy_egui::{egui, EguiContext};
 
 pub fn text_info_ui_system(
-    mut egui_ctx: ResMut<EguiContext>,
+    egui_ctx: ResMut<EguiContext>,
     player_info: Res<PlayerInfo>,
     tool: Res<Tool>,
 ) {

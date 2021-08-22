@@ -9,7 +9,7 @@ use super::PlayerInfo;
 use super::UiCom;
 use super::UiState;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext, EguiPlugin};
+use bevy_egui::EguiPlugin;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};

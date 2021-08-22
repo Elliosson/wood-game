@@ -1,12 +1,8 @@
 use crate::UiState;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
+use bevy_egui::{egui, EguiContext};
 
-pub fn main_ui_system(
-    mut egui_ctx: ResMut<EguiContext>,
-    assets: Res<AssetServer>,
-    mut ui_state: ResMut<UiState>,
-) {
+pub fn main_ui_system(egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>) {
     let mut load = false;
     let mut remove = false;
     let mut invert = false;

@@ -2,11 +2,10 @@ use crate::bevy_components::Tool;
 use crate::PlayerInfo;
 use crate::UiState;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
+use bevy_egui::{egui, EguiContext};
 
 pub fn inventory_ui_system(
-    mut egui_ctx: ResMut<EguiContext>,
-    assets: Res<AssetServer>,
+    egui_ctx: ResMut<EguiContext>,
     ui_state: ResMut<UiState>,
     player_info: Res<PlayerInfo>,
     mut tool: ResMut<Tool>,
