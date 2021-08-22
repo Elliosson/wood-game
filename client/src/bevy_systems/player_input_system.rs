@@ -1,7 +1,7 @@
 use crate::bevy_components::{MouseLoc, Tool};
 
 use crate::bevy_components::ServerState;
-use crate::{Data, UiCom, TILE_SIZE};
+use crate::{Data, UiState, TILE_SIZE};
 use bevy::input::mouse::*;
 use bevy::input::*;
 use bevy::prelude::*;
@@ -12,7 +12,7 @@ pub fn keyboard_intput_system(
     keyboard_input: Res<Input<KeyCode>>,
     to_send: ResMut<Arc<Mutex<Vec<String>>>>,
     net_data: ResMut<Arc<Mutex<Data>>>,
-    mut ui_com: ResMut<UiCom>,
+    mut ui_state: ResMut<UiState>,
 ) {
     let mut to_send_guard = to_send.lock().unwrap();
     let data_guard = net_data.lock().unwrap();
@@ -38,30 +38,28 @@ pub fn keyboard_intput_system(
     }
 
     if keyboard_input.just_pressed(KeyCode::F) {
-        ui_com.interaction = !ui_com.interaction;
+        ui_state.interaction = !ui_state.interaction;
     }
     if keyboard_input.just_pressed(KeyCode::B) {
-        ui_com.build = !ui_com.build;
+        ui_state.build = !ui_state.build;
     }
     if keyboard_input.just_pressed(KeyCode::I) {
-        ui_com.inventory = !ui_com.inventory;
+        ui_state.inventory = !ui_state.inventory;
     }
     if keyboard_input.just_pressed(KeyCode::E) {
         to_send_guard.push(format!("{} {}", data_guard.my_uid, "pickup"));
     }
 
     if keyboard_input.just_pressed(KeyCode::Escape) {
-        ui_com.build = false;
-        ui_com.interaction = false;
-        ui_com.inventory = false;
-        ui_com.craft = false;
+        ui_state.build = false;
+        ui_state.interaction = false;
+        ui_state.inventory = false;
     }
 }
 
-
 pub fn mouse_press_system(
     windows: Res<Windows>,
-    
+
     mut mouse_button_input_events: EventReader<MouseButtonInput>,
     mouse_pos: ResMut<MouseLoc>,
     tool: ResMut<Tool>,

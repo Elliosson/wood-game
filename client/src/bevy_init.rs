@@ -6,7 +6,6 @@ use super::bevy_components::{
 use super::bevy_systems::*;
 use super::Data;
 use super::PlayerInfo;
-use super::UiCom;
 use super::UiState;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
@@ -24,7 +23,6 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     }
     let id_to_entity: HashMap<(u32, i32), Entity> = HashMap::new();
     let player_info = PlayerInfo::default();
-    let ui_com = UiCom::default();
     let mouse_loc = MouseLoc::default();
     let tool = Tool::default();
     let ui_state = UiState::default();
@@ -38,7 +36,6 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .insert_resource(id_to_entity)
         .insert_resource(to_send)
         .insert_resource(player_info)
-        .insert_resource(ui_com)
         .insert_resource(mouse_loc)
         .insert_resource(tool)
         .insert_resource(ui_state)
