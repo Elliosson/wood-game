@@ -3,7 +3,7 @@ use crate::{BuildRequests, InteractionRequests};
 use super::bevy_components::{
     CharacAnimation, Direction2D, MouseLoc, Player, Sens, ServerState, Tool,
 };
-use super::bevy_systems::*;
+use super::systems::*;
 use super::Data;
 use super::PlayerInfo;
 use super::UiState;
