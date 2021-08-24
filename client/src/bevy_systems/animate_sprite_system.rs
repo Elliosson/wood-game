@@ -1,7 +1,7 @@
 use crate::animation::*;
 use crate::bevy_components::{Movement, NonPlayer};
 use bevy::prelude::*;
-use std::time::Instant;
+use instant::Instant;
 
 pub fn animate_sprite_system(
     mut commands: Commands,

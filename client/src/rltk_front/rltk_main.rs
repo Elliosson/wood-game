@@ -98,7 +98,7 @@ fn draw_map(ctx: &mut Rltk, mut map: Vec<(u32, i32, Point, Renderable)>, my_pos:
     }
 }
 
-pub fn _rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
+pub fn rltk_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>>) {
     let context = Rltk::init_simple8x8(180 as u32, 90 as u32, "Ecosystem simulator", "resources");
     let gs = State {
         rectangle: Rect {

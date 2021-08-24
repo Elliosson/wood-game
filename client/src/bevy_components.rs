@@ -1,6 +1,6 @@
 use crate::TILE_SIZE;
 use bevy::prelude::*;
-use std::time::Instant;
+use instant::Instant;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Direction2D {

@@ -2,7 +2,7 @@ use crate::animation::*;
 use crate::bevy_components::{FPoint, Movement, Player};
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
-use std::time::Instant;
+use instant::Instant;
 
 //todo refactor
 pub fn camera_system(

@@ -1,7 +1,7 @@
 use crate::bevy_components::{Direction2D, FPoint, IPoint, Movement, MovementKind, ServerState};
 use crate::TILE_SIZE;
 use bevy::prelude::*;
-use std::time::Instant;
+use instant::Instant;
 
 // Compare the position of the entity with the server position and choose
 //the apropriate movement to execute
@@ -50,50 +50,36 @@ pub fn movement_decision_system(
                 //teleport
                 println!(
                     "insert teleports movement from {} {} to {} {}",
-                    translation.x,
-                    translation.y,
-                    server_pos_x,
-                    server_pos_y
+                    translation.x, translation.y, server_pos_x, server_pos_y
                 );
-                commands.entity(entity).insert
-                
-                (
-                    Movement {
-                        origin: FPoint::new(translation.x, translation.y),
-                        destination: FPoint::new(server_pos_x, server_pos_y),
-                        tdestination: IPoint::new(server_state.x, server_state.y),
-                        direction: Direction2D::None,
-                        kind: MovementKind::Teleport,
-                        counter: 0,
-                        next_time: Instant::now(),
-                    },
-                );
+                commands.entity(entity).insert(Movement {
+                    origin: FPoint::new(translation.x, translation.y),
+                    destination: FPoint::new(server_pos_x, server_pos_y),
+                    tdestination: IPoint::new(server_state.x, server_state.y),
+                    direction: Direction2D::None,
+                    kind: MovementKind::Teleport,
+                    counter: 0,
+                    next_time: Instant::now(),
+                });
             } else {
                 println!(
                     "insert walking movement from {} {} to {} {}",
-                    translation.x,
-                    translation.y,
-                    server_pos_x,
-                    server_pos_y
+                    translation.x, translation.y, server_pos_x, server_pos_y
                 );
                 //walking movement
-                let direction = get_direction(
-                    (translation.x, translation.y),
-                    (server_pos_x, server_pos_y),
-                );
+                let direction =
+                    get_direction((translation.x, translation.y), (server_pos_x, server_pos_y));
                 println!("direction {:?}", direction);
 
-                commands.entity(entity).insert(
-                    Movement {
-                        origin: FPoint::new(translation.x, translation.y),
-                        destination: FPoint::new(server_pos_x, server_pos_y),
-                        tdestination: IPoint::new(server_state.x, server_state.y),
-                        direction,
-                        kind: MovementKind::Walk,
-                        counter: 0,
-                        next_time: Instant::now(),
-                    },
-                );
+                commands.entity(entity).insert(Movement {
+                    origin: FPoint::new(translation.x, translation.y),
+                    destination: FPoint::new(server_pos_x, server_pos_y),
+                    tdestination: IPoint::new(server_state.x, server_state.y),
+                    direction,
+                    kind: MovementKind::Walk,
+                    counter: 0,
+                    next_time: Instant::now(),
+                });
             }
         }
     }

@@ -53,6 +53,6 @@ fn main() {
     let protect_data: Arc<Mutex<Data>> = Arc::new(Mutex::new(data));
     let to_send: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     network::lauch_network(protect_data.clone(), to_send.clone());
-    //rltk_front::rltk_init(protect_data.clone(), to_send.clone());
+    // rltk_front::rltk_init(protect_data.clone(), to_send.clone());
     bevy_init::bevy_init(protect_data.clone(), to_send.clone());
 }

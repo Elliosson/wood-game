@@ -1,7 +1,7 @@
 use crate::bevy_components::{Direction2D, Movement};
 use bevy::prelude::*;
 
-use std::time::{Duration, Instant};
+use instant::{Duration, Instant};
 
 pub fn move_element(
     commands: &mut Commands,
@@ -25,7 +25,6 @@ pub fn move_element(
 
         // commands.remove::<Movement>(entity);
         commands.entity(entity).remove::<Movement>();
-
     } else {
         let new_x = old_x + (new_x - old_x) * (movement.counter as f32 / 4.);
         let new_y = old_y + (new_y - old_y) * (movement.counter as f32 / 4.);

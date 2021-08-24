@@ -29,9 +29,14 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     let interaction_requests = InteractionRequests::default();
     let build_request = BuildRequests::default();
 
-    App::build()
-        .add_plugins(DefaultPlugins)
-        .add_plugin(EguiPlugin)
+    let mut app = App::build();
+
+    app.add_plugins(DefaultPlugins);
+
+    #[cfg(target_arch = "wasm32")]
+    app.add_plugin(bevy_webgl2::WebGL2Plugin);
+
+    app.add_plugin(EguiPlugin)
         .insert_resource(protect_data)
         .insert_resource(id_to_entity)
         .insert_resource(to_send)

@@ -60,7 +60,7 @@ pub fn start_websocket(
         let cloned2_ws = cloned_ws.clone();
         let message_sender =
             move |uid, message| match cloned2_ws.send_with_str(&format!("{} {}", uid, message)) {
-                Ok(_) => console_log!("message successfully sent"),
+                Ok(_) => console_log!("message successfully sent: {:?}", message),
                 Err(err) => console_log!("error sending message: {:?}", err),
             };
         match handle_responce(response.clone(), data.clone(), message_sender.clone()) {
