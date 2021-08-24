@@ -1,0 +1,16 @@
+<html>
+
+<head>
+    <title>My Bevy Project</title>
+</head>
+
+<body>
+    <script type="module">
+        import init from "./pkg/client.js";
+        init("./pkg/client_bg.wasm").then(function (wasm) {
+            wasm.run();
+        });
+    </script>
+</body>
+
+</html>
