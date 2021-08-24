@@ -1,36 +1,63 @@
-// ici on va lire les donne du network sur notre position et centrer le tou en consequant
+use crate::animation::*;
+use crate::bevy_components::{FPoint, Movement, Player};
+use bevy::prelude::*;
+use bevy::render::camera::Camera;
+use instant::Instant;
 
-use amethyst::{
-    core::transform::Transform,
-    ecs::prelude::{Join, ReadExpect, System, WriteStorage},
-    renderer::Camera,
-};
+//todo refactor
+pub fn camera_system(
+    mut commands: Commands,
+    mut queries: QuerySet<(
+        //todo refactor, separate into 2 system ?
+        Query<(&Camera, &mut Transform)>,
+        Query<(
+            Entity,
+            &Player,
+            &mut Transform,
+            &mut Movement,
+            &mut TextureAtlasSprite,
+        )>,
+    )>, // mut query_player: Query<(Entity, &Player, &mut Transform)>,
+) {
+    //handle the movement of the player(to do in a separate fonction)
+    //if teleport just change to coohordinate
 
-use super::TILE_SIZE;
-use crate::PlayerInfo;
+    //if walk, update the coordinate of 1/4 of case
+    //update sprite
+    //if final position remove the movement, presisely place the player
 
-/// This system is responsible for moving all balls according to their speed
-/// and the time passed.
+    let mut new_player_position: Option<FPoint> = None;
 
-pub struct CameraSystem;
+    {
+        let query_player_mov = queries.q1_mut();
 
-impl<'s> System<'s> for CameraSystem {
-    type SystemData = (
-        WriteStorage<'s, Transform>,
-        WriteStorage<'s, Camera>,
-        ReadExpect<'s, PlayerInfo>,
-    );
+        for (entity, _player, mut transform, movement, sprite) in query_player_mov.iter_mut() {
+            let now = Instant::now();
+            let translation = &mut transform.translation;
 
-    fn run(&mut self, (mut transforms, cameras, player_info): Self::SystemData) {
-        //I don't know if it's a good idea to deserialise here.
+            if movement.next_time < now {
+                //update the position
 
-        for (transform, _camera) in (&mut transforms, &cameras).join() {
-            //TODO set camera with my position
-            transform.set_translation_xyz(
-                (player_info.my_info.pos.x as f32 * TILE_SIZE),
-                (player_info.my_info.pos.y as f32 * TILE_SIZE),
-                1.,
-            );
+                move_element(&mut commands, entity, sprite, translation, movement, now);
+            }
+            new_player_position = Some(FPoint::new(translation.x, translation.y));
+        }
+    }
+
+    {
+        let query_camera = queries.q0_mut();
+
+        //if there is currently a player movement, move the camera and player accordingly
+        //else create the movement
+
+        for (camera, mut transform) in query_camera.iter_mut() {
+            if camera.name == Some("Camera2d".to_string()) {
+                if let Some(new_pos) = new_player_position.clone() {
+                    let translation = &mut transform.translation;
+
+                    *translation = Vec3::new(new_pos.x, new_pos.y, translation.z);
+                }
+            }
         }
     }
 }

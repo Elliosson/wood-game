@@ -6,7 +6,6 @@ mod animation;
 mod bevy_init;
 mod bevy_systems;
 mod network;
-mod rltk_front;
 use std::sync::{Arc, Mutex};
 mod bevy_components;
 use wasm_bindgen::prelude::*;
@@ -27,19 +26,6 @@ pub struct Data {
     pub info_string: String,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct UiCom {
-    pub inventory: bool,
-    pub inventory_active: bool,
-    pub build: bool,
-    pub build_active: bool,
-    pub interaction: bool,
-    pub interaction_active: bool,
-    pub craft: bool,
-    pub craft_active: bool,
-    pub esc: bool,
-}
-
 #[wasm_bindgen]
 pub fn run() {
     //Shared data between the network and the game system
@@ -52,6 +38,5 @@ pub fn run() {
     let protect_data: Arc<Mutex<Data>> = Arc::new(Mutex::new(data));
     let to_send: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     network::lauch_network(protect_data.clone(), to_send.clone());
-    // rltk_front::rltk_init(protect_data.clone(), to_send.clone());
     bevy_init::bevy_init(protect_data.clone(), to_send.clone());
 }
