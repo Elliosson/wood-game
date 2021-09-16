@@ -22,8 +22,8 @@ pub struct Player {}
 pub struct NonPlayer {}
 
 pub struct ServerState {
-    pub x: i32,
-    pub y: i32,
+    pub x: f32,
+    pub y: f32,
     pub id: u32,
     pub gen: i32,
 }

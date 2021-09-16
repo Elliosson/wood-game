@@ -48,8 +48,8 @@ pub struct MyInfo {
 
 #[derive(Component, Deserialize, Debug, Clone, Default)]
 pub struct Position {
-    pub x: i32,
-    pub y: i32,
+    pub x: f32,
+    pub y: f32,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -69,8 +69,8 @@ pub struct CloseInteration {
 
 #[derive(Debug, Clone)]
 pub struct Point {
-    pub x: i32,
-    pub y: i32,
+    pub x: f32,
+    pub y: f32,
 }
 
 #[derive(Debug, Clone)]

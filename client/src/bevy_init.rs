@@ -91,8 +91,8 @@ fn setup(
         .insert(Timer::from_seconds(0.05, true))
         .insert(CharacAnimation { counter: 0 })
         .insert(ServerState {
-            x: 0,
-            y: 0,
+            x: 0.,
+            y: 0.,
             gen: 0,
             id: 0,
         })

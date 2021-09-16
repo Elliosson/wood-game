@@ -66,7 +66,7 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
             close_interations: Vec::new(),
             possible_builds: Vec::new(),
             my_info: MyInfo {
-                pos: rltk::Point { x: 0, y: 0 },
+                pos: PrecisePosition { x: 0., y: 0. },
                 hp: 0,
                 max_hp: 0,
                 player_log: Vec::new(),

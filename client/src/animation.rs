@@ -17,25 +17,25 @@ pub fn move_element(
     let old_x = movement.origin.x;
     let old_y = movement.origin.y;
 
-    if movement.counter == 4 {
-        *translation = Vec3::new(new_x, new_y, translation.z);
+    // if movement.counter == 4 {
+    *translation = Vec3::new(new_x, new_y, translation.z);
 
-        //update sprite and remve mouvement
-        update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
+    //update sprite and remve mouvement
+    // update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
 
-        // commands.remove::<Movement>(entity);
-        commands.entity(entity).remove::<Movement>();
-    } else {
-        let new_x = old_x + (new_x - old_x) * (movement.counter as f32 / 4.);
-        let new_y = old_y + (new_y - old_y) * (movement.counter as f32 / 4.);
-        *translation = Vec3::new(new_x, new_y, translation.z);
+    // commands.remove::<Movement>(entity);
+    commands.entity(entity).remove::<Movement>();
+    // } else {
+    //     let new_x = old_x + (new_x - old_x) * (movement.counter as f32 / 4.);
+    //     let new_y = old_y + (new_y - old_y) * (movement.counter as f32 / 4.);
+    //     *translation = Vec3::new(new_x, new_y, translation.z);
 
-        //update sprite
-        update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
+    //     //update sprite
+    //     update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
 
-        movement.counter += 1;
-        movement.next_time = now + Duration::from_millis(7);
-    }
+    //     movement.counter += 1;
+    //     movement.next_time = now + Duration::from_millis(7);
+    // }
 }
 
 pub fn update_sprite(direction: Direction2D, counter: usize, sprite: &mut TextureAtlasSprite) {

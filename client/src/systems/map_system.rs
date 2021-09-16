@@ -77,8 +77,8 @@ pub struct SheetInfo {
 fn get_sprite_sheet_component(
     asset_server: &Res<AssetServer>,
     renderable: &Renderable,
-    x: i32,
-    y: i32,
+    x: f32,
+    y: f32,
     render_order: i32,
     texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
 ) -> SpriteSheetBundle {

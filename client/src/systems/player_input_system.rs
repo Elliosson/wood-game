@@ -140,7 +140,7 @@ pub fn send_command(
     if tool_name == "axe" || tool_name == "WoodenSpear" {
         //search an entity on position
         for (_entity, server_state) in server_state_query.iter() {
-            if server_state.x == x && server_state.y == y {
+            if server_state.x == x as f32 && server_state.y == y as f32 {
                 let index = server_state.id;
                 let generation = server_state.gen;
 

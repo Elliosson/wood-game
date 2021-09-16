@@ -2,7 +2,7 @@ extern crate specs;
 use crate::{
     gamelog::GameLog, BuildingChoice, BuildingPlan, CloseInteration, CombatStats, Connected,
     Equipped, InBackpack, InteractableObject, InventaireItem, Item, Map, Name, OnlinePlayer,
-    PlayerInfo, PlayerLog, Position,
+    PlayerInfo, PlayerLog, Position, PrecisePosition,
 };
 use specs::prelude::*;
 
@@ -22,6 +22,7 @@ impl<'a> System<'a> for PlayerInfoSystem {
         ReadStorage<'a, Item>,
         ReadStorage<'a, Name>,
         ReadStorage<'a, Position>,
+        ReadStorage<'a, PrecisePosition>,
         ReadStorage<'a, BuildingChoice>,
         ReadStorage<'a, CombatStats>,
         ReadStorage<'a, PlayerLog>,
@@ -41,6 +42,7 @@ impl<'a> System<'a> for PlayerInfoSystem {
             items,
             names,
             positions,
+            precise_poss,
             building_choices,
             combat_stats,
             player_logs,
@@ -49,10 +51,11 @@ impl<'a> System<'a> for PlayerInfoSystem {
         ) = data;
 
         //Todo check in player is connected and find a way to handle local player
-        for (_entity, _online_player, pos, player_info, combat_stat) in (
+        for (_entity, _online_player, pos, precise_pos, player_info, combat_stat) in (
             &entities,
             &online_players,
             &positions,
+            &precise_poss,
             &mut player_infos,
             &combat_stats,
         )
@@ -62,8 +65,8 @@ impl<'a> System<'a> for PlayerInfoSystem {
             player_info.close_interations.clear();
             player_info.possible_builds.clear();
             player_info.equipement.clear();
-            player_info.my_info.pos.x = pos.x();
-            player_info.my_info.pos.y = pos.y();
+            player_info.my_info.pos.x = precise_pos.x;
+            player_info.my_info.pos.y = precise_pos.y;
             player_info.my_info.hp = combat_stat.hp;
             player_info.my_info.max_hp = combat_stat.max_hp;
 

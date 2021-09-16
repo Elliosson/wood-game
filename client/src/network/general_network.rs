@@ -54,7 +54,7 @@ where
             // Or find a way to iterate 2 at a time
             //Very Ugly
             let mut data_guard = data.lock().unwrap();
-            let mut x: i32 = 0;
+            let mut x = 0.;
             data_guard.characters.clear();
             for (i, pos) in parts.enumerate() {
                 if i % 2 == 0 {

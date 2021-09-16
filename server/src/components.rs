@@ -578,7 +578,7 @@ pub struct BuildingPlan {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MyInfo {
-    pub pos: rltk::Point,
+    pub pos: PrecisePosition,
     pub hp: i32,
     pub max_hp: i32,
     pub player_log: Vec<String>,
