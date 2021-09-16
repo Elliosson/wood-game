@@ -100,3 +100,6 @@ pub use go_by_step::GoStepSystem;
 
 mod horde_system;
 pub use horde_system::HordeSystem;
+
+mod want_to_precise_move_system;
+pub use want_to_precise_move_system::WantToPreciseMoveSystem;

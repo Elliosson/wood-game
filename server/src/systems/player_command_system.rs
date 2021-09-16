@@ -1,7 +1,8 @@
 extern crate specs;
 use crate::{
     gamelog::GameLog, InteractionResquestListV2, OnlinePlayer, OnlineRunState, PlayerInput,
-    PlayerInputComp, WantBuild, WantConsume, WantDestroy, WantEquip, WantToMove, WantsToPickupItem,
+    PlayerInputComp, WantBuild, WantConsume, WantDestroy, WantEquip, WantToMove, WantToPreciseMove,
+    WantsToPickupItem,
 };
 use specs::prelude::*;
 
@@ -14,7 +15,7 @@ impl<'a> System<'a> for PlayerCommandSystem {
     type SystemData = (
         Entities<'a>,
         WriteExpect<'a, GameLog>,
-        WriteStorage<'a, WantToMove>,
+        WriteStorage<'a, WantToPreciseMove>,
         WriteStorage<'a, OnlinePlayer>,
         WriteStorage<'a, PlayerInputComp>,
         WriteStorage<'a, WantsToPickupItem>,
@@ -68,7 +69,7 @@ pub fn online_runstate_choice<'a>(
     runstate: OnlineRunState,
     entity: Entity,
     message: PlayerInput,
-    want_to_moves: &mut WriteStorage<'a, WantToMove>,
+    want_to_moves: &mut WriteStorage<'a, WantToPreciseMove>,
     pickups: &mut WriteStorage<'a, WantsToPickupItem>,
     interations_req: &mut WriteExpect<'a, InteractionResquestListV2>,
     want_builds: &mut WriteStorage<'a, WantBuild>,
@@ -82,12 +83,13 @@ pub fn online_runstate_choice<'a>(
             newrunstate = OnlineRunState::AwaitingInput;
             match message {
                 PlayerInput::UP => {
+                    println!("precise move up");
                     want_to_moves
                         .insert(
                             entity,
-                            WantToMove {
-                                delta_x: 0,
-                                delta_y: -1,
+                            WantToPreciseMove {
+                                delta_x: 0.,
+                                delta_y: -0.2,
                             },
                         )
                         .expect("Unable to insert");
@@ -96,9 +98,9 @@ pub fn online_runstate_choice<'a>(
                     want_to_moves
                         .insert(
                             entity,
-                            WantToMove {
-                                delta_x: 0,
-                                delta_y: 1,
+                            WantToPreciseMove {
+                                delta_x: 0.,
+                                delta_y: 0.2,
                             },
                         )
                         .expect("Unable to insert");
@@ -107,9 +109,9 @@ pub fn online_runstate_choice<'a>(
                     want_to_moves
                         .insert(
                             entity,
-                            WantToMove {
-                                delta_x: -1,
-                                delta_y: 0,
+                            WantToPreciseMove {
+                                delta_x: -0.2,
+                                delta_y: 0.,
                             },
                         )
                         .expect("Unable to insert");
@@ -118,9 +120,9 @@ pub fn online_runstate_choice<'a>(
                     want_to_moves
                         .insert(
                             entity,
-                            WantToMove {
-                                delta_x: 1,
-                                delta_y: 0,
+                            WantToPreciseMove {
+                                delta_x: 0.2,
+                                delta_y: 0.,
                             },
                         )
                         .expect("Unable to insert");

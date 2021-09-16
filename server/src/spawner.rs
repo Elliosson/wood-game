@@ -17,6 +17,10 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
     let entity = ecs
         .create_entity()
         .with(Position::new(player_x, player_y, &mut dirty))
+        .with(PrecisePosition {
+            x: player_x as f32,
+            y: player_y as f32,
+        })
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             fg: RGB::named(rltk::YELLOW),

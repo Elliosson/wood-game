@@ -35,6 +35,11 @@ impl Position {
         Position { x, y }
     }
 }
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct PrecisePosition {
+    pub x: f32,
+    pub y: f32,
+}
 
 #[derive(Component, ConvertSaveload, Clone)]
 pub struct Renderable {
@@ -508,6 +513,12 @@ pub struct PlayerInputComp {
 pub struct WantToMove {
     pub delta_x: i32,
     pub delta_y: i32,
+}
+
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct WantToPreciseMove {
+    pub delta_x: f32,
+    pub delta_y: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

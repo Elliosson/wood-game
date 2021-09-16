@@ -8,6 +8,7 @@ use specs::prelude::*;
 use specs::saveload::{MarkedBuilder, Marker, MarkerAllocator};
 use std::collections::{HashMap, HashSet}; //TODO se if we can suppress
 
+#[derive(Clone)]
 pub enum SpawnType {
     AtPosition { x: i32, y: i32 },
 }
@@ -279,7 +280,20 @@ pub fn spawn_named_prop<T: Builder>(
         eb = eb.with(UniqueId::new());
 
         // Spawn in the specified location
-        eb = spawn_position(pos, eb, dirty);
+        eb = spawn_position(pos.clone(), eb, dirty);
+
+        // PrecisePosition
+        if let Some(precise_position) = &prop_template.precise_position {
+            match pos {
+                SpawnType::AtPosition { x, y } => {
+                    let precise_position = PrecisePosition {
+                        x: x as f32 + 0.5,
+                        y: y as f32 + 0.5,
+                    };
+                    eb = eb.with(precise_position);
+                }
+            }
+        }
 
         // Renderable
         if let Some(renderable) = &prop_template.renderable {
@@ -687,6 +701,11 @@ pub fn spawn_born(
         // OnlinePlayer
         if let Some(online_player) = &prop_template.online_player {
             eb = eb.with(online_player.clone());
+        }
+
+        // PrecisePosition
+        if let Some(precise_position) = &prop_template.precise_position {
+            eb = eb.with(precise_position.clone());
         }
 
         // Facing direction

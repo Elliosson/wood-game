@@ -167,6 +167,8 @@ impl State {
         go_step.run_now(&self.ecs);
         let mut want_move = WantToMoveSystem {};
         want_move.run_now(&self.ecs);
+        let mut want_precise_move = WantToPreciseMoveSystem {};
+        want_precise_move.run_now(&self.ecs);
 
         let mut go_target = GoTargetSystem {};
         go_target.run_now(&self.ecs);
@@ -275,6 +277,7 @@ fn main() {
     gs.ecs.register::<Position>();
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<Player>();
+    gs.ecs.register::<PrecisePosition>();
     gs.ecs.register::<Viewshed>();
     gs.ecs.register::<Monster>();
     gs.ecs.register::<Name>();
@@ -339,6 +342,7 @@ fn main() {
     gs.ecs.register::<Dead>();
     gs.ecs.register::<FoodPreference>();
     gs.ecs.register::<WantToMove>();
+    gs.ecs.register::<WantToPreciseMove>();
     gs.ecs.register::<PlayerInputComp>();
     gs.ecs.register::<OnlinePlayer>();
     gs.ecs.register::<Connected>();

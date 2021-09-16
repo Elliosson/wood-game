@@ -659,6 +659,10 @@
             "online_player": {
                 "runstate": "AwaitingInput"
             },
+            "precise_position": {
+                "x": 0,
+                "y": 0
+            },
             "viewshed": {
                 "range": 30
             },
