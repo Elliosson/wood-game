@@ -1,9 +1,7 @@
 use crate::bevy_components::SpriteState;
 use crate::{BuildRequests, InteractionRequests};
 
-use super::bevy_components::{
-    CharacAnimation, Direction2D, MouseLoc, Player, Sens, ServerState, Tool,
-};
+use super::bevy_components::{Direction2D, MouseLoc, Player, Sens, ServerState, Tool};
 use super::systems::*;
 use super::Data;
 use super::PlayerInfo;
@@ -90,16 +88,8 @@ fn setup(
         .spawn_bundle(player_sprite)
         .insert(Player {})
         .insert(Timer::from_seconds(0.05, true))
-        .insert(SpriteState {
-            counter: 0,
-            direction: Direction2D::Down,
-        })
-        .insert(ServerState {
-            x: 0.,
-            y: 0.,
-            gen: 0,
-            id: 0,
-        })
+        .insert(SpriteState::default())
+        .insert(ServerState::default())
         .insert(Sens {
             direction: Direction2D::Down,
         });

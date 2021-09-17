@@ -1,25 +1,20 @@
 use crate::bevy_components::{Direction2D, Movement, SpriteState};
 use bevy::prelude::*;
 
-use instant::{Duration, Instant};
-
 pub fn move_element(
     commands: &mut Commands,
     entity: Entity,
     mut sprite: Mut<TextureAtlasSprite>,
     translation: &mut Vec3,
-    mut movement: Mut<Movement>,
+    movement: Mut<Movement>,
     mut sprite_state: Mut<SpriteState>,
-    now: Instant,
 ) {
-    println!("direction: {:?}", movement.direction);
     sprite_state.counter += 1;
     if movement.direction != sprite_state.direction {
         sprite_state.direction = movement.direction.clone();
         sprite_state.counter = 0;
     }
 
-    //update sprite
     update_sprite(
         movement.direction.clone(),
         sprite_state.counter,
@@ -27,6 +22,13 @@ pub fn move_element(
     );
 
     commands.entity(entity).remove::<Movement>();
+
+    //move the entity
+    *translation = Vec3::new(
+        movement.destination.x,
+        movement.destination.y,
+        translation.z,
+    );
 }
 
 pub fn update_sprite(direction: Direction2D, counter: usize, sprite: &mut TextureAtlasSprite) {

@@ -2,7 +2,6 @@ use crate::animation::*;
 use crate::bevy_components::{FPoint, Movement, Player, SpriteState};
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
-use instant::Instant;
 
 //todo refactor
 pub fn camera_system(
@@ -35,7 +34,6 @@ pub fn camera_system(
         for (entity, _player, mut transform, movement, sprite_state, sprite) in
             query_player_mov.iter_mut()
         {
-            let now = Instant::now();
             let translation = &mut transform.translation;
 
             move_element(
@@ -45,7 +43,6 @@ pub fn camera_system(
                 translation,
                 movement,
                 sprite_state,
-                now,
             );
 
             new_player_position = Some(FPoint::new(translation.x, translation.y));

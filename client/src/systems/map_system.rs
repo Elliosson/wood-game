@@ -1,4 +1,4 @@
-use crate::bevy_components::{NonPlayer, ServerState};
+use crate::bevy_components::{NonPlayer, ServerState, SpriteState};
 use crate::{bevy_init::MAX_RENDER_PRIORITY, Data, Renderable, TILE_SIZE};
 use bevy::prelude::*;
 use std::collections::HashMap;
@@ -55,6 +55,7 @@ pub fn map_system(
                     gen: *gen,
                 })
                 .insert(NonPlayer {})
+                .insert(SpriteState::default())
                 .id();
             id_to_entity.insert((*id, *gen), new_entity);
         }
