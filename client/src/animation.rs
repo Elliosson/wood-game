@@ -1,4 +1,4 @@
-use crate::bevy_components::{Direction2D, Movement};
+use crate::bevy_components::{Direction2D, Movement, SpriteState};
 use bevy::prelude::*;
 
 use instant::{Duration, Instant};
@@ -9,33 +9,24 @@ pub fn move_element(
     mut sprite: Mut<TextureAtlasSprite>,
     translation: &mut Vec3,
     mut movement: Mut<Movement>,
+    mut sprite_state: Mut<SpriteState>,
     now: Instant,
 ) {
-    let new_x = movement.destination.x;
-    let new_y = movement.destination.y;
+    println!("direction: {:?}", movement.direction);
+    sprite_state.counter += 1;
+    if movement.direction != sprite_state.direction {
+        sprite_state.direction = movement.direction.clone();
+        sprite_state.counter = 0;
+    }
 
-    let old_x = movement.origin.x;
-    let old_y = movement.origin.y;
+    //update sprite
+    update_sprite(
+        movement.direction.clone(),
+        sprite_state.counter,
+        &mut *sprite,
+    );
 
-    // if movement.counter == 4 {
-    *translation = Vec3::new(new_x, new_y, translation.z);
-
-    //update sprite and remve mouvement
-    // update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
-
-    // commands.remove::<Movement>(entity);
     commands.entity(entity).remove::<Movement>();
-    // } else {
-    //     let new_x = old_x + (new_x - old_x) * (movement.counter as f32 / 4.);
-    //     let new_y = old_y + (new_y - old_y) * (movement.counter as f32 / 4.);
-    //     *translation = Vec3::new(new_x, new_y, translation.z);
-
-    //     //update sprite
-    //     update_sprite(movement.direction.clone(), movement.counter, &mut *sprite);
-
-    //     movement.counter += 1;
-    //     movement.next_time = now + Duration::from_millis(7);
-    // }
 }
 
 pub fn update_sprite(direction: Direction2D, counter: usize, sprite: &mut TextureAtlasSprite) {

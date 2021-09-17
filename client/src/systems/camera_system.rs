@@ -1,5 +1,5 @@
 use crate::animation::*;
-use crate::bevy_components::{FPoint, Movement, Player};
+use crate::bevy_components::{FPoint, Movement, Player, SpriteState};
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use instant::Instant;
@@ -15,6 +15,7 @@ pub fn camera_system(
             &Player,
             &mut Transform,
             &mut Movement,
+            &mut SpriteState,
             &mut TextureAtlasSprite,
         )>,
     )>, // mut query_player: Query<(Entity, &Player, &mut Transform)>,
@@ -31,15 +32,22 @@ pub fn camera_system(
     {
         let query_player_mov = queries.q1_mut();
 
-        for (entity, _player, mut transform, movement, sprite) in query_player_mov.iter_mut() {
+        for (entity, _player, mut transform, movement, sprite_state, sprite) in
+            query_player_mov.iter_mut()
+        {
             let now = Instant::now();
             let translation = &mut transform.translation;
 
-            if movement.next_time < now {
-                //update the position
+            move_element(
+                &mut commands,
+                entity,
+                sprite,
+                translation,
+                movement,
+                sprite_state,
+                now,
+            );
 
-                move_element(&mut commands, entity, sprite, translation, movement, now);
-            }
             new_player_position = Some(FPoint::new(translation.x, translation.y));
         }
     }

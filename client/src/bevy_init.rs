@@ -1,3 +1,4 @@
+use crate::bevy_components::SpriteState;
 use crate::{BuildRequests, InteractionRequests};
 
 use super::bevy_components::{
@@ -89,7 +90,10 @@ fn setup(
         .spawn_bundle(player_sprite)
         .insert(Player {})
         .insert(Timer::from_seconds(0.05, true))
-        .insert(CharacAnimation { counter: 0 })
+        .insert(SpriteState {
+            counter: 0,
+            direction: Direction2D::Down,
+        })
         .insert(ServerState {
             x: 0.,
             y: 0.,

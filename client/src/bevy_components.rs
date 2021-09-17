@@ -21,6 +21,7 @@ pub struct Sens {
 pub struct Player {}
 pub struct NonPlayer {}
 
+#[derive(Debug)]
 pub struct ServerState {
     pub x: f32,
     pub y: f32,
@@ -40,6 +41,11 @@ pub struct Movement {
     pub kind: MovementKind,
     pub counter: usize,
     pub next_time: Instant,
+}
+
+pub struct SpriteState {
+    pub direction: Direction2D,
+    pub counter: usize,
 }
 
 #[derive(Clone, Debug)]
