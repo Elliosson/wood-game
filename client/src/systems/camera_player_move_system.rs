@@ -1,10 +1,10 @@
-use crate::animation::*;
+use crate::animation_and_movement::*;
 use crate::bevy_components::{FPoint, Movement, Player, SpriteState};
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 
 //todo refactor
-pub fn camera_system(
+pub fn camera_player_move_system(
     mut commands: Commands,
     mut queries: QuerySet<(
         //todo refactor, separate into 2 system ?
@@ -17,14 +17,9 @@ pub fn camera_system(
             &mut SpriteState,
             &mut TextureAtlasSprite,
         )>,
-    )>, // mut query_player: Query<(Entity, &Player, &mut Transform)>,
+    )>,
 ) {
     //handle the movement of the player(to do in a separate fonction)
-    //if teleport just change to coohordinate
-
-    //if walk, update the coordinate of 1/4 of case
-    //update sprite
-    //if final position remove the movement, presisely place the player
 
     let mut new_player_position: Option<FPoint> = None;
 

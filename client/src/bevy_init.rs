@@ -49,7 +49,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(keyboard_intput_system.system())
         .add_system(map_system.system())
         .add_system(deserialise_player_info_system.system())
-        .add_system(camera_system.system())
+        .add_system(camera_player_move_system.system())
         .add_system(animate_sprite_system.system())
         .add_system(movement_decision_system.system())
         .add_system(update_player_system.system())

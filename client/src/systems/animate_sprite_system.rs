@@ -1,4 +1,4 @@
-use crate::animation::*;
+use crate::animation_and_movement::*;
 use crate::bevy_components::{Movement, NonPlayer, SpriteState};
 use bevy::prelude::*;
 
