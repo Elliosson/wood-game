@@ -106,7 +106,6 @@ impl<'a> System<'a> for OnlinePlayerSystem {
                         input = PlayerInput::DOWN
                     }
                     network::Message::PickUp(uuid) => {
-                        println!("get pickup message");
                         uid = uuid.to_string();
                         player_entity = player_hash.hash.get(&uid.clone());
                         let mut target_item = None;
@@ -116,11 +115,8 @@ impl<'a> System<'a> for OnlinePlayerSystem {
                                 if let Some(tile_content) =
                                     map.tile_content.get(&map.xy_idx(pos.x(), pos.y()))
                                 {
-                                    println!("get to the tile content {} {}", pos.x(), pos.y());
                                     for item_entity in tile_content.iter() {
-                                        println!("some tile content");
                                         if let Some(_item) = items.get(*item_entity) {
-                                            println!("have a target item");
                                             target_item = Some(item_entity);
                                         }
                                     }
@@ -138,6 +134,11 @@ impl<'a> System<'a> for OnlinePlayerSystem {
                         uid = uuid.to_string();
                         player_entity = player_hash.hash.get(&uid.clone());
                         input = PlayerInput::BUILD(x, y, name)
+                    }
+                    network::Message::SwitchItem(uuid, idx1, idx2) => {
+                        uid = uuid.to_string();
+                        player_entity = player_hash.hash.get(&uid.clone());
+                        input = PlayerInput::SWITCH_ITEM(idx1, idx2)
                     }
                     network::Message::Interact(uuid, name, id, gen) => {
                         uid = uuid.to_string();

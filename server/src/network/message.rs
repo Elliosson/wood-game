@@ -17,6 +17,7 @@ pub enum Message {
     Consume(Uuid, u32, i32),          //id, gen
     PlayerInfo(Uuid),
     Build(Uuid, i32, i32, String),
+    SwitchItem(Uuid, u32, u32),
     Destroy(Uuid),
 }
 
@@ -48,6 +49,12 @@ impl Message {
                 "exit" => Some(Message::Exit(id)),
                 "pickup" => Some(Message::PickUp(id)),
                 "destroy" => Some(Message::Destroy(id)),
+                "switch_item" => {
+                    let message: Vec<&str> = parts.collect();
+                    let idx1: u32 = message[0].parse().unwrap();
+                    let idx2: u32 = message[1].parse().unwrap();
+                    Some(Message::SwitchItem(id, idx1, idx2))
+                }
                 "build" => {
                     let build: Vec<&str> = parts.collect();
                     let x: i32 = build[0].parse().unwrap();

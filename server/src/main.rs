@@ -21,7 +21,10 @@ mod gamelog;
 mod gui;
 mod inventory_system;
 mod spawner;
-use inventory_system::{ItemCollectionSystem, ItemDropSystem, ItemRemoveSystem, ItemUseSystem};
+use inventory_system::{
+    ItemCollectionSystem, ItemDropSystem, ItemRemoveSystem, ItemUseSystem,
+    SwitchInventoryItemSystem,
+};
 use spawner::{ToConstructList, ToSpawnList};
 mod movement_system;
 mod object_deleter;
@@ -140,6 +143,7 @@ impl State {
         let mut mapindex = MapIndexingSystem {};
         mapindex.run_now(&self.ecs);
 
+        /** Inventory Items */
         let mut pickup = ItemCollectionSystem {};
         pickup.run_now(&self.ecs);
         let mut itemuse = ItemUseSystem {};
@@ -148,6 +152,9 @@ impl State {
         drop_items.run_now(&self.ecs);
         let mut item_remove = ItemRemoveSystem {};
         item_remove.run_now(&self.ecs);
+        let mut switch_item = SwitchInventoryItemSystem {};
+        switch_item.run_now(&self.ecs);
+
         let mut object_spawn = ObjectSpawnSystem {};
         object_spawn.run_now(&self.ecs);
 
@@ -373,6 +380,7 @@ fn main() {
     gs.ecs.register::<Faction>();
     gs.ecs.register::<DeathLoot>();
     gs.ecs.register::<LastMove>();
+    gs.ecs.register::<WantsToSwitchInventoryItem>();
 
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
     let map: Map = Map::new_map();

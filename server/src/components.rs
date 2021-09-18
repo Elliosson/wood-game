@@ -477,6 +477,13 @@ pub struct FoodPreference {
     pub choices: BTreeMap<i32, FoodType>,
 }
 
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct WantsToSwitchInventoryItem {
+    //associate a level of hunger with a food type
+    pub idx1: u32,
+    pub idx2: u32,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum OnlineRunState {
     AwaitingInput,
@@ -497,6 +504,7 @@ pub enum PlayerInput {
     DESTROY,
     CONSUME(Entity),
     EQUIP(Entity),
+    SWITCH_ITEM(u32, u32),
 }
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
@@ -591,6 +599,18 @@ impl Inventory {
         }
 
         return false;
+    }
+
+    pub fn switch_items(&mut self, idx1: u32, idx2: u32) {
+        let item1 = self.items.remove(&idx1);
+        let item2 = self.items.remove(&idx2);
+
+        if let Some(item) = item1 {
+            self.items.insert(idx2, item);
+        }
+        if let Some(item) = item2 {
+            self.items.insert(idx1, item);
+        }
     }
 }
 

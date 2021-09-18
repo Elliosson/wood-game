@@ -1,4 +1,6 @@
 extern crate specs;
+use crate::WantsToSwitchInventoryItem;
+
 use super::{
     gamelog::GameLog, AreaOfEffect, CombatStats, Confusion, Consumable, Equippable, Equipped,
     InBackpack, InflictsDamage, Inventory, Map, Name, Position, ProvidesHealing, SufferDamage,
@@ -33,15 +35,6 @@ impl<'a> System<'a> for ItemCollectionSystem {
             entities,
         ) = data;
 
-        //get the Inventory of collected by
-        //check if we can put it's in the inventory
-        //put the object insite
-        //despawn, or ask to despawn the object
-
-        for pickup in wants_pickup.join() {
-            println!("want pickup");
-        }
-
         for (pickup, inventory) in (&wants_pickup, &mut inventories).join() {
             //get the Inventory of collected by
             println!("want to pickup something");
@@ -61,6 +54,30 @@ impl<'a> System<'a> for ItemCollectionSystem {
     }
 }
 
+pub struct SwitchInventoryItemSystem {}
+
+impl<'a> System<'a> for SwitchInventoryItemSystem {
+    #[allow(clippy::type_complexity)]
+    type SystemData = (
+        ReadExpect<'a, Entity>,
+        WriteExpect<'a, GameLog>,
+        WriteStorage<'a, WantsToSwitchInventoryItem>,
+        WriteStorage<'a, Inventory>,
+        Entities<'a>,
+    );
+
+    fn run(&mut self, data: Self::SystemData) {
+        let (_player_entity, _gamelog, mut wants_switchs, mut inventories, entities) = data;
+
+        for (want_switch, inventory) in (&wants_switchs, &mut inventories).join() {
+            println!("want to switch item");
+
+            inventory.switch_items(want_switch.idx1, want_switch.idx2);
+        }
+
+        wants_switchs.clear();
+    }
+}
 pub struct ItemUseSystem {}
 
 impl<'a> System<'a> for ItemUseSystem {

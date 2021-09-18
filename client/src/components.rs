@@ -45,7 +45,7 @@ pub struct UiState {
     pub inventory: bool,
     pub build: bool,
     pub interaction: bool,
-    pub item_selected: Option<FakeInventoryItem>,
+    pub item_selected: Option<u32>,
 }
 
 #[derive(Component, Debug, Clone, Default)]

@@ -22,15 +22,7 @@ pub fn action_bar_ui_system(
     player_info: Res<PlayerInfo>,
     mut tool: ResMut<Tool>,
 ) {
-    let mut fake_inventory = FakeInventory::default();
-
-    fake_inventory.inventory.insert(
-        1,
-        FakeInventoryItem {
-            name: "sword".to_string(),
-            count: 1,
-        },
-    );
+    let inventory = &player_info.inventory;
 
     egui::TopBottomPanel::bottom("Action Bar").show(egui_ctx.ctx(), |ui| {
         ui.label("You would normally chose either panels OR windows.");
@@ -38,7 +30,7 @@ pub fn action_bar_ui_system(
             for i in 0..10 {
                 let name;
 
-                if let Some(item) = fake_inventory.inventory.get(&i) {
+                if let Some(item) = inventory.items.get(&i) {
                     name = item.name.clone();
                 } else {
                     name = "nean".to_string();

@@ -2,7 +2,7 @@ extern crate specs;
 use crate::{
     gamelog::GameLog, InteractionResquestListV2, OnlinePlayer, OnlineRunState, PlayerInput,
     PlayerInputComp, WantBuild, WantConsume, WantDestroy, WantEquip, WantToMove, WantToPreciseMove,
-    WantsToPickupItem,
+    WantsToPickupItem, WantsToSwitchInventoryItem,
 };
 use specs::prelude::*;
 
@@ -24,6 +24,7 @@ impl<'a> System<'a> for PlayerCommandSystem {
         WriteStorage<'a, WantDestroy>,
         WriteStorage<'a, WantConsume>,
         WriteStorage<'a, WantEquip>,
+        WriteStorage<'a, WantsToSwitchInventoryItem>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -39,6 +40,7 @@ impl<'a> System<'a> for PlayerCommandSystem {
             mut want_destroys,
             mut want_consumes,
             mut want_equips,
+            mut want_switch_items,
         ) = data;
 
         for (entity, player_input) in (&entities, &player_inputs).join() {
@@ -55,6 +57,7 @@ impl<'a> System<'a> for PlayerCommandSystem {
                     &mut want_destroys,
                     &mut want_consumes,
                     &mut want_equips,
+                    &mut want_switch_items,
                 );
                 online_player.runstate = newrunstate;
             } else {
@@ -76,6 +79,7 @@ pub fn online_runstate_choice<'a>(
     want_destroys: &mut WriteStorage<'a, WantDestroy>,
     want_consumes: &mut WriteStorage<'a, WantConsume>,
     want_equips: &mut WriteStorage<'a, WantEquip>,
+    want_switch_items: &mut WriteStorage<'a, WantsToSwitchInventoryItem>,
 ) -> OnlineRunState {
     let newrunstate;
     match runstate {
@@ -137,6 +141,11 @@ pub fn online_runstate_choice<'a>(
                                 item,
                             },
                         )
+                        .expect("Unable to insert want to pickup");
+                }
+                PlayerInput::SWITCH_ITEM(idx1, idx2) => {
+                    want_switch_items
+                        .insert(entity, WantsToSwitchInventoryItem { idx1, idx2 })
                         .expect("Unable to insert want to pickup");
                 }
                 PlayerInput::INTERACT(x, y, name, target) => {

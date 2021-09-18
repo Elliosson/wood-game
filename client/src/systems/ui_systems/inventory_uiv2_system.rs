@@ -1,9 +1,11 @@
 use crate::bevy_components::Tool;
-use crate::PlayerInfo;
+use crate::{BuildRequests, Data, PlayerInfo};
 use crate::{FakeInventory, FakeInventoryItem, UiState};
+use bevy::prelude::*;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 pub fn inventory_uiv2_system(
     //todo I need to have only one panel, so I need to put this in main ui somhow
@@ -12,6 +14,8 @@ pub fn inventory_uiv2_system(
     player_info: Res<PlayerInfo>,
     mut tool: ResMut<Tool>,
     mut fake_inventory: ResMut<FakeInventory>,
+    to_send: ResMut<Arc<Mutex<Vec<String>>>>,
+    net_data: ResMut<Arc<Mutex<Data>>>,
 ) {
     if ui_state.inventory {
         let inventory = &player_info.inventory;
@@ -30,7 +34,13 @@ pub fn inventory_uiv2_system(
                         }
 
                         if ui.button(name.clone()).clicked() {
-                            change_place(&mut &mut fake_inventory, &mut ui_state.item_selected, i)
+                            change_place(
+                                &mut &mut fake_inventory,
+                                &mut ui_state,
+                                i,
+                                &to_send,
+                                &net_data,
+                            )
                         }
                     }
                 });
@@ -54,8 +64,10 @@ pub fn inventory_uiv2_system(
                                     //send a command to server instead, and then server will reac appropriently
                                     change_place(
                                         &mut &mut fake_inventory,
-                                        &mut ui_state.item_selected,
+                                        &mut ui_state,
                                         id,
+                                        &to_send,
+                                        &net_data,
                                     )
                                 }
                             }
@@ -69,15 +81,23 @@ pub fn inventory_uiv2_system(
 //todo a switch instead, also this will be server side
 fn change_place(
     fake_inventory: &mut FakeInventory,
-    current: &mut Option<FakeInventoryItem>,
+    ui_state: &mut ResMut<UiState>,
     clicked_id: u32,
+    to_send: &ResMut<Arc<Mutex<Vec<String>>>>,
+    net_data: &ResMut<Arc<Mutex<Data>>>,
 ) {
-    println!("id: {}", clicked_id);
-    let temp = fake_inventory.inventory.remove(&clicked_id);
-    if let Some(item) = current {
-        fake_inventory.inventory.insert(clicked_id, item.clone());
-    } else {
-        fake_inventory.inventory.remove(&clicked_id);
+    ui_state.item_selected = match ui_state.item_selected {
+        None => Some(clicked_id),
+        Some(value) => {
+            let mut to_send_guard = to_send.lock().unwrap();
+            let data_guard = net_data.lock().unwrap();
+
+            to_send_guard.push(format!(
+                "{} {} {} {}",
+                data_guard.my_uid, "switch_item", value, clicked_id,
+            ));
+
+            None
+        }
     }
-    *current = temp;
 }
