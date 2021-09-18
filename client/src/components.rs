@@ -1,6 +1,7 @@
 use rltk::RGB;
 use serde::Deserialize;
 use specs::prelude::*;
+use std::collections::HashMap;
 
 //Special component for network, Do NOT serialize, it's could go badly
 #[derive(Component, Deserialize, Debug, Clone, Default)]
@@ -13,6 +14,17 @@ pub struct PlayerInfo {
     pub combat_stats: CombatStats,
 }
 
+#[derive(Default, Clone, Debug)]
+pub struct FakeInventoryItem {
+    pub name: String,
+    pub count: u32,
+}
+
+#[derive(Default)]
+pub struct FakeInventory {
+    pub inventory: HashMap<u32, FakeInventoryItem>,
+}
+
 #[derive(Component, Debug, Clone, Default)]
 pub struct UiState {
     pub label: String,
@@ -21,6 +33,7 @@ pub struct UiState {
     pub inventory: bool,
     pub build: bool,
     pub interaction: bool,
+    pub item_selected: Option<FakeInventoryItem>,
 }
 
 #[derive(Component, Debug, Clone, Default)]

@@ -6,6 +6,8 @@ use super::systems::*;
 use super::Data;
 use super::PlayerInfo;
 use super::UiState;
+use crate::FakeInventory;
+use crate::FakeInventoryItem;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
@@ -28,6 +30,16 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
     let interaction_requests = InteractionRequests::default();
     let build_request = BuildRequests::default();
 
+    let mut fake_inventory = FakeInventory::default();
+
+    fake_inventory.inventory.insert(
+        1,
+        FakeInventoryItem {
+            name: "sword".to_string(),
+            count: 1,
+        },
+    );
+
     let mut app = App::build();
 
     app.add_plugins(DefaultPlugins);
@@ -45,6 +57,7 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .insert_resource(ui_state)
         .insert_resource(interaction_requests)
         .insert_resource(build_request)
+        .insert_resource(fake_inventory)
         .add_startup_system(setup.system())
         .add_system(keyboard_intput_system.system())
         .add_system(map_system.system())
@@ -57,11 +70,13 @@ pub fn bevy_init(protect_data: Arc<Mutex<Data>>, to_send: Arc<Mutex<Vec<String>>
         .add_system(mouse_movement_updating_system.system())
         .add_system(main_ui_system.system())
         .add_system(inventory_ui_system.system())
+        .add_system(inventory_uiv2_system.system())
         .add_system(build_ui_system.system())
         .add_system(interaction_ui_system.system())
         .add_system(interaction_request_system.system())
         .add_system(build_request_system.system())
         .add_system(text_info_ui_system.system())
+        .add_system(action_bar_ui_system.system())
         .run();
 }
 
