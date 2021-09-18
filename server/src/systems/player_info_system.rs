@@ -1,8 +1,8 @@
 extern crate specs;
 use crate::{
     gamelog::GameLog, BuildingChoice, BuildingPlan, CloseInteration, CombatStats, Connected,
-    Equipped, InBackpack, InteractableObject, InventaireItem, Item, Map, Name, OnlinePlayer,
-    PlayerInfo, PlayerLog, Position, PrecisePosition,
+    Equipped, InBackpack, InteractableObject, InventaireItem, Inventory, Item, Map, Name,
+    OnlinePlayer, PlayerInfo, PlayerLog, Position, PrecisePosition,
 };
 use specs::prelude::*;
 
@@ -27,6 +27,7 @@ impl<'a> System<'a> for PlayerInfoSystem {
         ReadStorage<'a, CombatStats>,
         ReadStorage<'a, PlayerLog>,
         ReadStorage<'a, Equipped>,
+        ReadStorage<'a, Inventory>,
         ReadExpect<'a, Map>,
     );
 
@@ -47,6 +48,7 @@ impl<'a> System<'a> for PlayerInfoSystem {
             combat_stats,
             player_logs,
             equippeds,
+            inventories,
             map,
         ) = data;
 
@@ -79,18 +81,10 @@ impl<'a> System<'a> for PlayerInfoSystem {
             player_info.my_info.player_log = player_log.logs().clone();
         }
 
-        //TODO these functions are hightly ineficiant, to refactor if needed
-        //fill inventory
-        for (entity, backpack, _item, name) in (&entities, &backpacks, &items, &names).join() {
-            if let Some(player_info) = player_infos.get_mut(backpack.owner) {
-                player_info.inventaire.push(InventaireItem {
-                    name: name.name.clone(),
-                    index: entity.id(),
-                    generation: entity.gen().id(),
-
-                    entity: Some(entity),
-                })
-            }
+        for (_entity, _online_player, inventory, player_info) in
+            (&entities, &online_players, &inventories, &mut player_infos).join()
+        {
+            player_info.inventory = inventory.clone();
         }
 
         for (entity, equipped, name) in (&entities, &equippeds, &names).join() {

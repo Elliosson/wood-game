@@ -63,6 +63,7 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
         })
         .with(PlayerInfo {
             inventaire: Vec::new(),
+            inventory: Inventory::default(),
             close_interations: Vec::new(),
             possible_builds: Vec::new(),
             my_info: MyInfo {

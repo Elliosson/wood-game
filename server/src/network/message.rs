@@ -13,8 +13,8 @@ pub enum Message {
     Exit(Uuid),
     Map(Uuid),
     PickUp(Uuid),
-    Interact(Uuid, i32, i32, String, u32, i32), //x, y, name, id, gen
-    Consume(Uuid, u32, i32),                    //id, gen
+    Interact(Uuid, String, u32, i32), //x, y, name, id, gen
+    Consume(Uuid, u32, i32),          //id, gen
     PlayerInfo(Uuid),
     Build(Uuid, i32, i32, String),
     Destroy(Uuid),
@@ -57,13 +57,11 @@ impl Message {
                 }
                 "interact" => {
                     let interact: Vec<&str> = parts.collect();
-                    let x: i32 = interact[0].parse().unwrap();
-                    let y: i32 = interact[1].parse().unwrap();
-                    let name: String = interact[2].parse().unwrap();
-                    let ent_id: u32 = interact[3].parse().unwrap();
-                    let gen: i32 = interact[4].parse().unwrap();
+                    let name: String = interact[0].parse().unwrap();
+                    let ent_id: u32 = interact[1].parse().unwrap();
+                    let gen: i32 = interact[2].parse().unwrap();
 
-                    Some(Message::Interact(id, x, y, name, ent_id, gen))
+                    Some(Message::Interact(id, name, ent_id, gen))
                 }
                 "consume" => {
                     let interact: Vec<&str> = parts.collect();

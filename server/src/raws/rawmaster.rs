@@ -435,6 +435,11 @@ pub fn spawn_named_prop<T: Builder>(
             eb = eb.with(online_player.clone());
         }
 
+        // Inventory
+        if let Some(inventory) = &prop_template.inventory {
+            eb = eb.with(inventory.clone());
+        }
+
         // Facing direction
         if let Some(facing_direction) = &prop_template.facing_direction {
             eb = eb.with(facing_direction.clone());
@@ -701,6 +706,11 @@ pub fn spawn_born(
         // OnlinePlayer
         if let Some(online_player) = &prop_template.online_player {
             eb = eb.with(online_player.clone());
+        }
+
+        // Inventory
+        if let Some(inventory) = &prop_template.inventory {
+            eb = eb.with(inventory.clone());
         }
 
         // PrecisePosition

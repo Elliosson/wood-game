@@ -3,10 +3,22 @@ use serde::Deserialize;
 use specs::prelude::*;
 use std::collections::HashMap;
 
+#[derive(Debug, Deserialize, Clone, Default)]
+pub struct Inventory {
+    pub items: HashMap<u32, InventoryItem>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct InventoryItem {
+    pub count: u32,
+    pub name: String,
+}
+
 //Special component for network, Do NOT serialize, it's could go badly
 #[derive(Component, Deserialize, Debug, Clone, Default)]
 pub struct PlayerInfo {
     pub inventaire: Vec<InventaireItem>,
+    pub inventory: Inventory,
     pub close_interations: Vec<CloseInteration>,
     pub my_info: MyInfo,
     pub possible_builds: Vec<BuildingPlan>,

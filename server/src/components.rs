@@ -7,7 +7,7 @@ use rltk::RGB;
 use serde::{Deserialize, Serialize};
 use specs::error::NoError;
 use specs::saveload::{ConvertSaveload, Marker};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 
@@ -559,10 +559,52 @@ pub struct WantBuild {
     pub name: String,
 }
 
+#[derive(Component, Debug, Serialize, Deserialize, Clone, Default)]
+pub struct Inventory {
+    pub items: HashMap<u32, InventoryItem>,
+}
+
+impl Inventory {
+    pub fn insert(&mut self, name: String) -> bool {
+        //check if the name is already here, and increment if yes
+        for i in 0..100 {
+            if let Some(item) = self.items.get_mut(&i) {
+                if item.name == name {
+                    item.count += 1;
+                    return true;
+                }
+            }
+        }
+
+        //search a free space in the inventory and add the item
+        for i in 0..100 {
+            if !self.items.contains_key(&i) {
+                self.items.insert(
+                    i,
+                    InventoryItem {
+                        count: 1,
+                        name: name,
+                    },
+                );
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct InventoryItem {
+    pub count: u32,
+    pub name: String,
+}
+
 //Special component for network, Do NOT serialize, it's could go badly
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct PlayerInfo {
     pub inventaire: Vec<InventaireItem>,
+    pub inventory: Inventory,
     pub close_interations: Vec<CloseInteration>,
     pub my_info: MyInfo,
     pub possible_builds: Vec<BuildingPlan>,

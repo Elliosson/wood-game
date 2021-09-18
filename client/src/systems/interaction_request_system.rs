@@ -15,11 +15,9 @@ pub fn interaction_request_system(
 
     for request in requests.items.iter() {
         to_send_guard.push(format!(
-            "{} {} {} {} {} {} {}",
+            "{} {} {} {} {}",
             data_guard.my_uid,
             "interact",
-            player_info.my_info.pos.x,
-            player_info.my_info.pos.y,
             request.interaction_name,
             request.index,
             request.generation

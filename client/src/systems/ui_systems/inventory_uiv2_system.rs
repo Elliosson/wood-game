@@ -14,6 +14,7 @@ pub fn inventory_uiv2_system(
     mut fake_inventory: ResMut<FakeInventory>,
 ) {
     if ui_state.inventory {
+        let inventory = &player_info.inventory;
         egui::Window::new("Inventoryv2")
             .scroll(true)
             .show(egui_ctx.ctx(), |ui| {
@@ -22,7 +23,7 @@ pub fn inventory_uiv2_system(
                     for i in 0..10 {
                         let name;
 
-                        if let Some(item) = fake_inventory.inventory.get(&i) {
+                        if let Some(item) = inventory.items.get(&i) {
                             name = item.name.clone();
                         } else {
                             name = "nean".to_string();
@@ -43,7 +44,7 @@ pub fn inventory_uiv2_system(
                                 let name;
                                 let id = i * 10 + j;
 
-                                if let Some(item) = fake_inventory.inventory.get(&id) {
+                                if let Some(item) = inventory.items.get(&id) {
                                     name = item.name.clone();
                                 } else {
                                     name = "nean".to_string();

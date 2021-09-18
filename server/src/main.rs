@@ -349,6 +349,7 @@ fn main() {
     gs.ecs.register::<BuildingChoice>();
     gs.ecs.register::<WantBuild>();
     gs.ecs.register::<PlayerInfo>();
+    gs.ecs.register::<Inventory>();
     gs.ecs.register::<EntityToConvert>();
     gs.ecs.register::<FacingDirection>();
     gs.ecs.register::<WantDestroy>();

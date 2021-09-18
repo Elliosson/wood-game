@@ -30,6 +30,7 @@ pub struct Prop {
     pub sexe: Option<super::item_structs::SexeChoice>,
     pub combat: Option<CombatStats>,
     pub online_player: Option<OnlinePlayer>,
+    pub inventory: Option<Inventory>,
     pub precise_position: Option<PrecisePosition>,
     pub building_choice: Option<BuildingChoice>,
     pub facing_direction: Option<FacingDirection>,

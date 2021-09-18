@@ -695,6 +695,9 @@
             },
             "player_info": {
                 "inventaire": [],
+                "inventory": {
+                    "items": {}
+                },
                 "close_interations": [],
                 "my_info": {
                     "pos": {
@@ -711,7 +714,10 @@
             "player_log": {
                 "logs": []
             },
-            "last_move": {}
+            "last_move": {},
+            "inventory": {
+                "items": {}
+            }
         },
         {
             "name": "Door",

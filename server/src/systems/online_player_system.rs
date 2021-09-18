@@ -54,6 +54,7 @@ impl<'a> System<'a> for OnlinePlayerSystem {
         let mut new_player_list = Vec::new();
 
         {
+            //todo catch this error, can fail if invalide json, for now it's good because it's help debugging
             let mut message_list_guard = message_mutex.lock().unwrap();
 
             //todo hash map to get player entity
@@ -105,6 +106,7 @@ impl<'a> System<'a> for OnlinePlayerSystem {
                         input = PlayerInput::DOWN
                     }
                     network::Message::PickUp(uuid) => {
+                        println!("get pickup message");
                         uid = uuid.to_string();
                         player_entity = player_hash.hash.get(&uid.clone());
                         let mut target_item = None;
@@ -114,8 +116,11 @@ impl<'a> System<'a> for OnlinePlayerSystem {
                                 if let Some(tile_content) =
                                     map.tile_content.get(&map.xy_idx(pos.x(), pos.y()))
                                 {
+                                    println!("get to the tile content {} {}", pos.x(), pos.y());
                                     for item_entity in tile_content.iter() {
+                                        println!("some tile content");
                                         if let Some(_item) = items.get(*item_entity) {
+                                            println!("have a target item");
                                             target_item = Some(item_entity);
                                         }
                                     }
@@ -134,14 +139,20 @@ impl<'a> System<'a> for OnlinePlayerSystem {
                         player_entity = player_hash.hash.get(&uid.clone());
                         input = PlayerInput::BUILD(x, y, name)
                     }
-                    network::Message::Interact(uuid, x, y, name, id, gen) => {
+                    network::Message::Interact(uuid, name, id, gen) => {
                         uid = uuid.to_string();
                         player_entity = player_hash.hash.get(&uid.clone());
-                        if let Some(entity) = player_entity {
-                            let player_info = player_infos.get(*entity).unwrap();
+                        if let Some(player_entity) = player_entity {
+                            let player_info = player_infos.get(*player_entity).unwrap();
+                            let player_pos = positions.get(*player_entity).unwrap();
                             let interacted_entity = get_interacted_entity(id, gen, player_info);
-                            if let Some(inte_entity) = interacted_entity {
-                                input = PlayerInput::INTERACT(x, y, name.clone(), inte_entity)
+                            if let Some(interacted_entity) = interacted_entity {
+                                input = PlayerInput::INTERACT(
+                                    player_pos.x(),
+                                    player_pos.y(),
+                                    name.clone(),
+                                    interacted_entity,
+                                )
                             } else {
                                 input = PlayerInput::NONE
                             }

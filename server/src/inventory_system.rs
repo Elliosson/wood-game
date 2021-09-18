@@ -1,7 +1,7 @@
 extern crate specs;
 use super::{
     gamelog::GameLog, AreaOfEffect, CombatStats, Confusion, Consumable, Equippable, Equipped,
-    InBackpack, InflictsDamage, Map, Name, Position, ProvidesHealing, SufferDamage,
+    InBackpack, InflictsDamage, Inventory, Map, Name, Position, ProvidesHealing, SufferDamage,
     WantsToDropItem, WantsToPickupItem, WantsToRemoveItem, WantsToUseItem,
 };
 use specs::prelude::*;
@@ -15,30 +15,45 @@ impl<'a> System<'a> for ItemCollectionSystem {
         WriteExpect<'a, GameLog>,
         WriteStorage<'a, WantsToPickupItem>,
         WriteStorage<'a, Position>,
-        ReadStorage<'a, Name>,
+        WriteStorage<'a, Name>,
         WriteStorage<'a, InBackpack>,
+        WriteStorage<'a, Inventory>,
+        Entities<'a>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (player_entity, mut gamelog, mut wants_pickup, mut positions, names, mut backpack) =
-            data;
+        let (
+            player_entity,
+            mut gamelog,
+            mut wants_pickup,
+            mut positions,
+            mut names,
+            mut backpack,
+            mut inventories,
+            entities,
+        ) = data;
+
+        //get the Inventory of collected by
+        //check if we can put it's in the inventory
+        //put the object insite
+        //despawn, or ask to despawn the object
 
         for pickup in wants_pickup.join() {
-            positions.remove(pickup.item);
-            backpack
-                .insert(
-                    pickup.item,
-                    InBackpack {
-                        owner: pickup.collected_by,
-                    },
-                )
-                .expect("Unable to insert backpack entry");
+            println!("want pickup");
+        }
 
-            if pickup.collected_by == *player_entity {
-                gamelog.entries.insert(
-                    0,
-                    format!("You pick up the {}.", names.get(pickup.item).unwrap().name),
-                );
+        for (pickup, inventory) in (&wants_pickup, &mut inventories).join() {
+            //get the Inventory of collected by
+            println!("want to pickup something");
+
+            //check if the thing to pickup as a name
+            if let Some(name) = names.get(pickup.item) {
+                if inventory.insert(name.name.clone()) {
+                    positions.remove(pickup.item); //removing position should prevent the item to be picked up again ?
+                    names.remove(pickup.item);
+                    //despawn
+                    entities.delete(pickup.item).unwrap();
+                }
             }
         }
 

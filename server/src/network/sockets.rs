@@ -39,14 +39,14 @@ pub fn run(
                 Ok(msg) => msg,
                 Err(_) => "",
             };
-            println!("message: {}", msg);
+            // println!("message: {}", msg);
 
             //push the message in a struct that will be read by the game to do an action
 
             let response_to_send = match Message::from(msg) {
                 //msg is a string in enter
                 Some((message, command)) => {
-                    println!("message: {:?}", message);
+                    // println!("message: {:?}", message);
                     let (response, message_to_system) = response(
                         message,
                         map_to_send_clone.clone(),

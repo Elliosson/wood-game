@@ -149,14 +149,8 @@ pub fn send_command(
                 // en plus je viens de creer un truc qui permet de detruire n'importe quel truc, lol
                 //I think I should just send the order to the server that will deduce if it's ok to cut something
                 to_send_guard.push(format!(
-                    "{} {} {} {} {} {} {}",
-                    uid,
-                    "interact",
-                    x, // click position
-                    y,
-                    "chop_tree",
-                    index,
-                    generation
+                    "{} {} {} {} {}",
+                    uid, "interact", "chop_tree", index, generation
                 ));
             }
         }
