@@ -18,7 +18,7 @@ struct FakeInventory {
 
 pub fn action_bar_ui_system(
     egui_ctx: ResMut<EguiContext>,
-    ui_state: ResMut<UiState>,
+    mut ui_state: ResMut<UiState>,
     player_info: Res<PlayerInfo>,
     mut tool: ResMut<Tool>,
 ) {
@@ -37,9 +37,20 @@ pub fn action_bar_ui_system(
                 }
 
                 if ui.button(name.clone()).clicked() {
-                    tool.name = Some(name.clone());
+                    ui_state.action_slot_selected = i;
                 }
             }
         });
     });
+
+    // update the tools
+    if let Some(item) = player_info
+        .inventory
+        .items
+        .get(&ui_state.action_slot_selected)
+    {
+        tool.name = Some(item.name.clone())
+    } else {
+        tool.name = None
+    }
 }

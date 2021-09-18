@@ -46,6 +46,7 @@ pub struct UiState {
     pub build: bool,
     pub interaction: bool,
     pub item_selected: Option<u32>,
+    pub action_slot_selected: u32,
 }
 
 #[derive(Component, Debug, Clone, Default)]

@@ -55,6 +55,23 @@ pub fn keyboard_intput_system(
         ui_state.interaction = false;
         ui_state.inventory = false;
     }
+
+    action_bar_keys(&keyboard_input, &mut ui_state);
+}
+
+pub fn action_bar_keys(keyboard_input: &Res<Input<KeyCode>>, ui_state: &mut ResMut<UiState>) {
+    if keyboard_input.just_pressed(KeyCode::Key1) {
+        ui_state.action_slot_selected = 1;
+    }
+    if keyboard_input.just_pressed(KeyCode::Key2) {
+        ui_state.action_slot_selected = 2;
+    }
+    if keyboard_input.just_pressed(KeyCode::Key3) {
+        ui_state.action_slot_selected = 3;
+    }
+    if keyboard_input.just_pressed(KeyCode::Key4) {
+        ui_state.action_slot_selected = 4;
+    }
 }
 
 pub fn mouse_press_system(

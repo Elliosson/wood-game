@@ -18,8 +18,8 @@ pub fn build_request_system(
             "{} {} {} {} {}",
             data_guard.my_uid,
             "build",
-            player_info.my_info.pos.x,
-            player_info.my_info.pos.y,
+            player_info.my_info.pos.x as i32, //todo, revy ugly, do something correct or suprres
+            player_info.my_info.pos.y as i32,
             request.name
         ));
     }

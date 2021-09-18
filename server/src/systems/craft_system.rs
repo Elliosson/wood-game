@@ -1,5 +1,8 @@
 extern crate specs;
-use crate::{InventaireItem, PlayerInfo, Position, ToDelete, ToSpawnList, WantCraft};
+use crate::{
+    InventaireItem, Inventory, InventoryItem, PlayerInfo, Position, ToDelete, ToSpawnList,
+    WantCraft,
+};
 use specs::prelude::*;
 
 use std::collections::HashMap;
@@ -18,8 +21,14 @@ impl<'a> System<'a> for CraftSystem {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (entities, mut want_crafts, mut positions, player_infos, mut to_spawns, mut to_deletes) =
-            data;
+        let (
+            entities,
+            mut want_crafts,
+            mut positions,
+            mut player_infos,
+            mut to_spawns,
+            mut to_deletes,
+        ) = data;
 
         //todo this must be deserialised from a json
         //for now this a list a all craftable thing and ressource needed
@@ -39,12 +48,17 @@ impl<'a> System<'a> for CraftSystem {
         .into_iter()
         .collect();
 
-        for (_entity, want_craft, pos, info) in
-            (&entities, &mut want_crafts, &mut positions, &player_infos).join()
+        for (_entity, want_craft, pos, info) in (
+            &entities,
+            &mut want_crafts,
+            &mut positions,
+            &mut player_infos,
+        )
+            .join()
         {
             if let Some(cost) = craft_cost.get(&want_craft.name) {
                 //remove from inventory if everithing is in, else return an error
-                match remove_from_inventory(cost, &info.inventaire, &mut to_deletes) {
+                match remove_from_inventoryv2(cost, &mut info.inventory) {
                     Ok(()) => {
                         //creat item
                         to_spawns.request(pos.x(), pos.y(), want_craft.name.clone());
@@ -64,6 +78,7 @@ impl<'a> System<'a> for CraftSystem {
 }
 
 //This could probably be reuse
+//keep this for the history, I think this system could still be useful
 pub fn remove_from_inventory<'a>(
     cost: &Vec<(String, i32)>,
     inventory: &Vec<InventaireItem>,
@@ -107,6 +122,63 @@ pub fn remove_from_inventory<'a>(
                 to_deletes
                     .insert(resource.entity.unwrap(), ToDelete {})
                     .expect("Unable to insert");
+            }
+        }
+        Ok(())
+    } else {
+        Err(lacking)
+    };
+
+    return ret;
+}
+
+pub fn remove_from_inventoryv2<'a>(
+    cost: &Vec<(String, i32)>,
+    inventory: &mut Inventory,
+) -> Result<(), Vec<(String, i32)>> {
+    //convert the inventory into an hashmap
+    let mut inventory_hash: HashMap<String, (u32, u32)> = HashMap::new();
+
+    for (&key, item) in &inventory.items {
+        inventory_hash.insert(item.name.clone(), (key, item.count));
+    }
+
+    //check if we lack of ressource
+    let mut lacking = Vec::new();
+
+    for (name, quantity) in cost {
+        match inventory_hash.get(name) {
+            Some((idx, dispo)) => {
+                let diff = *quantity - *dispo as i32;
+                if diff <= 0 {
+                    //ok
+                } else {
+                    lacking.push((name.clone(), diff));
+                }
+            }
+            None => {
+                lacking.push((name.clone(), *quantity));
+            }
+        }
+    }
+
+    //if ok remove from inventory, else return want is lacking
+    let ret = if lacking.len() == 0 {
+        //consume the ressource
+        for (name, cost_quantity) in cost {
+            let (inventory_idx, old_quantity) = inventory_hash.get_mut(name).unwrap();
+            let new_quantity = *old_quantity - *cost_quantity as u32;
+
+            if new_quantity == 0 {
+                inventory.items.remove(&inventory_idx);
+            } else {
+                inventory.items.insert(
+                    *inventory_idx,
+                    InventoryItem {
+                        count: new_quantity,
+                        name: name.clone(),
+                    },
+                );
             }
         }
         Ok(())

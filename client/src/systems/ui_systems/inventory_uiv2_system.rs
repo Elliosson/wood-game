@@ -28,7 +28,7 @@ pub fn inventory_uiv2_system(
                         let name;
 
                         if let Some(item) = inventory.items.get(&i) {
-                            name = item.name.clone();
+                            name = format!("{}: {}", item.name.clone(), item.count);
                         } else {
                             name = "nean".to_string();
                         }
@@ -55,7 +55,7 @@ pub fn inventory_uiv2_system(
                                 let id = i * 10 + j;
 
                                 if let Some(item) = inventory.items.get(&id) {
-                                    name = item.name.clone();
+                                    name = format!("{}: {}", item.name.clone(), item.count);
                                 } else {
                                     name = "nean".to_string();
                                 }
