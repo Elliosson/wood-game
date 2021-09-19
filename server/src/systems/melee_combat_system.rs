@@ -31,8 +31,9 @@ impl<'a> System<'a> for MeleeCombatSystem {
 
         for (entity, wants_to_melee) in (&entities, &wants_to_melees).join() {
             let attacker_stat = combat_stats.get(entity).unwrap();
-
-            domage_dealed.push((attacker_stat.att, wants_to_melee.target, entity));
+            for &target in wants_to_melee.targets.iter() {
+                domage_dealed.push((attacker_stat.att, target, entity));
+            }
         }
         for (damage, defender, attacker) in domage_dealed {
             if enemy_faction(attacker, defender, &factions) {
@@ -52,6 +53,7 @@ impl<'a> System<'a> for MeleeCombatSystem {
                     }
                 } else {
                     println!("Error: the defender have no combat stats");
+                    // search if they have a On hit drop, and send a spawner for the thing1
                 }
             } else {
                 if let Some(log) = player_logs.get_mut(attacker) {

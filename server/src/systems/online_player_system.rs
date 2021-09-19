@@ -105,6 +105,11 @@ impl<'a> System<'a> for OnlinePlayerSystem {
                         player_entity = player_hash.hash.get(&uid.clone());
                         input = PlayerInput::DOWN
                     }
+                    network::Message::Action(uuid, name) => {
+                        uid = uuid.to_string();
+                        player_entity = player_hash.hash.get(&uid.clone());
+                        input = PlayerInput::ACTION(name)
+                    }
                     network::Message::PickUp(uuid) => {
                         uid = uuid.to_string();
                         player_entity = player_hash.hash.get(&uid.clone());

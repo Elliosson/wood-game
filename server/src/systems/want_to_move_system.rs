@@ -80,7 +80,7 @@ impl<'a> System<'a> for WantToMoveSystem {
                                 .insert(
                                     entity,
                                     WantsToMelee {
-                                        target: *enemy_entity,
+                                        targets: vec![*enemy_entity],
                                     },
                                 )
                                 .expect("Unable to insert");

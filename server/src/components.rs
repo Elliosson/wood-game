@@ -96,9 +96,9 @@ impl CombatStats {
     }
 }
 
-#[derive(Component, Debug, ConvertSaveload, Clone)]
+#[derive(Component, Debug, Clone)]
 pub struct WantsToMelee {
-    pub target: Entity,
+    pub targets: Vec<Entity>,
 }
 
 #[derive(Component, Debug, ConvertSaveload, Clone)]
@@ -505,11 +505,16 @@ pub enum PlayerInput {
     CONSUME(Entity),
     EQUIP(Entity),
     SWITCH_ITEM(u32, u32),
+    ACTION(String),
 }
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct OnlinePlayer {
     pub runstate: OnlineRunState,
+}
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct Action {
+    pub name: String,
 }
 
 #[derive(Component, Debug, ConvertSaveload, Clone)]

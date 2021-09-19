@@ -19,6 +19,7 @@ pub enum Message {
     Build(Uuid, i32, i32, String),
     SwitchItem(Uuid, u32, u32),
     Destroy(Uuid),
+    Action(Uuid, String),
 }
 
 impl Message {
@@ -49,6 +50,11 @@ impl Message {
                 "exit" => Some(Message::Exit(id)),
                 "pickup" => Some(Message::PickUp(id)),
                 "destroy" => Some(Message::Destroy(id)),
+                "action" => {
+                    let message: Vec<&str> = parts.collect();
+                    let name: String = message[0].parse().unwrap();
+                    Some(Message::Action(id, name))
+                }
                 "switch_item" => {
                     let message: Vec<&str> = parts.collect();
                     let idx1: u32 = message[0].parse().unwrap();

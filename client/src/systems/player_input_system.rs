@@ -124,16 +124,14 @@ pub fn mouse_press_system(
                         let x = ((coord.0 + TILE_SIZE / 2.) / TILE_SIZE) as i32; //get the tile coordinate, need to offset by half the tile
                         let y = ((coord.1 + TILE_SIZE / 2.) / TILE_SIZE) as i32;
 
-                        if let Some(tool_name) = tool.name.clone() {
-                            send_command(
-                                &mut to_send_guard,
-                                &uid,
-                                x,
-                                y,
-                                tool_name,
-                                &server_state_query,
-                            );
-                        }
+                        send_command(
+                            &mut to_send_guard,
+                            &uid,
+                            x,
+                            y,
+                            &tool.name,
+                            &server_state_query,
+                        );
                     }
                 }
                 _ => {}
@@ -147,32 +145,40 @@ pub fn send_command(
     uid: &String,
     x: i32,
     y: i32,
-    tool_name: String,
+    tool: &Option<String>,
     server_state_query: &Query<(Entity, &ServerState)>,
 ) {
-    //todo Here I will need to have a tab that link tool to action
+    match tool {
+        None => {
+            to_send_guard.push(format!("{} {} {}", uid, "action", "punch"));
+            println!("send pucnch");
+        }
+        Some(tool_name) => {
+            //todo Here I will need to have a tab that link tool to action
 
-    //get the object form the x, y position
+            //get the object form the x, y position
 
-    if tool_name == "axe" || tool_name == "WoodenSpear" {
-        //search an entity on position
-        for (_entity, server_state) in server_state_query.iter() {
-            if server_state.x == x as f32 && server_state.y == y as f32 {
-                let index = server_state.id;
-                let generation = server_state.gen;
+            if tool_name == "axe" || tool_name == "WoodenSpear" {
+                //search an entity on position
+                for (_entity, server_state) in server_state_query.iter() {
+                    if server_state.x == x as f32 && server_state.y == y as f32 {
+                        let index = server_state.id;
+                        let generation = server_state.gen;
 
-                //send to system that get the first building on position
-                // geting the good thing to cut will be problematique
-                // en plus je viens de creer un truc qui permet de detruire n'importe quel truc, lol
-                //I think I should just send the order to the server that will deduce if it's ok to cut something
-                to_send_guard.push(format!(
-                    "{} {} {} {} {}",
-                    uid, "interact", "chop_tree", index, generation
-                ));
+                        //send to system that get the first building on position
+                        // geting the good thing to cut will be problematique
+                        // en plus je viens de creer un truc qui permet de detruire n'importe quel truc, lol
+                        //I think I should just send the order to the server that will deduce if it's ok to cut something
+                        to_send_guard.push(format!(
+                            "{} {} {} {} {}",
+                            uid, "interact", "chop_tree", index, generation
+                        ));
+                    }
+                }
+            } else {
+                to_send_guard.push(format!("{} {} {} {} {}", uid, "build", x, y, tool_name));
             }
         }
-    } else {
-        to_send_guard.push(format!("{} {} {} {} {}", uid, "build", x, y, tool_name));
     }
 }
 

@@ -1,10 +1,12 @@
 extern crate specs;
 use crate::{
-    gamelog::GameLog, InteractionResquestListV2, OnlinePlayer, OnlineRunState, PlayerInput,
+    gamelog::GameLog, Action, InteractionResquestListV2, OnlinePlayer, OnlineRunState, PlayerInput,
     PlayerInputComp, WantBuild, WantConsume, WantDestroy, WantEquip, WantToMove, WantToPreciseMove,
     WantsToPickupItem, WantsToSwitchInventoryItem,
 };
 use specs::prelude::*;
+
+use super::ActionSystem;
 
 pub struct PlayerCommandSystem {}
 
@@ -25,6 +27,7 @@ impl<'a> System<'a> for PlayerCommandSystem {
         WriteStorage<'a, WantConsume>,
         WriteStorage<'a, WantEquip>,
         WriteStorage<'a, WantsToSwitchInventoryItem>,
+        WriteStorage<'a, Action>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -41,6 +44,7 @@ impl<'a> System<'a> for PlayerCommandSystem {
             mut want_consumes,
             mut want_equips,
             mut want_switch_items,
+            mut actions,
         ) = data;
 
         for (entity, player_input) in (&entities, &player_inputs).join() {
@@ -58,6 +62,7 @@ impl<'a> System<'a> for PlayerCommandSystem {
                     &mut want_consumes,
                     &mut want_equips,
                     &mut want_switch_items,
+                    &mut actions,
                 );
                 online_player.runstate = newrunstate;
             } else {
@@ -80,6 +85,7 @@ pub fn online_runstate_choice<'a>(
     want_consumes: &mut WriteStorage<'a, WantConsume>,
     want_equips: &mut WriteStorage<'a, WantEquip>,
     want_switch_items: &mut WriteStorage<'a, WantsToSwitchInventoryItem>,
+    actions: &mut WriteStorage<'a, Action>,
 ) -> OnlineRunState {
     let newrunstate;
     match runstate {
@@ -132,6 +138,9 @@ pub fn online_runstate_choice<'a>(
                         .expect("Unable to insert");
                 }
                 PlayerInput::INVENTORY => {}
+                PlayerInput::ACTION(name) => {
+                    actions.insert(entity, Action { name }).unwrap();
+                }
                 PlayerInput::PICKUP(item) => {
                     pickups
                         .insert(

@@ -69,6 +69,13 @@ impl<'a> System<'a> for WantToPreciseMoveSystem {
                 prec_pos.x = new_pos_x;
                 prec_pos.y = new_pos_y;
 
+                if let Some(facing) = facing_directions.get_mut(entity) {
+                    facing.update(
+                        (movement.delta_x * 1000.) as i32,
+                        (movement.delta_y * 1000.) as i32,
+                    ); // todo, total shit, to refactor and add somewhere genric, also solve this movement thing( only let precise movement ?)
+                }
+
                 println!("{:?}", prec_pos);
 
                 let (x, y) = getGrossPosition(prec_pos);

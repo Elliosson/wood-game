@@ -169,6 +169,9 @@ impl State {
         let mut equip = EquipSystem {};
         equip.run_now(&self.ecs);
 
+        let mut action = ActionSystem {};
+        action.run_now(&self.ecs);
+
         /*movement*/
         let mut go_step = GoStepSystem {};
         go_step.run_now(&self.ecs);
@@ -293,6 +296,7 @@ fn main() {
     gs.ecs.register::<WantsToMelee>();
     gs.ecs.register::<SufferDamage>();
     gs.ecs.register::<Item>();
+    gs.ecs.register::<Action>();
     gs.ecs.register::<ProvidesHealing>();
     gs.ecs.register::<InflictsDamage>();
     gs.ecs.register::<AreaOfEffect>();
