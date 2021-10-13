@@ -99,7 +99,7 @@ pub fn online_runstate_choice<'a>(
                             entity,
                             WantToPreciseMove {
                                 delta_x: 0.,
-                                delta_y: -0.2,
+                                delta_y: -0.1,
                             },
                         )
                         .expect("Unable to insert");
@@ -110,7 +110,7 @@ pub fn online_runstate_choice<'a>(
                             entity,
                             WantToPreciseMove {
                                 delta_x: 0.,
-                                delta_y: 0.2,
+                                delta_y: 0.1,
                             },
                         )
                         .expect("Unable to insert");
@@ -120,7 +120,7 @@ pub fn online_runstate_choice<'a>(
                         .insert(
                             entity,
                             WantToPreciseMove {
-                                delta_x: -0.2,
+                                delta_x: -0.1,
                                 delta_y: 0.,
                             },
                         )
@@ -131,7 +131,7 @@ pub fn online_runstate_choice<'a>(
                         .insert(
                             entity,
                             WantToPreciseMove {
-                                delta_x: 0.2,
+                                delta_x: 0.1,
                                 delta_y: 0.,
                             },
                         )

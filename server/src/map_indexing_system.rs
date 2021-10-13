@@ -1,4 +1,6 @@
 extern crate specs;
+use crate::PrecisePosition;
+
 use super::{BlocksTile, Map, Position};
 use specs::prelude::*;
 use std::collections::HashSet;
@@ -10,11 +12,12 @@ impl<'a> System<'a> for MapIndexingSystem {
         WriteExpect<'a, Map>,
         ReadStorage<'a, Position>,
         ReadStorage<'a, BlocksTile>,
+        ReadStorage<'a, PrecisePosition>,
         Entities<'a>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut map, positions, blockers, _entities) = data;
+        let (mut map, positions, blockers, precise_positions, _entities) = data;
 
         //hashset prevent duplicate
         let mut dirty_entities: HashSet<Entity> = HashSet::new();
@@ -26,6 +29,7 @@ impl<'a> System<'a> for MapIndexingSystem {
             map.blocked.remove(&idx);
 
             if let Some(in_tile) = map.tile_content.remove(&idx) {
+                println!("in tile {}: {:?}", idx, in_tile);
                 for entity in in_tile.iter() {
                     dirty_entities.insert(*entity);
                 }
@@ -33,12 +37,21 @@ impl<'a> System<'a> for MapIndexingSystem {
         }
         //store all the dirty entity in there corect tile, and set blocked map
         for entity in dirty_entities.drain() {
+            println!("dirty tile {:?}", entity);
             if let Some(pos) = positions.get(entity) {
+                println!("pos {:?}", entity);
                 let idx = map.xy_idx(pos.x(), pos.y());
                 let tile_content = map.tile_content.entry(idx).or_insert(Vec::new());
                 tile_content.push(entity);
                 if let Some(_block) = blockers.get(entity) {
-                    map.set_blocked(idx, true);
+                    println!("block_tile {:?}", entity);
+                    if !precise_positions.contains(entity) {
+                        map.set_blocked(idx, true);
+                        println!("set blocked");
+                    } else {
+                        println!("precise pos element");
+                        // println!(" blocked tile {:?}", map.blocked);
+                    }
                 }
             }
         }

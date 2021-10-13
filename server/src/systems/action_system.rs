@@ -63,5 +63,6 @@ impl<'a> System<'a> for ActionSystem {
                 //basically the order is: action (punch) -> get all the entity in the front tile -> melee combat (domage and/or spaw), and then we have our thing
             }
         }
+        actions.clear();
     }
 }

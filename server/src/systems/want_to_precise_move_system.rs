@@ -1,10 +1,11 @@
 extern crate specs;
 use crate::{
-    CombatStats, FacingDirection, LastMove, Map, Position, PrecisePosition, Viewshed, WantToMove,
-    WantToPreciseMove, WantsToMelee, MAPHEIGHT, MAPWIDTH,
+    BlocksTile, CombatStats, FacingDirection, LastMove, Map, Position, PrecisePosition, Viewshed,
+    WantToMove, WantToPreciseMove, WantsToMelee, MAPHEIGHT, MAPWIDTH,
 };
 use specs::prelude::*;
 use std::cmp::{max, min};
+use std::collections::HashSet;
 use std::f32::*;
 use std::time::Instant;
 
@@ -26,6 +27,7 @@ impl<'a> System<'a> for WantToPreciseMoveSystem {
         WriteStorage<'a, WantsToMelee>,
         WriteStorage<'a, CombatStats>,
         WriteStorage<'a, LastMove>,
+        WriteStorage<'a, BlocksTile>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -41,6 +43,7 @@ impl<'a> System<'a> for WantToPreciseMoveSystem {
             mut wants_to_melees,
             combat_stats,
             mut last_moves,
+            blockings,
         ) = data;
 
         //iterate on all pmove
@@ -53,6 +56,15 @@ impl<'a> System<'a> for WantToPreciseMoveSystem {
         //also set the clasical position acordingly
         // it's a little simplistic, but for now it's should work
 
+        //get all the entity with precise position and blocking
+        let mut blocking_precises = Vec::new();
+
+        for (entity, precise_position, _blocking) in
+            (&entities, &mut precise_positions, &blockings).join()
+        {
+            blocking_precises.push((entity, precise_position.clone()));
+        }
+
         for (entity, pos, prec_pos, movement) in (
             &entities,
             &mut positions,
@@ -63,9 +75,14 @@ impl<'a> System<'a> for WantToPreciseMoveSystem {
         {
             let new_pos_x = prec_pos.x + movement.delta_x;
             let new_pos_y = prec_pos.y + movement.delta_y;
+            let new_pos = PrecisePosition {
+                x: new_pos_x,
+                y: new_pos_y,
+            };
 
-            if !is_coliding(entity, new_pos_x, new_pos_y) {
+            if !is_coliding(entity, new_pos, &map, &blocking_precises) {
                 //do the move
+
                 prec_pos.x = new_pos_x;
                 prec_pos.y = new_pos_y;
 
@@ -107,24 +124,94 @@ fn round_closest(num: f32) -> i32 {
     return res * sign;
 }
 
-fn is_coliding(entity: Entity, x: f32, y: f32) -> bool {
-    //todo, no colision check for now
-    // collision with other precise entity
+fn is_coliding(
+    entity: Entity,
+    pos: PrecisePosition,
+    map: &Map,
+    blocking_precises: &Vec<(Entity, PrecisePosition)>,
+) -> bool {
+    let occuped_tiles = get_occupied_tiles(pos.x, pos.y);
 
-    //colision with gross entity
-    // - get all the square that the new one will occupy
-    // - if any is occupied, return false
-    // occupied_tiles = get_occupied_tile(entity, x, y);
-    // for tile in occupied_tile {
-    //     if map.is_blocking() && blocking[tile] != entity {
-    //         return False;
-    //     }
-    // }
+    for (ox, oy) in occuped_tiles {
+        let idx = map.xy_idx(ox, oy);
+        if map.is_blocked(idx) {
+            return true;
+        }
+    }
+
+    for (other_entity, other_pos) in blocking_precises.iter() {
+        if *other_entity != entity {
+            if precise_position_overlapping(&pos, &other_pos) {
+                return true;
+            }
+        }
+    }
+
     return false;
+}
 
-    // get the middle tile
-    //check the 9 adj tile
-    //get all entity
-    // for each, check collision
-    //if collision return false
+fn precise_position_overlapping(pos1: &PrecisePosition, pos2: &PrecisePosition) -> bool {
+    //assume a size of 1 for now
+    let width = 1.;
+    let height = 1.;
+
+    // let left_x1 = (pos1.x - width / 2.);
+    // let right_x1 = (pos1.x + width / 2.);
+    // let top_y1 = (pos1.y + height / 2.);
+    // let bottom_y1 = (pos1.y - height / 2.);
+
+    // let left_x2 = (pos2.x - width / 2.);
+    // let right_x2 = (pos2.x + width / 2.);
+    // let top_y2 = (pos2.y + height / 2.);
+    // let bottom_y2 = (pos2.y - height / 2.);
+
+    let left_x1 = (pos1.x);
+    let right_x1 = (pos1.x + width);
+    let top_y1 = (pos1.y) + height;
+    let bottom_y1 = (pos1.y);
+
+    let left_x2 = (pos2.x);
+    let right_x2 = (pos2.x + width);
+    let top_y2 = (pos2.y + height);
+    let bottom_y2 = (pos2.y);
+
+    println!("pre pos {:?} {:?}", pos1, pos2);
+    println!(
+        "pre pos {} {} {} {} {} {} {} {}",
+        left_x1, left_x2, right_x1, right_x2, top_y1, top_y2, bottom_y1, bottom_y2
+    );
+
+    if left_x1 > right_x2 || left_x2 > right_x1 || bottom_y1 > top_y2 || bottom_y2 > top_y1 {
+        return false;
+    } else {
+        println!("colide");
+        return true;
+    }
+}
+
+//this only work if the square is of size 1
+fn get_occupied_tiles(x: f32, y: f32) -> Vec<(i32, i32)> {
+    //x,y is the center
+    let width = 1.;
+    let height = 1.;
+    let mut occupied_tile = HashSet::new();
+
+    occupied_tile.insert((x as i32, y as i32));
+
+    // let left_x = (x - width / 2.) as i32;
+    // let right_x = (x + width / 2.) as i32;
+    // let top_y = (y + height / 2.) as i32;
+    // let bottom_y = (y - height / 2.) as i32;
+
+    let left_x = (x) as i32;
+    let right_x = (x + width) as i32;
+    let top_y = (y + height) as i32;
+    let bottom_y = (y) as i32;
+
+    occupied_tile.insert((left_x, top_y));
+    occupied_tile.insert((left_x, bottom_y));
+    occupied_tile.insert((right_x, top_y));
+    occupied_tile.insert((right_x, bottom_y));
+
+    return occupied_tile.into_iter().collect();
 }
